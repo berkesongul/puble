@@ -1,0 +1,38 @@
+<svg width="1157" height="396" viewBox="0 0 1157 396" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame 10">
+<g id="Frame 4">
+<rect x="35" y="65" width="78" height="78" rx="10" fill="#0002A1"/>
+<rect x="35" y="65" width="78" height="78" rx="10" fill="#000281"/>
+</g>
+<g id="Frame 8">
+<rect x="35" y="163" width="372" height="78" rx="10" fill="url(#paint0_linear_69_107)"/>
+</g>
+<g id="Frame 9">
+<rect width="372" height="78" rx="10" transform="matrix(-1 0 0 1 407 261)" fill="url(#paint1_linear_69_107)"/>
+</g>
+<g id="Frame 5">
+<rect x="133" y="65" width="78" height="78" rx="10" fill="#332FD0"/>
+<rect x="133" y="65" width="78" height="78" rx="10" fill="#2926A6"/>
+</g>
+<g id="Frame 6">
+<rect x="231" y="65" width="78" height="78" rx="10" fill="#836FFF"/>
+</g>
+<g id="Frame 7">
+<rect x="329" y="65" width="78" height="78" rx="10" fill="#15F5BA"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_69_107" x1="35" y1="202" x2="407" y2="202" gradientUnits="userSpaceOnUse">
+<stop stop-color="#0002A1"/>
+<stop offset="0.283654" stop-color="#332FD0"/>
+<stop offset="0.653846" stop-color="#836FFF"/>
+<stop offset="1" stop-color="#15F5BA"/>
+</linearGradient>
+<linearGradient id="paint1_linear_69_107" x1="-48" y1="129.5" x2="399" y2="-11" gradientUnits="userSpaceOnUse">
+<stop stop-color="#0002A1"/>
+<stop offset="0.212509" stop-color="#332FD0"/>
+<stop offset="0.601643" stop-color="#836FFF"/>
+<stop offset="1" stop-color="#15F5BA"/>
+</linearGradient>
+</defs>
+</svg>

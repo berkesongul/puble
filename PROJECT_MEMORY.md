@@ -224,3 +224,5 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 - Web için Next.js, mobil için Expo kullanan TypeScript monorepo mimarisi onaylandı.
 - Mobil uygulamanın ayrı `apps/mobile` klasöründe geliştirilmesine ve Expo ile iOS, Android ve web hedeflerinde test edilmesine karar verildi.
 - Figma MCP limitlerine bağlı kalmamak için `AI Implemention` sayfasındaki grupları klasörlü ZIP olarak dışa aktaran yerel bir Figma eklentisi geliştirildi.
+- Landing page banner'ına giriş/kayıt ve oturum sonrası kullanıcı profili akışı eklendi; tüm ürün yüzeylerini bir araya getiren web paneli oluşturuldu.
+- Supabase Auth bağlanana kadar yarışma demosunda yalnızca tarayıcıda saklanan, şifreyi kaydetmeyen geçici demo oturumu kullanılmasına karar verildi. Bu mekanizma üretim kimlik doğrulaması değildir.
