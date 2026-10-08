@@ -1,0 +1,12 @@
+{
+  "name": "Puble Asset Exporter",
+  "id": "puble-ai-implementation-asset-exporter",
+  "api": "1.0.0",
+  "editorType": ["figma"],
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}

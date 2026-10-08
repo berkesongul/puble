@@ -1,0 +1,18 @@
+{
+  "name": "@puble/figma-asset-exporter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.121.0",
+    "esbuild": "^0.25.11",
+    "typescript": "^5.9.3"
+  }
+}

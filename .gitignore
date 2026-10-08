@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+web-build/
+.expo/
+
+# Environment and local configuration
+.env
+.env.*
+!.env.example
+
+# Tooling
+.DS_Store
+*.log
+coverage/
+

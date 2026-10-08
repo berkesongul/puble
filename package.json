@@ -1,0 +1,17 @@
+{
+  "name": "puble",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "mobile:ios": "pnpm --filter mobile ios",
+    "mobile:android": "pnpm --filter mobile android",
+    "mobile:web": "pnpm --filter mobile web",
+    "build:figma": "pnpm --filter @puble/figma-asset-exporter build",
+    "build:web": "pnpm --filter web build",
+    "lint": "pnpm --recursive lint",
+    "check": "pnpm lint && pnpm build:web"
+  }
+}
