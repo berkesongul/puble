@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="tr" className={`${sulphurPoint.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="tr" className={sulphurPoint.variable} data-scroll-behavior="smooth">
+      <body>{children}</body>
     </html>
   );
 }

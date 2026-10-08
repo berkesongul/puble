@@ -111,7 +111,7 @@ export function PanelApp() {
 
 function Overview({ onOpen }: { onOpen: (view: View) => void }) {
   return <div className={styles.overview}>
-    <section className={styles.heroCard}><div><span>GÜNÜN ODAĞI</span><h2>Mira Studio lansman akışını tamamla.</h2><p>Konuşmadan 4 içerik fırsatı çıkardık. İlk teaser yarın yayına hazır olabilir.</p><button type="button" onClick={() => onOpen("planner")}>Akışı sürdür <b>→</b></button></div><div className={styles.heroOrb}><Image src="/assets/Amblem.svg" alt="" width={266} height={408} unoptimized /></div></section>
+    <section className={styles.heroCard}><div><span>GÜNÜN ODAĞI</span><h2>Mira Studio lansman akışını tamamla.</h2><p>Konuşmadan 4 içerik fırsatı çıkardık. İlk teaser yarın yayına hazır olabilir.</p><button type="button" onClick={() => onOpen("planner")}>Akışı sürdür <b>→</b></button></div><div className={styles.heroOrb}><Image src="/assets/Amblem.svg" alt="" width={266} height={408} priority unoptimized /></div></section>
     <section className={styles.stats}>
       <article><span>Aktif sohbet</span><b>3<small>/ 5</small></b><i className={styles.purpleLine}><u /></i><em>2 slot uygun</em></article>
       <article><span>Bu hafta içerik</span><b>12</b><i className={styles.mintLine}><u /></i><em>8&apos;i yayına hazır</em></article>
