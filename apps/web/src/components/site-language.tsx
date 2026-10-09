@@ -1,0 +1,27 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+export type SiteLanguage = "tr" | "en" | "es" | "fr" | "ar";
+
+export const languageNames: Record<SiteLanguage, string> = { tr: "Türkçe", en: "English", es: "Español", fr: "Français", ar: "العربية" };
+
+export const copy = {
+  tr: { product: "Ürün", how: "Nasıl çalışır?", creator: "Creator", pricing: "Pricing", login: "Giriş yap", signup: "Hesap oluştur", panel: "Panele git", logout: "Çıkış yap", eyebrow: "Sosyal çalışma alanın", heroA: "Sosyal medyayı", heroB: " yönetmekten fazlası.", lead: "Mesajlarını yönet, içeriğini üret ve konuşmalarından otomatik bir yayın planı çıkar. Hepsi tek bir akışta.", discover: "Puble'ı keşfet", seeHow: "Nasıl çalıştığını gör", flowA: "Tek panel. Dört akış.", flowB: "Tek alışkanlık.", productA: "Senin tonun.", productB: "Markanın dili.", plannerA: "Bir konuşma,", plannerB: "bir aylık fırsat.", creatorA: "Keşfet. Takip et.", creatorB: "Birlikte üret.", pricingA: "Akışın büyüdükçe", pricingB: "Puble da büyür.", early: "ERKEN ERİŞİM FİYATLARI", language: "Dil seç" },
+  en: { product: "Product", how: "How it works", creator: "Creators", pricing: "Pricing", login: "Log in", signup: "Create account", panel: "Go to dashboard", logout: "Log out", eyebrow: "Your social workspace", heroA: "More than", heroB: " social media management.", lead: "Manage messages, create content, and turn conversations into an automated publishing plan. All in one flow.", discover: "Discover Puble", seeHow: "See how it works", flowA: "One dashboard. Four flows.", flowB: "One habit.", productA: "Your tone.", productB: "Your brand voice.", plannerA: "One conversation,", plannerB: "a month of opportunities.", creatorA: "Discover. Follow.", creatorB: "Create together.", pricingA: "As your workflow grows,", pricingB: "Puble grows with you.", early: "EARLY ACCESS PRICING", language: "Select language" },
+  es: { product: "Producto", how: "Cómo funciona", creator: "Creadores", pricing: "Precios", login: "Iniciar sesión", signup: "Crear cuenta", panel: "Ir al panel", logout: "Cerrar sesión", eyebrow: "Tu espacio de trabajo social", heroA: "Más que gestionar", heroB: " redes sociales.", lead: "Gestiona mensajes, crea contenido y convierte conversaciones en un plan de publicación automático. Todo en un solo flujo.", discover: "Descubre Puble", seeHow: "Ver cómo funciona", flowA: "Un panel. Cuatro flujos.", flowB: "Un hábito.", productA: "Tu tono.", productB: "La voz de tu marca.", plannerA: "Una conversación,", plannerB: "un mes de oportunidades.", creatorA: "Descubre. Sigue.", creatorB: "Cread juntos.", pricingA: "Cuando tu flujo crece,", pricingB: "Puble crece contigo.", early: "PRECIOS DE ACCESO ANTICIPADO", language: "Elegir idioma" },
+  fr: { product: "Produit", how: "Comment ça marche", creator: "Créateurs", pricing: "Tarifs", login: "Se connecter", signup: "Créer un compte", panel: "Aller au tableau de bord", logout: "Se déconnecter", eyebrow: "Votre espace de travail social", heroA: "Bien plus que", heroB: " gérer les réseaux sociaux.", lead: "Gérez vos messages, créez du contenu et transformez vos conversations en calendrier de publication. Tout dans un seul flux.", discover: "Découvrir Puble", seeHow: "Voir comment ça marche", flowA: "Un tableau. Quatre flux.", flowB: "Une habitude.", productA: "Votre ton.", productB: "La voix de votre marque.", plannerA: "Une conversation,", plannerB: "un mois d'opportunités.", creatorA: "Découvrez. Suivez.", creatorB: "Créez ensemble.", pricingA: "Votre activité grandit,", pricingB: "Puble grandit avec vous.", early: "TARIFS ACCÈS ANTICIPÉ", language: "Choisir la langue" },
+  ar: { product: "المنتج", how: "كيف يعمل؟", creator: "المبدعون", pricing: "الأسعار", login: "تسجيل الدخول", signup: "إنشاء حساب", panel: "الذهاب إلى لوحة التحكم", logout: "تسجيل الخروج", eyebrow: "مساحة عملك الاجتماعية", heroA: "أكثر من مجرد", heroB: " إدارة وسائل التواصل.", lead: "أدر رسائلك وأنشئ المحتوى وحوّل المحادثات إلى خطة نشر تلقائية. كل ذلك في تدفق واحد.", discover: "اكتشف Puble", seeHow: "شاهد كيف يعمل", flowA: "لوحة واحدة. أربعة تدفقات.", flowB: "عادة واحدة.", productA: "أسلوبك.", productB: "صوت علامتك.", plannerA: "محادثة واحدة،", plannerB: "شهر من الفرص.", creatorA: "اكتشف. تابع.", creatorB: "أنشئوا معًا.", pricingA: "كلما نما عملك،", pricingB: "تنمو Puble معك.", early: "أسعار الوصول المبكر", language: "اختر اللغة" },
+} as const;
+
+const LanguageContext = createContext<{ language: SiteLanguage; setLanguage: (language: SiteLanguage) => void }>({ language: "tr", setLanguage: () => undefined });
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<SiteLanguage>("tr");
+  useEffect(() => { const saved = localStorage.getItem("puble-language") as SiteLanguage | null; if (saved && saved in languageNames) queueMicrotask(() => setLanguageState(saved)); }, []);
+  function setLanguage(next: SiteLanguage) { setLanguageState(next); localStorage.setItem("puble-language", next); }
+  useEffect(() => { document.documentElement.lang = language; document.documentElement.dir = language === "ar" ? "rtl" : "ltr"; }, [language]);
+  return <LanguageContext.Provider value={{ language, setLanguage }}>{children}</LanguageContext.Provider>;
+}
+
+export function useSiteLanguage() { return useContext(LanguageContext); }

@@ -228,3 +228,13 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 - Supabase Auth bağlanana kadar yarışma demosunda yalnızca tarayıcıda saklanan, şifreyi kaydetmeyen geçici demo oturumu kullanılmasına karar verildi. Bu mekanizma üretim kimlik doğrulaması değildir.
 - Web paneline Profil ve Çalışma Alanı, Bağlı Hesaplar, Marka Hafızası, Bildirimler, Plan ve Kullanım ile Güvenlik bölümlerini içeren responsive Ayarlar yüzeyi eklendi.
 - Marka Hafızası; Inbox, Profesyonelleştir ve Editor metinlerinde ortak kullanılacak ton, hedef kitle, marka tanımı, kullanılacak/kaçınılacak ifadeler ve takvim onay tercihlerinin merkezi olarak konumlandırıldı.
+- Web paneline kampanya performansı, bütçe, sonuç ve aktiflik yönetimi sunan Reklamlar yüzeyi eklendi.
+- Editor çıktılarının görsel/video galerisi olarak tutulduğu Kitaplık eklendi; “Kitaplığa kaydet” akışı yeni çıktıyı galeriye ekler.
+- Sol alt Free Plan kartı, hover sırasında ayrıntı ikonu gösteren ve aktif sohbet, AI, bağlı hesap ve depolama kotalarını açıklayan kullanım penceresine bağlandı.
+- Web panelinin sağ altına, masaüstü ve mobilde erişilebilen Puble AI sohbet balonu eklendi; hızlı komutlar çalışma alanı verilerine göre demo yanıtları üretir ve içerik üretme akışını editöre yönlendirir.
+- Landing page banner navigasyonuna Pricing bağlantısı; sayfaya Free, Creator, Pro ve Studio erken erişim paketlerini gösteren responsive fiyatlandırma bölümü eklendi.
+- Landing page için Türkçe, İngilizce, İspanyolca, Fransızca ve Arapça dil seçimi eklendi; tercih tarayıcıda saklanır ve Arapça görünüm RTL yönünü kullanır.
+- Tüm web uygulamasının ana yazı tipi Poppins olarak güncellendi; panel, Ayarlar ve Puble AI sohbetinde masaüstü okunabilirlik ölçeği belirgin şekilde büyütüldü.
+- Free Plan kullanım detayları penceresindeki başlıklar, kota değerleri, açıklamalar, özellik listesi ve aksiyonlar okunabilir masaüstü ölçeğine büyütüldü.
+- Landing page banner'ı doğrudan fade ile açılır; banner içeriği soldan/sağdan gelir ve sayfadaki bölüm, kart, demo, pricing ve CTA öğeleri scroll sırasında dönüşümlü sağ/sol fade ile görünür olur.
+- Panel içerik metinleri bir kademe daha büyütüldü; sol ana navigasyon ve Ayarlar alt navigasyonundaki yazılar mevcut boyutunu koruyarak normal ağırlığa geçirildi.

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Sulphur_Point } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const sulphurPoint = Sulphur_Point({
-  variable: "--font-sulphur",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "700"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="tr" className={sulphurPoint.variable} data-scroll-behavior="smooth">
+    <html lang="tr" className={poppins.variable} data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );

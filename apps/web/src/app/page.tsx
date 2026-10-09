@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect } from "react";
 import { SiteHeader } from "@/components/site-header";
+import { copy, LanguageProvider, useSiteLanguage } from "@/components/site-language";
 
 const flows = [
   { number: "01", title: "Connect", eyebrow: "Hesaplarını bağla", text: "Tüm sosyal kanallarını tek bir çalışma alanında buluştur.", color: "blue" },
@@ -12,6 +16,13 @@ const creators = [
   { handle: "@studioform", pack: "Gradient Reel Pack", tone: "purple" },
   { handle: "@mira.design", pack: "Launch Story Kit", tone: "mint" },
   { handle: "@motionlab", pack: "Minimal Motion Set", tone: "blue" },
+] as const;
+
+const plans = [
+  { name: "Free", price: "0", description: "Puble akışını keşfetmek ve ilk hesaplarını yönetmek için.", features: ["5 aktif sohbet", "Sohbet başına 50 AI kullanımı", "Temel editör ve planlayıcı", "Creator keşfi"], cta: "Ücretsiz başla", popular: false },
+  { name: "Creator", price: "149", description: "Kendi sosyal medyasını düzenli yöneten bağımsız üreticiler için.", features: ["30 aktif sohbet", "Sohbet başına 100 AI kullanımı", "İçerik takvimi", "Creator template'leri"], cta: "Creator ile başla", popular: false },
+  { name: "Pro", price: "299", description: "Daha çok marka, daha çok içerik ve ekip akışı isteyenler için.", features: ["70 aktif sohbet", "Sohbet başına 150 AI kullanımı", "Sınırlı AI edit", "Ekip ve müşteri alanları"], cta: "Pro'yu seç", popular: true },
+  { name: "Studio", price: "699", description: "Ajanslar ve çok markalı profesyonel operasyonlar için.", features: ["Sınırsız aktif sohbet", "Sohbet başına 200 AI kullanımı", "Adil kullanımlı AI edit", "Gelişmiş ekip akışları"], cta: "Studio'ya geç", popular: false },
 ] as const;
 
 function ArrowIcon() {
@@ -27,29 +38,62 @@ function CalendarIcon() {
 }
 
 export default function Home() {
+  return <LanguageProvider><HomeContent /></LanguageProvider>;
+}
+
+function HomeContent() {
+  const { language } = useSiteLanguage();
+  const text = copy[language];
+
+  useEffect(() => {
+    const selectors = [
+      ".flow-section .section-heading > *", ".flow-card",
+      ".feature-demo", ".feature-copy > *",
+      ".planner-copy > *", ".timeline-card",
+      ".creator-section .section-heading > *", ".creator-row", ".creator-profile",
+      ".pricing-heading > *", ".price-card", ".pricing-note",
+      ".final-cta .cta-content > *", ".footer-grid > *",
+    ];
+    const elements = selectors.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector)));
+    const uniqueElements = [...new Set(elements)];
+    uniqueElements.forEach((element, index) => {
+      element.classList.add("scroll-reveal", index % 2 === 0 ? "reveal-left" : "reveal-right");
+      element.style.setProperty("--reveal-delay", `${(index % 4) * 70}ms`);
+    });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("reveal-visible");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" });
+    uniqueElements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <main>
       <a className="skip-link" href="#content">İçeriğe geç</a>
 
       <SiteHeader />
 
-      <section className="hero" id="top">
+      <section className="hero hero-fade" id="top">
         <div className="hero-orb hero-orb-one" /><div className="hero-orb hero-orb-two" />
         <div className="shell hero-grid" id="content">
-          <div className="hero-copy">
-            <div className="eyebrow"><span className="eyebrow-dot" />Sosyal çalışma alanın</div>
-            <h1>Sosyal medyayı<span> yönetmekten fazlası.</span></h1>
-            <p className="hero-lead">Mesajlarını yönet, içeriğini üret ve konuşmalarından otomatik bir yayın planı çıkar. Hepsi tek bir akışta.</p>
+          <div className="hero-copy hero-reveal-left">
+            <div className="eyebrow"><span className="eyebrow-dot" />{text.eyebrow}</div>
+            <h1>{text.heroA}<span>{text.heroB}</span></h1>
+            <p className="hero-lead">{text.lead}</p>
             <div className="hero-actions">
-              <a className="button button-mint" href="#product">Puble&apos;ı keşfet <ArrowIcon /></a>
-              <a className="text-link" href="#flow">Nasıl çalıştığını gör</a>
+              <a className="button button-mint" href="#product">{text.discover} <ArrowIcon /></a>
+              <a className="text-link" href="#flow">{text.seeHow}</a>
             </div>
             <div className="hero-proof" aria-label="Puble ürün özellikleri">
               <span>Tek gelen kutusu</span><span>AI içerik akışı</span><span>Creator ekosistemi</span>
             </div>
           </div>
 
-          <div className="product-stage" aria-label="Puble ürün önizlemesi">
+          <div className="product-stage hero-reveal-right" aria-label="Puble ürün önizlemesi">
             <div className="stage-grid" />
             <div className="app-window">
               <div className="app-topbar">
@@ -80,13 +124,13 @@ export default function Home() {
             <div className="floating-card floating-social"><span className="live-dot" /><div><small>Bağlı hesaplar</small><b>Instagram · TikTok · LinkedIn</b></div></div>
           </div>
         </div>
-        <div className="hero-marquee" aria-hidden="true"><span>CONNECT</span><i>✦</i><span>COMMUNICATE</span><i>✦</i><span>CREATE</span><i>✦</i><span>PLAN</span></div>
+        <div className="hero-marquee hero-reveal-up" aria-hidden="true"><span>CONNECT</span><i>✦</i><span>COMMUNICATE</span><i>✦</i><span>CREATE</span><i>✦</i><span>PLAN</span></div>
       </section>
 
       <section className="flow-section" id="flow">
         <div className="shell">
           <div className="section-heading split-heading">
-            <div><span className="section-index">01 / TEK AKIŞ</span><h2>Tek panel. Dört akış.<br />Tek alışkanlık.</h2></div>
+            <div><span className="section-index">01 / FLOW</span><h2>{text.flowA}<br />{text.flowB}</h2></div>
             <p>Dağınık araçlar arasında geçiş yapmayı bırak. İletişimden yayına kadar bütün sosyal medya işini aynı ritimde ilerlet.</p>
           </div>
           <div className="flow-grid">
@@ -110,7 +154,7 @@ export default function Home() {
             <div className="message-card polished-message"><small>Gönderime hazır</small><p>Fiyat konusunda daha uygun bir seçenek sunabilirsek, süreci yarın sonuçlandırabiliriz.</p><div><span>Kurumsal</span><span>Net</span><span>Samimi</span></div></div>
           </div>
           <div className="feature-copy">
-            <span className="section-index">02 / PROFESYONELLEŞTİR</span><h2>Senin tonun.<br />Markanın dili.</h2>
+            <span className="section-index">02 / AI</span><h2>{text.productA}<br />{text.productB}</h2>
             <p>Nasıl yazarsan yaz, Puble mesajını tek dokunuşla profesyonel ve güven veren bir dile dönüştürür.</p>
             <ul><li><i>✓</i> Ayrı bir AI ekranı yok</li><li><i>✓</i> Göndermeden önce tam kontrol</li><li><i>✓</i> Her kanalda tutarlı marka dili</li></ul>
           </div>
@@ -120,7 +164,7 @@ export default function Home() {
       <section className="planner-section">
         <div className="shell planner-grid">
           <div className="planner-copy">
-            <span className="section-index light">03 / KONUŞMADAN TAKVİME</span><h2>Bir konuşma,<br />bir aylık fırsat.</h2>
+            <span className="section-index light">03 / PLAN</span><h2>{text.plannerA}<br />{text.plannerB}</h2>
             <p>Puble; tarihler, lansmanlar ve kampanyalar arasında bağlantı kurar. İçerik fırsatlarını bulur, sen onaylayınca takvimine ekler.</p>
             <a className="button button-white" href="#waitlist">Akışı deneyimle <ArrowIcon /></a>
           </div>
@@ -137,7 +181,7 @@ export default function Home() {
       <section className="creator-section" id="creators">
         <div className="shell">
           <div className="section-heading split-heading">
-            <div><span className="section-index">04 / SOCIAL</span><h2>Keşfet. Takip et.<br />Birlikte üret.</h2></div>
+            <div><span className="section-index">04 / SOCIAL</span><h2>{text.creatorA}<br />{text.creatorB}</h2></div>
             <p>Creator ekosistemindeki özgün template&apos;leri keşfet ve tek dokunuşla kendi editörüne taşı.</p>
           </div>
           <div className="creator-layout">
@@ -158,6 +202,28 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="pricing-section" id="pricing">
+        <div className="pricing-glow" />
+        <div className="shell">
+          <div className="pricing-heading">
+            <div><span className="section-index light">05 / PRICING</span><h2>{text.pricingA}<br /><span>{text.pricingB}</span></h2></div>
+            <div><span className="pricing-badge">{text.early}</span><p>Her pakette sosyal hesap bağlantısı, Profesyonelleştir, içerik planlayıcı, temel editör ve Creator keşfi bulunur.</p></div>
+          </div>
+          <div className="pricing-grid">
+            {plans.map((plan) => (
+              <article className={`price-card${plan.popular ? " price-card-featured" : ""}`} key={plan.name}>
+                {plan.popular ? <span className="popular-label">EN POPÜLER</span> : null}
+                <div className="price-card-head"><span>{plan.name}</span><p>{plan.description}</p></div>
+                <div className="price"><b>₺{plan.price}</b><span>{plan.price === "0" ? "sonsuza kadar" : "/ ay"}</span></div>
+                <a href="/auth?mode=signup">{plan.cta}<ArrowIcon /></a>
+                <ul>{plan.features.map((feature) => <li key={feature}><i>✓</i>{feature}</li>)}</ul>
+              </article>
+            ))}
+          </div>
+          <p className="pricing-note">Fiyatlar lansman öncesi taslaktır; kullanıcı görüşmeleri ve kullanım maliyetlerine göre güncellenebilir.</p>
+        </div>
+      </section>
+
       <section className="final-cta" id="waitlist">
         <div className="cta-grid" />
         <div className="shell cta-content">
@@ -172,7 +238,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="shell footer-grid">
           <div><Image src="/assets/Main Logo.svg" alt="Puble" width={381} height={126} unoptimized /><p>Create. Manage. Connect.</p></div>
-          <div className="footer-links"><a href="#product">Ürün</a><a href="#flow">Akış</a><a href="#creators">Creator</a></div>
+          <div className="footer-links"><a href="#product">Ürün</a><a href="#flow">Akış</a><a href="#creators">Creator</a><a href="#pricing">Pricing</a></div>
           <p>© 2026 Puble. Sosyal medyayı yönetmekten fazlası.</p>
         </div>
       </footer>

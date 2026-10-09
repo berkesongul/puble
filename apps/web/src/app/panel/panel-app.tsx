@@ -3,18 +3,38 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
 import { AUTH_EVENT, SESSION_KEY, clearDemoSession, type DemoUser } from "@/lib/demo-auth";
 import styles from "./panel.module.css";
 
-type View = "overview" | "inbox" | "editor" | "planner" | "social" | "settings";
+type View = "overview" | "inbox" | "editor" | "library" | "planner" | "ads" | "social" | "settings";
+
+type LibraryItem = {
+  id: number;
+  title: string;
+  type: "image" | "video";
+  format: string;
+  date: string;
+  tone: "purple" | "mint" | "blue" | "dark";
+};
+
+const initialLibrary: LibraryItem[] = [
+  { id: 1, title: "Puble Studio · Lansman", type: "image", format: "1080 × 1350", date: "Bugün, 14:24", tone: "purple" },
+  { id: 2, title: "Akışını yenile", type: "video", format: "1080 × 1920", date: "Bugün, 12:10", tone: "blue" },
+  { id: 3, title: "Yeni koleksiyon", type: "image", format: "1080 × 1080", date: "Dün, 18:40", tone: "mint" },
+  { id: 4, title: "Gradient Reel", type: "video", format: "1080 × 1920", date: "7 Eki, 16:12", tone: "dark" },
+  { id: 5, title: "İlk hafta indirimi", type: "image", format: "1080 × 1350", date: "6 Eki, 10:05", tone: "blue" },
+  { id: 6, title: "Creator Spotlight", type: "image", format: "1080 × 1080", date: "4 Eki, 19:30", tone: "purple" },
+];
 
 const navItems: { id: View; label: string; icon: string }[] = [
   { id: "overview", label: "Ana panel", icon: "⌂" },
   { id: "inbox", label: "Gelen Kutusu", icon: "●" },
-  { id: "editor", label: "puble editor", icon: "◆" },
-  { id: "planner", label: "puble planlayıcı", icon: "▣" },
-  { id: "social", label: "Sosyal Kreatörs", icon: "✦" },
+  { id: "editor", label: "Puble editor", icon: "◆" },
+  { id: "library", label: "Kitaplık", icon: "▦" },
+  { id: "planner", label: "Puble Planlayıcı", icon: "▣" },
+  { id: "ads", label: "Reklamlar", icon: "◎" },
+  { id: "social", label: "Kreatörler", icon: "✦" },
   { id: "settings", label: "Ayarlar", icon: "⚙" },
 ];
 
@@ -22,7 +42,9 @@ const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> =
   overview: { eyebrow: "ÇALIŞMA ALANI", title: "Bugünün akışı", text: "İletişimden yayına bütün işlerin tek ritimde." },
   inbox: { eyebrow: "COMMUNICATE", title: "Gelen kutusu", text: "Tüm hesaplarındaki konuşmalar tek yerde." },
   editor: { eyebrow: "CREATE", title: "İçerik editörü", text: "Template seç, markana uyarla ve yayına hazırla." },
+  library: { eyebrow: "ASSET LIBRARY", title: "Kitaplık", text: "Editörde ürettiğin görsel ve videoların tek galeride." },
   planner: { eyebrow: "PLAN", title: "İçerik planı", text: "Konuşmalardan çıkan fırsatları takvimine taşı." },
+  ads: { eyebrow: "GROW", title: "Reklamlar", text: "Kampanyalarını, kreatiflerini ve performansını tek yerden yönet." },
   social: { eyebrow: "DISCOVER", title: "Creator Social", text: "Üreticileri ve özgün template paketlerini keşfet." },
   settings: { eyebrow: "WORKSPACE", title: "Ayarlar", text: "Çalışma alanını, marka hafızanı ve kullanım tercihlerini yönet." },
 };
@@ -55,10 +77,22 @@ export function PanelApp() {
   const [selectedTemplate, setSelectedTemplate] = useState(0);
   const [planned, setPlanned] = useState(false);
   const [following, setFollowing] = useState<string[]>(["@studioform"]);
+  const [libraryItems, setLibraryItems] = useState<LibraryItem[]>(initialLibrary);
+  const [planOpen, setPlanOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
     if (serializedUser === null) router.replace("/auth?mode=login");
   }, [router, serializedUser]);
+
+  useEffect(() => {
+    if (!planOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPlanOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [planOpen]);
 
   if (serializedUser === undefined || !user) {
     return <main className={styles.loading}><span /><p>Çalışma alanın hazırlanıyor…</p></main>;
@@ -78,6 +112,12 @@ export function PanelApp() {
     setFollowing((items) => items.includes(handle) ? items.filter((item) => item !== handle) : [...items, handle]);
   }
 
+  function saveEditorOutput() {
+    const names = ["Gradient Reel", "Bold Launch", "Soft Product"];
+    setLibraryItems((items) => [{ id: Date.now(), title: names[selectedTemplate], type: selectedTemplate === 1 ? "video" : "image", format: selectedTemplate === 1 ? "1080 × 1920" : "1080 × 1350", date: "Şimdi", tone: selectedTemplate === 2 ? "mint" : selectedTemplate === 1 ? "dark" : "purple" }, ...items]);
+    setView("library");
+  }
+
   return (
     <main className={styles.app}>
       <aside className={styles.sidebar}>
@@ -86,7 +126,7 @@ export function PanelApp() {
           {navItems.map((item) => <button className={view === item.id ? styles.activeNav : ""} key={item.id} type="button" onClick={() => setView(item.id)}><i>{item.icon}</i><span>{item.label}</span>{item.id === "inbox" ? <em>12</em> : null}</button>)}
         </nav>
         <div className={styles.sidebarBottom}>
-          <div className={styles.planCard}><span>FREE PLAN</span><b>3 / 5 aktif sohbet</b><i><u /></i><small>2 slot kullanılabilir</small></div>
+          <button className={styles.planCard} type="button" onClick={() => setPlanOpen(true)} aria-label="Plan kullanım detaylarını aç"><span>FREE PLAN</span><b>3 / 5 aktif sohbet</b><i><u /></i><small>2 slot kullanılabilir</small><em aria-hidden="true">↗</em></button>
         </div>
       </aside>
 
@@ -101,12 +141,16 @@ export function PanelApp() {
           <div className={styles.pageHead}><div><span>{viewCopy[view].eyebrow}</span><h1>{viewCopy[view].title}</h1><p>{viewCopy[view].text}</p></div>{view !== "settings" ? <div className={styles.headActions}><span><i /> 3 hesap bağlı</span><button type="button">+ Yeni oluştur</button></div> : <div className={styles.settingsStatus}><i /> Demo çalışma alanı</div>}</div>
           {view === "overview" ? <Overview onOpen={setView} /> : null}
           {view === "inbox" ? <Inbox draft={draft} sent={sent} onDraft={setDraft} onProfessionalize={professionalize} onSend={() => setSent(true)} /> : null}
-          {view === "editor" ? <Editor selected={selectedTemplate} onSelect={setSelectedTemplate} /> : null}
+          {view === "editor" ? <Editor selected={selectedTemplate} onSelect={setSelectedTemplate} onExport={saveEditorOutput} /> : null}
+          {view === "library" ? <Library items={libraryItems} onEdit={() => setView("editor")} /> : null}
           {view === "planner" ? <Planner planned={planned} onPlan={() => setPlanned(true)} /> : null}
+          {view === "ads" ? <Ads /> : null}
           {view === "social" ? <Social following={following} onFollow={toggleFollow} onUse={() => setView("editor")} /> : null}
           {view === "settings" ? <Settings user={user} /> : null}
         </div>
       </section>
+      {planOpen ? <PlanUsageModal onClose={() => setPlanOpen(false)} onPlans={() => { setPlanOpen(false); setView("settings"); }} /> : null}
+      <AIChat open={aiOpen} onToggle={() => setAiOpen((open) => !open)} onClose={() => setAiOpen(false)} onNavigate={setView} />
     </main>
   );
 }
@@ -135,12 +179,12 @@ function Inbox({ draft, sent, onDraft, onProfessionalize, onSend }: { draft: str
   </section>;
 }
 
-function Editor({ selected, onSelect }: { selected: number; onSelect: (index: number) => void }) {
+function Editor({ selected, onSelect, onExport }: { selected: number; onSelect: (index: number) => void; onExport: () => void }) {
   const templates = ["Gradient Reel", "Bold Launch", "Soft Product"];
   return <section className={styles.editor}>
     <aside className={styles.editorTools}><div className={styles.toolTabs}><button type="button" className={styles.toolActive}>Template</button><button type="button">Medya</button><button type="button">Metin</button></div><label>Template&apos;lerde ara<input placeholder="Ara…" /></label><div className={styles.templateGrid}>{templates.map((name, index) => <button className={selected === index ? styles.selectedTemplate : ""} type="button" onClick={() => onSelect(index)} key={name}><i className={styles[`template${index}`]}><span>puble</span></i><b>{name}</b><small>1080 × 1350</small></button>)}</div></aside>
     <div className={styles.canvasArea}><div className={styles.canvasTop}><span>1080 × 1350 · Instagram Post</span><div><button type="button">−</button><em>72%</em><button type="button">+</button></div></div><div className={`${styles.artboard} ${styles[`artboard${selected}`]}`}><span>15 / 10</span><div><small>YENİ KOLEKSİYON</small><h2>akışını<br />yenile.</h2><p>Mira Studio · FW26</p></div><Image src="/assets/Amblem.svg" alt="" width={266} height={408} unoptimized /></div><p>Değişiklikler otomatik kaydedildi</p></div>
-    <aside className={styles.properties}><h3>Tasarım</h3><label>Marka adı<input defaultValue="Mira Studio" /></label><label>Başlık<textarea defaultValue={"akışını\nyenile."} /></label><span>Marka renkleri</span><div className={styles.colorRow}><button type="button" /><button type="button" /><button type="button" /><button type="button" /></div><label>Format<select defaultValue="post"><option value="post">Instagram Post</option><option value="story">Story / Reel</option></select></label><button className={styles.exportButton} type="button">Dışa aktar <span>→</span></button></aside>
+    <aside className={styles.properties}><h3>Tasarım</h3><label>Marka adı<input defaultValue="Mira Studio" /></label><label>Başlık<textarea defaultValue={"akışını\nyenile."} /></label><span>Marka renkleri</span><div className={styles.colorRow}><button type="button" /><button type="button" /><button type="button" /><button type="button" /></div><label>Format<select defaultValue="post"><option value="post">Instagram Post</option><option value="story">Story / Reel</option></select></label><button className={styles.exportButton} type="button" onClick={onExport}>Kitaplığa kaydet <span>→</span></button></aside>
   </section>;
 }
 
@@ -149,6 +193,106 @@ function Planner({ planned, onPlan }: { planned: boolean; onPlan: () => void }) 
     <div className={styles.calendar}><div className={styles.calendarHead}><button type="button">‹</button><h3>Ekim 2026</h3><button type="button">›</button><span /><button type="button">Ay</button><button type="button">Hafta</button></div><div className={styles.weekdays}>{["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"].map((day) => <b key={day}>{day}</b>)}</div><div className={styles.days}>{Array.from({ length: 35 }, (_, index) => { const day = index - 2; return <div className={`${day === 8 ? styles.today : ""} ${day < 1 || day > 31 ? styles.mutedDay : ""}`} key={index}><span>{day < 1 ? 30 + day : day > 31 ? day - 31 : day}</span>{day === 6 ? <i className={styles.eventPurple}>Story seti</i> : null}{day === 8 ? <i className={styles.eventMint}>Mira yanıt</i> : null}{day === 13 ? <i className={styles.eventBlue}>Teaser</i> : null}{day === 15 ? <><i className={styles.eventPurple}>Lansman</i>{planned ? <i className={styles.eventMint}>Reels yayını</i> : null}</> : null}{day === 22 ? <i className={styles.eventBlue}>Kampanya</i> : null}</div>; })}</div></div>
     <aside className={styles.opportunities}><div><span>AI FIRSATLARI</span><b>3 yeni</b></div><h3>Konuşmadan takvime</h3><p>Mesajlarındaki tarihlerden ve ihtiyaçlardan öneriler oluşturduk.</p><article><SparkIcon /><small>Mira Studio konuşmasından</small><h4>Lansman Reels</h4><p>15 Ekim · 18:00<br />Instagram + TikTok</p><button type="button" onClick={onPlan}>{planned ? "Takvime eklendi ✓" : "Takvime ekle →"}</button></article><article><SparkIcon /><small>Atelier K konuşmasından</small><h4>İlk hafta indirimi</h4><p>18 Ekim · Tüm kanallar</p><button type="button">İncele →</button></article></aside>
   </section>;
+}
+
+function Library({ items, onEdit }: { items: LibraryItem[]; onEdit: () => void }) {
+  const [filter, setFilter] = useState<"all" | "image" | "video">("all");
+  const [selected, setSelected] = useState<number | null>(null);
+  const visibleItems = filter === "all" ? items : items.filter((item) => item.type === filter);
+
+  return <section className={styles.library}>
+    <div className={styles.libraryBar}>
+      <div className={styles.libraryFilters}><button className={filter === "all" ? styles.activeFilter : ""} type="button" onClick={() => setFilter("all")}>Tümü <b>{items.length}</b></button><button className={filter === "image" ? styles.activeFilter : ""} type="button" onClick={() => setFilter("image")}>Görseller</button><button className={filter === "video" ? styles.activeFilter : ""} type="button" onClick={() => setFilter("video")}>Videolar</button></div>
+      <div className={styles.libraryTools}><label><span>⌕</span><input aria-label="Kitaplıkta ara" placeholder="Dosyalarda ara…" /></label><button type="button">⇅ Son eklenen</button><button type="button">+ Medya yükle</button></div>
+    </div>
+    <div className={styles.librarySummary}><div><span>BU AY</span><h3>Üretim galerisi</h3></div><p><b>{items.length}</b> içerik · <b>1.2 GB</b> kullanılıyor</p></div>
+    <div className={styles.libraryGrid}>{visibleItems.map((item) => <article className={selected === item.id ? styles.selectedAsset : ""} key={item.id} onClick={() => setSelected(item.id)}>
+      <div className={`${styles.assetPreview} ${styles[item.tone]}`}><span>puble</span><div><small>{item.type === "video" ? "MOTION / REEL" : "SOCIAL POST"}</small><b>{item.title}</b></div>{item.type === "video" ? <i>▶</i> : null}<button type="button" aria-label={`${item.title} seçenekleri`}>•••</button></div>
+      <div className={styles.assetMeta}><div><b>{item.title}</b><small>{item.type === "video" ? "Video" : "Görsel"} · {item.format}</small></div><time>{item.date}</time></div>
+      <div className={styles.assetActions}><button type="button" onClick={(event) => { event.stopPropagation(); onEdit(); }}>Editörde aç</button><button type="button">↓</button></div>
+    </article>)}</div>
+    {visibleItems.length === 0 ? <div className={styles.emptyLibrary}><span>▦</span><h3>Henüz içerik yok</h3><p>Editörde ürettiğin içerikler burada görünecek.</p><button type="button" onClick={onEdit}>Editöre git →</button></div> : null}
+  </section>;
+}
+
+function Ads() {
+  const [campaigns, setCampaigns] = useState([
+    { id: 1, name: "Mira Studio · Lansman", channel: "Instagram + Facebook", status: true, budget: "₺3.200", spent: "₺1.840", result: "428 tıklama", roas: "3.4x" },
+    { id: 2, name: "Creator Paketleri", channel: "TikTok", status: true, budget: "₺1.500", spent: "₺620", result: "96 kayıt", roas: "2.8x" },
+    { id: 3, name: "Marka Bilinirliği", channel: "LinkedIn", status: false, budget: "₺2.000", spent: "₺2.000", result: "84K gösterim", roas: "—" },
+  ]);
+
+  function toggleCampaign(id: number) {
+    setCampaigns((items) => items.map((item) => item.id === id ? { ...item, status: !item.status } : item));
+  }
+
+  return <section className={styles.ads}>
+    <div className={styles.adsHero}><div><span>REKLAM MERKEZİ</span><h2>Organik akışından<br />reklama, tek adımda.</h2><p>Kitaplığındaki kreatifleri kampanyaya dönüştür; bütçeyi ve sonuçları kanallar arasında izle.</p><button type="button">+ Kampanya oluştur</button></div><div className={styles.adsOrbit}><span>ROAS</span><b>3.2x</b><small>Son 30 gün</small><i>↗ %18.4</i></div></div>
+    <div className={styles.adStats}><article><span>Toplam harcama</span><b>₺4.460</b><small>₺6.700 bütçe</small><i><u style={{ width: "67%" }} /></i></article><article><span>Gösterim</span><b>184.2K</b><small>Önceki döneme göre</small><em>↗ %24</em></article><article><span>Sonuç</span><b>524</b><small>Tıklama + kayıt</small><em>↗ %12</em></article><article><span>Aktif kampanya</span><b>{campaigns.filter((item) => item.status).length}</b><small>{campaigns.length} kampanyadan</small><em className={styles.liveStatus}>● YAYINDA</em></article></div>
+    <div className={styles.campaigns}><div className={styles.campaignHead}><div><span>KAMPANYALAR</span><h3>Tüm reklamlar</h3></div><div><button type="button">Son 30 gün⌄</button><button type="button">Filtrele</button></div></div>
+      <div className={styles.campaignTable}><div className={styles.tableLabels}><span>KAMPANYA</span><span>DURUM</span><span>BÜTÇE</span><span>HARCAMA</span><span>SONUÇ</span><span>ROAS</span><span /></div>{campaigns.map((campaign, index) => <article key={campaign.id}><div><i className={index === 0 ? styles.purple : index === 1 ? styles.dark : styles.blue}>{index === 1 ? "tt" : index === 2 ? "in" : "ig"}</i><span><b>{campaign.name}</b><small>{campaign.channel}</small></span></div><div><Toggle checked={campaign.status} onChange={() => toggleCampaign(campaign.id)} label={`${campaign.name} kampanyasını ${campaign.status ? "durdur" : "başlat"}`} /><small>{campaign.status ? "Aktif" : "Duraklatıldı"}</small></div><b>{campaign.budget}</b><span>{campaign.spent}</span><span>{campaign.result}</span><strong>{campaign.roas}</strong><button type="button">•••</button></article>)}</div>
+    </div>
+  </section>;
+}
+
+function PlanUsageModal({ onClose, onPlans }: { onClose: () => void; onPlans: () => void }) {
+  return <div className={styles.modalBackdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className={styles.planModal} role="dialog" aria-modal="true" aria-labelledby="plan-modal-title">
+      <div className={styles.modalHead}><div><span>FREE PLAN</span><h2 id="plan-modal-title">Plan kullanım detayları</h2><p>10 Ekim – 9 Kasım kullanım dönemi</p></div><button type="button" onClick={onClose} aria-label="Pencereyi kapat">×</button></div>
+      <div className={styles.modalPlan}><div><span>MEVCUT PAKET</span><b>Free</b><small>Temel sosyal medya akışını ücretsiz kullan.</small></div><button type="button" onClick={onPlans}>Planı yükselt ↗</button></div>
+      <div className={styles.modalUsage}>
+        <article><div><span>Aktif sohbet</span><b>3 <small>/ 5</small></b></div><i><u className={styles.purple} style={{ width: "60%" }} /></i><p><strong>2 slot</strong> kullanılabilir. Arşivlenen sohbet slotu yeniden açılır.</p></article>
+        <article><div><span>AI mesaj kullanımı</span><b>64 <small>/ 150</small></b></div><i><u className={styles.blue} style={{ width: "43%" }} /></i><p><strong>86 kullanım</strong> kaldı. Kota her sohbet için ayrı hesaplanır.</p></article>
+        <article><div><span>Bağlı sosyal hesap</span><b>3 <small>/ 4</small></b></div><i><u className={styles.mint} style={{ width: "75%" }} /></i><p>Instagram, TikTok ve LinkedIn aktif. <strong>1 hesap</strong> daha bağlanabilir.</p></article>
+        <article><div><span>Medya depolama</span><b>1.2 <small>/ 5 GB</small></b></div><i><u className={styles.dark} style={{ width: "24%" }} /></i><p>Kitaplık için <strong>3.8 GB</strong> depolama alanın kaldı.</p></article>
+      </div>
+      <div className={styles.modalIncluded}><div><span>PAKETİNE DAHİL</span><b>Free ile kullanabildiklerin</b></div><ul><li>✓ Tek gelen kutusu</li><li>✓ Profesyonelleştir</li><li>✓ İçerik planlayıcı</li><li>✓ Temel editör</li><li>✓ Creator keşfi</li><li>✓ Reklam performans takibi</li></ul></div>
+      <div className={styles.modalFoot}><span>Sonraki yenilenme: <b>9 Kasım 2026</b></span><button type="button" onClick={onClose}>Tamam</button></div>
+    </section>
+  </div>;
+}
+
+type AIMessage = { id: number; role: "assistant" | "user"; text: string };
+
+function AIChat({ open, onToggle, onClose, onNavigate }: { open: boolean; onToggle: () => void; onClose: () => void; onNavigate: (view: View) => void }) {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<AIMessage[]>([
+    { id: 1, role: "assistant", text: "Merhaba! Bugünkü sosyal medya akışında sana nasıl yardımcı olabilirim?" },
+  ]);
+
+  function answerFor(message: string) {
+    const normalized = message.toLocaleLowerCase("tr-TR");
+    if (normalized.includes("reklam")) return "Aktif kampanyalarında toplam ROAS 3.2x. Mira Studio lansman reklamı en iyi performansı gösteriyor.";
+    if (normalized.includes("takvim") || normalized.includes("plan")) return "Takviminde bugün 18:00 için Lansman Reels içeriği var. İstersen Planner ekranına geçebilirsin.";
+    if (normalized.includes("içerik") || normalized.includes("üret")) return "Kitaplığında 7 içerik bulunuyor. Gradient Reel taslağını editörde geliştirmeyi öneriyorum.";
+    return "Bunu Puble akışına göre analiz ettim. Mesajlar, Kitaplık, Planner ve Reklamlar verilerini birlikte kullanarak sana yardımcı olabilirim.";
+  }
+
+  function sendMessage(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const text = input.trim();
+    if (!text) return;
+    const stamp = Date.now();
+    setMessages((items) => [...items, { id: stamp, role: "user", text }, { id: stamp + 1, role: "assistant", text: answerFor(text) }]);
+    setInput("");
+  }
+
+  function addPrompt(text: string) {
+    const stamp = Date.now();
+    setMessages((items) => [...items, { id: stamp, role: "user", text }, { id: stamp + 1, role: "assistant", text: answerFor(text) }]);
+  }
+
+  return <div className={styles.aiChatRoot}>
+    {open ? <section className={styles.aiChat} role="dialog" aria-modal="false" aria-labelledby="ai-chat-title">
+      <header className={styles.aiChatHead}><div className={styles.aiAvatar}><SparkIcon /></div><div><span>PUBLE AI</span><h2 id="ai-chat-title">Akış asistanın</h2><small><i /> Çevrimiçi</small></div><button type="button" onClick={onClose} aria-label="AI sohbetini kapat">×</button></header>
+      <div className={styles.aiContext}><span>Bu çalışma alanını kullanıyor</span><div><i>●</i> Inbox <i>▦</i> Kitaplık <i>▣</i> Planner</div></div>
+      <div className={styles.aiMessages}>{messages.map((message) => <div className={message.role === "user" ? styles.aiUserMessage : styles.aiAssistantMessage} key={message.id}>{message.role === "assistant" ? <span><SparkIcon /></span> : null}<p>{message.text}</p></div>)}</div>
+      {messages.length < 4 ? <div className={styles.aiPrompts}><button type="button" onClick={() => addPrompt("Bugünkü içerik planımı özetle")}>Bugünkü planı özetle</button><button type="button" onClick={() => addPrompt("Reklam performansım nasıl?")}>Reklam performansı</button><button type="button" onClick={() => { onNavigate("editor"); onClose(); }}>Yeni içerik üret →</button></div> : null}
+      <form className={styles.aiComposer} onSubmit={sendMessage}><label><textarea aria-label="Puble AI mesajı" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Puble AI'a bir şey sor…" rows={2} /><span>⌘ Enter</span></label><button type="submit" aria-label="AI mesajını gönder">↑</button></form>
+      <footer><SparkIcon /> Yanıtlar çalışma alanındaki demo verilerinden üretilir.</footer>
+    </section> : null}
+    <button className={`${styles.aiBubble} ${open ? styles.aiBubbleOpen : ""}`} type="button" aria-label={open ? "AI sohbetini kapat" : "Puble AI sohbetini aç"} aria-expanded={open} onClick={onToggle}><span className={styles.aiBubbleIcon}><SparkIcon /></span><span className={styles.aiBubbleLabel}><b>Puble AI</b><small>Bir şey sor</small></span>{!open ? <i>1</i> : <em>×</em>}</button>
+  </div>;
 }
 
 function Social({ following, onFollow, onUse }: { following: string[]; onFollow: (handle: string) => void; onUse: () => void }) {
