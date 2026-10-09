@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore, type FormEvent } fr
 import { AUTH_EVENT, SESSION_KEY, clearDemoSession, type DemoUser } from "@/lib/demo-auth";
 import styles from "./panel.module.css";
 
-type View = "overview" | "inbox" | "editor" | "library" | "planner" | "ads" | "social" | "settings";
+type View = "overview" | "inbox" | "editor" | "library" | "planner" | "ads" | "analytics" | "social" | "settings";
 
 type LibraryItem = {
   id: number;
@@ -34,6 +34,7 @@ const navItems: { id: View; label: string; icon: string }[] = [
   { id: "library", label: "Kitaplık", icon: "▦" },
   { id: "planner", label: "Puble Planlayıcı", icon: "▣" },
   { id: "ads", label: "Reklamlar", icon: "◎" },
+  { id: "analytics", label: "Analitik", icon: "⌁" },
   { id: "social", label: "Kreatörler", icon: "✦" },
   { id: "settings", label: "Ayarlar", icon: "⚙" },
 ];
@@ -45,6 +46,7 @@ const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> =
   library: { eyebrow: "ASSET LIBRARY", title: "Kitaplık", text: "Editörde ürettiğin görsel ve videoların tek galeride." },
   planner: { eyebrow: "PLAN", title: "İçerik planı", text: "Konuşmalardan çıkan fırsatları takvimine taşı." },
   ads: { eyebrow: "GROW", title: "Reklamlar", text: "Kampanyalarını, kreatiflerini ve performansını tek yerden yönet." },
+  analytics: { eyebrow: "MEASURE", title: "Analitik", text: "Tüm kanallarının büyümesini, erişimini ve etkileşimini tek görünümde izle." },
   social: { eyebrow: "DISCOVER", title: "Creator Social", text: "Üreticileri ve özgün template paketlerini keşfet." },
   settings: { eyebrow: "WORKSPACE", title: "Ayarlar", text: "Çalışma alanını, marka hafızanı ve kullanım tercihlerini yönet." },
 };
@@ -145,6 +147,7 @@ export function PanelApp() {
           {view === "library" ? <Library items={libraryItems} onEdit={() => setView("editor")} /> : null}
           {view === "planner" ? <Planner planned={planned} onPlan={() => setPlanned(true)} /> : null}
           {view === "ads" ? <Ads /> : null}
+          {view === "analytics" ? <Analytics /> : null}
           {view === "social" ? <Social following={following} onFollow={toggleFollow} onUse={() => setView("editor")} /> : null}
           {view === "settings" ? <Settings user={user} /> : null}
         </div>
@@ -235,6 +238,26 @@ function Ads() {
   </section>;
 }
 
+function Analytics() {
+  const channels = [
+    { icon: "ig", name: "Instagram", followers: "24.8K", reach: "186K", engagement: "%6.8", growth: "+%18.4", tone: "purple" },
+    { icon: "tt", name: "TikTok", followers: "18.2K", reach: "241K", engagement: "%8.1", growth: "+%24.7", tone: "dark" },
+    { icon: "in", name: "LinkedIn", followers: "8.6K", reach: "74K", engagement: "%4.9", growth: "+%9.2", tone: "blue" },
+    { icon: "yt", name: "YouTube", followers: "6.1K", reach: "92K", engagement: "%5.4", growth: "+%12.6", tone: "mint" },
+  ];
+  const bars = [48, 63, 55, 78, 71, 89, 82, 96, 84, 108, 101, 122];
+
+  return <section className={styles.analytics}>
+    <div className={styles.analyticsToolbar}><div><button className={styles.activeRange} type="button">30 gün</button><button type="button">90 gün</button><button type="button">12 ay</button></div><button type="button">↓ Raporu indir</button></div>
+    <div className={styles.analyticsStats}><article><span>Toplam erişim</span><b>593.4K</b><em>↗ %21.8</em><small>Önceki döneme göre</small></article><article><span>Etkileşim</span><b>42.8K</b><em>↗ %14.2</em><small>Beğeni, yorum ve paylaşım</small></article><article><span>Yeni takipçi</span><b>+3,284</b><em>↗ %18.6</em><small>Tüm kanallar</small></article><article><span>Ort. etkileşim</span><b>%6.3</b><em>↗ %0.8</em><small>Sektör ortalaması %3.9</small></article></div>
+    <div className={styles.analyticsGrid}>
+      <article className={styles.reachChart}><div><span>ERİŞİM TRENDİ</span><h3>Kanalların birlikte büyüyor.</h3><p>Son 30 günde toplam erişim 593 binin üzerine çıktı.</p></div><div className={styles.chartLegend}><span><i /> Organik</span><span><i /> Reklam</span></div><div className={styles.barChart}>{bars.map((height, index) => <i key={index} style={{ height }}><u style={{ height: `${Math.max(18, height * .36)}px` }} /></i>)}</div><div className={styles.chartAxis}><span>1 Eki</span><span>8 Eki</span><span>15 Eki</span><span>22 Eki</span><span>30 Eki</span></div></article>
+      <article className={styles.topContent}><span>EN İYİ İÇERİK</span><div className={styles.topContentVisual}><b>akışını<br />yenile.</b><small>REELS · 18 EKİM</small></div><h3>Mira Studio lansman reels</h3><div><span><b>84.2K</b><small>Erişim</small></span><span><b>%9.4</b><small>Etkileşim</small></span></div><button type="button">İçeriği görüntüle →</button></article>
+    </div>
+    <div className={styles.channelAnalytics}><div className={styles.channelAnalyticsHead}><div><span>KANAL PERFORMANSI</span><h3>Tüm hesaplar</h3></div><button type="button">Karşılaştır ⇅</button></div><div className={styles.channelRows}><div className={styles.channelLabels}><span>KANAL</span><span>TAKİPÇİ</span><span>ERİŞİM</span><span>ETKİLEŞİM</span><span>BÜYÜME</span></div>{channels.map((channel) => <article key={channel.name}><div><i className={styles[channel.tone]}>{channel.icon}</i><b>{channel.name}</b></div><span>{channel.followers}</span><span>{channel.reach}</span><span>{channel.engagement}</span><em>{channel.growth}</em></article>)}</div></div>
+  </section>;
+}
+
 function PlanUsageModal({ onClose, onPlans }: { onClose: () => void; onPlans: () => void }) {
   return <div className={styles.modalBackdrop} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className={styles.planModal} role="dialog" aria-modal="true" aria-labelledby="plan-modal-title">
@@ -306,11 +329,27 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: () =
   return <button className={`${styles.toggle} ${checked ? styles.toggleOn : ""}`} type="button" role="switch" aria-checked={checked} aria-label={label} onClick={onChange}><span /></button>;
 }
 
+const socialPlatforms = [
+  { key: "instagram", icon: "ig", name: "Instagram", detail: "Meta Graph API", color: "purple" },
+  { key: "threads", icon: "th", name: "Threads", detail: "Threads API", color: "dark" },
+  { key: "linkedin", icon: "in", name: "LinkedIn", detail: "LinkedIn Marketing API", color: "blue" },
+  { key: "facebook", icon: "fb", name: "Facebook", detail: "Meta Graph API", color: "blue" },
+  { key: "bluesky", icon: "bs", name: "BlueSky", detail: "AT Protocol", color: "mint" },
+  { key: "substack", icon: "su", name: "Substack", detail: "Publication API", color: "dark" },
+  { key: "youtube", icon: "yt", name: "YouTube", detail: "YouTube Data API", color: "purple" },
+  { key: "tiktok", icon: "tt", name: "TikTok", detail: "TikTok for Developers", color: "dark" },
+  { key: "mastodon", icon: "ma", name: "Mastodon", detail: "Mastodon REST API", color: "blue" },
+  { key: "pinterest", icon: "pi", name: "Pinterest", detail: "Pinterest API", color: "purple" },
+  { key: "googleBusiness", icon: "gb", name: "Google Business", detail: "Business Profile API", color: "mint" },
+  { key: "twitter", icon: "x", name: "Twitter / X", detail: "X API", color: "dark" },
+] as const;
+
 function Settings({ user }: { user: DemoUser }) {
   const [tab, setTab] = useState<SettingsTab>("brand");
   const [tone, setTone] = useState("Samimi ve profesyonel");
   const [approvalRequired, setApprovalRequired] = useState(true);
-  const [connected, setConnected] = useState({ instagram: true, tiktok: true, linkedin: true });
+  const [connected, setConnected] = useState<Record<string, boolean>>({ instagram: true, tiktok: true, linkedin: true });
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [notifications, setNotifications] = useState({ message: true, approval: true, publish: true, failed: true, opportunity: true, email: false });
   const [saved, setSaved] = useState(false);
 
@@ -344,14 +383,13 @@ function Settings({ user }: { user: DemoUser }) {
       </div> : null}
 
       {tab === "accounts" ? <div className={styles.settingPage}>
-        <SettingTitle eyebrow="CONNECT" title="Bağlı hesaplar" text="Mesajları toplamak ve içerik yayınlamak için sosyal hesaplarını yönet." />
-        <div className={styles.accountList}>{[
-          { key: "instagram" as const, icon: "ig", name: "Instagram", handle: "@puble.app", color: "purple" },
-          { key: "tiktok" as const, icon: "tt", name: "TikTok", handle: "@publeapp", color: "dark" },
-          { key: "linkedin" as const, icon: "in", name: "LinkedIn", handle: "Puble", color: "blue" },
-        ].map((account) => <article key={account.key}><i className={styles[account.color]}>{account.icon}</i><div><b>{account.name}</b><small>{account.handle}</small></div><span className={connected[account.key] ? styles.connected : styles.disconnected}><u />{connected[account.key] ? "Bağlı" : "Bağlantı kesildi"}</span><button type="button" onClick={() => setConnected((items) => ({ ...items, [account.key]: !items[account.key] }))}>{connected[account.key] ? "Yönet" : "Yeniden bağla"}</button></article>)}</div>
-        <button className={styles.outlineButton} type="button">+ Yeni sosyal hesap bağla</button>
-        <div className={styles.settingNotice}><SparkIcon /><div><b>MockSocialProvider aktif</b><small>Startup Weekend demosu harici API onayına ihtiyaç duymadan güvenli demo verileri kullanıyor.</small></div></div>
+        <SettingTitle eyebrow="CONNECT" title="Bağlı hesaplar" text="Desteklenen sosyal ağların API anahtarlarını ekle ve bağlantı durumlarını yönet." />
+        <div className={styles.apiSecurityNote}><span>⌾</span><div><b>Anahtar güvenliği</b><p>Bu demo alanlara yazılan anahtarları kalıcı olarak saklamaz. Production&apos;da anahtarlar şifrelenmiş sunucu secret&apos;ları olarak tutulmalıdır.</p></div></div>
+        <div className={styles.integrationGrid}>{socialPlatforms.map((account) => <article key={account.key}>
+          <div className={styles.integrationHead}><i className={styles[account.color]}>{account.icon}</i><div><b>{account.name}</b><small>{account.detail}</small></div><span className={connected[account.key] ? styles.connected : styles.disconnected}><u />{connected[account.key] ? "Bağlı" : "Bağlı değil"}</span></div>
+          <label>API Key / Access Token<div><input type="password" autoComplete="off" value={apiKeys[account.key] ?? ""} onChange={(event) => setApiKeys((items) => ({ ...items, [account.key]: event.target.value }))} placeholder={`${account.name} anahtarını gir`} /><button type="button" disabled={!apiKeys[account.key]} onClick={() => setConnected((items) => ({ ...items, [account.key]: true }))}>{connected[account.key] ? "Güncelle" : "Bağla"}</button></div></label>
+        </article>)}</div>
+        <div className={styles.settingNotice}><SparkIcon /><div><b>MockSocialProvider aktif</b><small>Gerçek sağlayıcı bağlantıları tamamlanana kadar güvenli demo verileri kullanılmaya devam eder.</small></div></div>
       </div> : null}
 
       {tab === "brand" ? <div className={styles.settingPage}>

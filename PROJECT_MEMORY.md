@@ -238,3 +238,5 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 - Free Plan kullanım detayları penceresindeki başlıklar, kota değerleri, açıklamalar, özellik listesi ve aksiyonlar okunabilir masaüstü ölçeğine büyütüldü.
 - Landing page banner'ı doğrudan fade ile açılır; banner içeriği soldan/sağdan gelir ve sayfadaki bölüm, kart, demo, pricing ve CTA öğeleri scroll sırasında dönüşümlü sağ/sol fade ile görünür olur.
 - Panel içerik metinleri bir kademe daha büyütüldü; sol ana navigasyon ve Ayarlar alt navigasyonundaki yazılar mevcut boyutunu koruyarak normal ağırlığa geçirildi.
+- Desteklenen sosyal ağlar Instagram, Threads, LinkedIn, Facebook, BlueSky, Substack, YouTube, TikTok, Mastodon, Pinterest, Google Business ve Twitter/X olarak belirlendi; Ayarlar > Bağlı Hesaplar altında her biri için güvenli demo API anahtarı alanı eklendi.
+- Panele erişim, etkileşim, takipçi büyümesi, kanal karşılaştırması ve en iyi içeriği gösteren Analitik yüzeyi eklendi.
