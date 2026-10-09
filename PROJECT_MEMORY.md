@@ -226,3 +226,5 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 - Figma MCP limitlerine bağlı kalmamak için `AI Implemention` sayfasındaki grupları klasörlü ZIP olarak dışa aktaran yerel bir Figma eklentisi geliştirildi.
 - Landing page banner'ına giriş/kayıt ve oturum sonrası kullanıcı profili akışı eklendi; tüm ürün yüzeylerini bir araya getiren web paneli oluşturuldu.
 - Supabase Auth bağlanana kadar yarışma demosunda yalnızca tarayıcıda saklanan, şifreyi kaydetmeyen geçici demo oturumu kullanılmasına karar verildi. Bu mekanizma üretim kimlik doğrulaması değildir.
+- Web paneline Profil ve Çalışma Alanı, Bağlı Hesaplar, Marka Hafızası, Bildirimler, Plan ve Kullanım ile Güvenlik bölümlerini içeren responsive Ayarlar yüzeyi eklendi.
+- Marka Hafızası; Inbox, Profesyonelleştir ve Editor metinlerinde ortak kullanılacak ton, hedef kitle, marka tanımı, kullanılacak/kaçınılacak ifadeler ve takvim onay tercihlerinin merkezi olarak konumlandırıldı.
