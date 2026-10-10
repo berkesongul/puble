@@ -8,6 +8,7 @@ import { AUTH_EVENT, SESSION_KEY, clearDemoSession, readDemoSession, type DemoUs
 import styles from "./panel.module.css";
 
 type View = "overview" | "inbox" | "editor" | "library" | "planner" | "series" | "ads" | "analytics" | "social" | "settings";
+type SettingsTab = "profile" | "accounts" | "brand" | "notifications" | "usage" | "security";
 
 type LibraryItem = {
   id: number;
@@ -17,6 +18,78 @@ type LibraryItem = {
   date: string;
   tone: "purple" | "mint" | "blue" | "dark";
 };
+
+type NotificationItem = {
+  id: number;
+  category: "ai" | "inbox" | "schedule" | "series" | "system";
+  title: string;
+  text: string;
+  time: string;
+  targetView: View;
+  targetSettingsTab?: SettingsTab;
+  unread: boolean;
+  badge: string;
+  tone: "purple" | "blue" | "mint" | "dark";
+};
+
+const initialNotifications: NotificationItem[] = [
+  {
+    id: 1,
+    category: "ai",
+    title: "Yeni AI içerik fırsatı",
+    text: "Mira Studio konuşmasından 'Lansman Reels' için takvim önerisi çıkarıldı.",
+    time: "10 dk önce",
+    targetView: "planner",
+    unread: true,
+    badge: "✦",
+    tone: "purple",
+  },
+  {
+    id: 2,
+    category: "inbox",
+    title: "Studio Form yeni mesaj",
+    text: "“Story paketini ilettim, inceleyebilir misiniz?”",
+    time: "35 dk önce",
+    targetView: "inbox",
+    unread: true,
+    badge: "●",
+    tone: "blue",
+  },
+  {
+    id: 3,
+    category: "schedule",
+    title: "Gönderi yayına giriyor",
+    text: "Teaser gönderisi bugün 18:00'de Instagram hesabında paylaşılmak üzere hazırlandı.",
+    time: "2 sa önce",
+    targetView: "planner",
+    unread: true,
+    badge: "▣",
+    tone: "mint",
+  },
+  {
+    id: 4,
+    category: "series",
+    title: "Seri yayın ritmi hatırlatması",
+    text: "'Pazartesi İlhamı' serisi için sıradaki içerik taslağını gözden geçir.",
+    time: "Dün",
+    targetView: "series",
+    unread: false,
+    badge: "≋",
+    tone: "dark",
+  },
+  {
+    id: 5,
+    category: "system",
+    title: "Aktif sohbet kotası uyarısı",
+    text: "3/5 aktif sohbet slotu kullanımda. 2 slot boşta duruyor.",
+    time: "2 gün önce",
+    targetView: "settings",
+    targetSettingsTab: "usage",
+    unread: false,
+    badge: "⚙",
+    tone: "purple",
+  },
+];
 
 const initialLibrary: LibraryItem[] = [
   { id: 1, title: "Puble Studio · Lansman", type: "image", format: "1080 × 1350", date: "Bugün, 14:24", tone: "purple" },
@@ -57,6 +130,15 @@ function SparkIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.5 5.8 4.2 9.5 10 10-5.8.5-9.5 4.2-10 10-.5-5.8-4.2-9.5-10-10 5.8-.5 9.5-4.2 10-10Z" /></svg>;
 }
 
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+
 export function PanelApp() {
   const router = useRouter();
   const serializedUser = useSyncExternalStore(
@@ -76,6 +158,7 @@ export function PanelApp() {
     return readDemoSession();
   }, [serializedUser]);
   const [view, setView] = useState<View>("overview");
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>("brand");
   const [draft, setDraft] = useState("abi fiyatı biraz düşürürsek yarın hallederiz");
   const [sent, setSent] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(0);
@@ -85,6 +168,30 @@ export function PanelApp() {
   const [planOpen, setPlanOpen] = useState(false);
   const [composerOpen, setComposerOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notificationsFilter, setNotificationsFilter] = useState<"all" | "unread" | "ai">("all");
+  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>(initialNotifications);
+
+  const unreadCount = useMemo(() => notificationItems.filter((item) => item.unread).length, [notificationItems]);
+
+  const filteredNotifications = useMemo(() => {
+    if (notificationsFilter === "unread") return notificationItems.filter((i) => i.unread);
+    if (notificationsFilter === "ai") return notificationItems.filter((i) => i.category === "ai");
+    return notificationItems;
+  }, [notificationItems, notificationsFilter]);
+
+  function markAllNotificationsRead() {
+    setNotificationItems((items) => items.map((i) => ({ ...i, unread: false })));
+  }
+
+  function handleNotificationClick(item: NotificationItem) {
+    setNotificationItems((items) => items.map((n) => (n.id === item.id ? { ...n, unread: false } : n)));
+    setNotificationsOpen(false);
+    if (item.targetSettingsTab) {
+      setSettingsTab(item.targetSettingsTab);
+    }
+    setView(item.targetView);
+  }
 
   useEffect(() => {
     if (serializedUser === null) router.replace("/auth?mode=login");
@@ -105,6 +212,15 @@ export function PanelApp() {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [composerOpen]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setNotificationsOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [notificationsOpen]);
 
   if (serializedUser === undefined || !user) {
     return <main className={styles.loading}><span /><p>Çalışma alanın hazırlanıyor…</p></main>;
@@ -146,7 +262,104 @@ export function PanelApp() {
       <section className={styles.workspace}>
         <header className={styles.topbar}>
           <div className={styles.search}><span>⌕</span><input aria-label="Panelde ara" placeholder="Mesaj, içerik veya creator ara…" /><kbd>⌘ K</kbd></div>
-          <button className={styles.notification} type="button" aria-label="Bildirimler">♢<i /></button>
+          <div className={styles.notificationWrapper}>
+            <button
+              className={`${styles.notification} ${notificationsOpen ? styles.notificationActive : ""}`}
+              type="button"
+              aria-label="Bildirimler"
+              aria-expanded={notificationsOpen}
+              onClick={() => setNotificationsOpen((prev) => !prev)}
+            >
+              <BellIcon />
+              {unreadCount > 0 ? <i>{unreadCount}</i> : null}
+            </button>
+            {notificationsOpen ? (
+              <>
+                <div className={styles.notificationBackdrop} onClick={() => setNotificationsOpen(false)} />
+                <section className={styles.notificationDropdown} role="dialog" aria-modal="false" aria-label="Bildirimler paneli">
+                  <header className={styles.notificationHeader}>
+                    <div>
+                      <h3>Bildirimler</h3>
+                      {unreadCount > 0 ? <span>{unreadCount} yeni</span> : <span className={styles.allReadTag}>Hepsi okundu</span>}
+                    </div>
+                    {unreadCount > 0 ? (
+                      <button type="button" onClick={markAllNotificationsRead} className={styles.markAllButton}>
+                        Tümünü okundu yap
+                      </button>
+                    ) : null}
+                  </header>
+
+                  <div className={styles.notificationTabs}>
+                    <button
+                      type="button"
+                      className={notificationsFilter === "all" ? styles.activeNotificationTab : ""}
+                      onClick={() => setNotificationsFilter("all")}
+                    >
+                      Tümü <em>{notificationItems.length}</em>
+                    </button>
+                    <button
+                      type="button"
+                      className={notificationsFilter === "unread" ? styles.activeNotificationTab : ""}
+                      onClick={() => setNotificationsFilter("unread")}
+                    >
+                      Okunmamış <em>{unreadCount}</em>
+                    </button>
+                    <button
+                      type="button"
+                      className={notificationsFilter === "ai" ? styles.activeNotificationTab : ""}
+                      onClick={() => setNotificationsFilter("ai")}
+                    >
+                      AI &amp; Fırsatlar <em>{notificationItems.filter((i) => i.category === "ai").length}</em>
+                    </button>
+                  </div>
+
+                  <div className={styles.notificationBody}>
+                    {filteredNotifications.length === 0 ? (
+                      <div className={styles.notificationEmpty}>
+                        <BellIcon />
+                        <p>Yeni bildirim bulunmuyor.</p>
+                        <small>Tüm gelişmeler burada anlık olarak listelenir.</small>
+                      </div>
+                    ) : (
+                      <div className={styles.notificationListScroll}>
+                        {filteredNotifications.map((item) => (
+                          <button
+                            type="button"
+                            key={item.id}
+                            className={`${styles.notificationCard} ${item.unread ? styles.notificationUnread : ""}`}
+                            onClick={() => handleNotificationClick(item)}
+                          >
+                            <span className={`${styles.notificationBadge} ${styles[item.tone]}`}>{item.badge}</span>
+                            <div className={styles.notificationContent}>
+                              <div className={styles.notificationTopRow}>
+                                <b>{item.title}</b>
+                                <time>{item.time}</time>
+                              </div>
+                              <p>{item.text}</p>
+                            </div>
+                            {item.unread ? <i className={styles.unreadDot} aria-hidden="true" /> : null}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <footer className={styles.notificationFooter}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNotificationsOpen(false);
+                        setSettingsTab("notifications");
+                        setView("settings");
+                      }}
+                    >
+                      <span>⚙</span> Bildirim tercihlerini yönet
+                    </button>
+                  </footer>
+                </section>
+              </>
+            ) : null}
+          </div>
           <div className={styles.user}><span>{user.initials}</span><div><b>{user.name}</b><small>{user.email}</small></div><button type="button" onClick={signOut}>Çıkış</button></div>
         </header>
 
@@ -161,7 +374,7 @@ export function PanelApp() {
           {view === "ads" ? <Ads /> : null}
           {view === "analytics" ? <Analytics /> : null}
           {view === "social" ? <Social following={following} onFollow={toggleFollow} onUse={() => setView("editor")} /> : null}
-          {view === "settings" ? <Settings user={user} /> : null}
+          {view === "settings" ? <Settings user={user} activeTab={settingsTab} onTabChange={setSettingsTab} /> : null}
         </div>
       </section>
       {planOpen ? <PlanUsageModal onClose={() => setPlanOpen(false)} onPlans={() => { setPlanOpen(false); setView("settings"); }} /> : null}
@@ -386,8 +599,6 @@ function Social({ following, onFollow, onUse }: { following: string[]; onFollow:
   return <section className={styles.social}><div className={styles.socialFeatured}><div><span>HAFTANIN CREATOR&apos;I</span><h2>@studioform</h2><p>Markalar için hareketli, cesur ve kullanıma hazır sosyal medya sistemleri.</p><div><b>24<small>template</small></b><b>12.4K<small>takipçi</small></b></div><button type="button" onClick={() => onFollow("@studioform")}>{following.includes("@studioform") ? "Takip ediliyor ✓" : "Takip et +"}</button></div><div className={styles.featuredVisual}><Image src="/assets/Amblem.svg" alt="Puble amblemi" width={266} height={408} unoptimized /><span>NEW<br />FLOW</span></div></div><div className={styles.creatorTitle}><div><span>KEŞFET</span><h3>Trend template paketleri</h3></div><button type="button">Tümünü gör →</button></div><div className={styles.creatorCards}>{creators.map((creator) => <article key={creator[1]}><div className={`${styles.creatorArt} ${styles[creator[4]]}`}><span>{creator[0]}</span><em>CREATOR</em></div><div className={styles.creatorMeta}><i>{creator[0]}</i><div><span>{creator[1]}</span><b>{creator[2]}</b><small>{creator[3]} takipçi</small></div><button type="button" onClick={() => onFollow(creator[1])}>{following.includes(creator[1]) ? "✓" : "+"}</button></div><button className={styles.useTemplate} type="button" onClick={onUse}>Template&apos;i kullan →</button></article>)}</div></section>;
 }
 
-type SettingsTab = "profile" | "accounts" | "brand" | "notifications" | "usage" | "security";
-
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
   return <button className={`${styles.toggle} ${checked ? styles.toggleOn : ""}`} type="button" role="switch" aria-checked={checked} aria-label={label} onClick={onChange}><span /></button>;
 }
@@ -407,8 +618,10 @@ const socialPlatforms = [
   { key: "twitter", icon: "x", name: "Twitter / X", detail: "X API", color: "dark" },
 ] as const;
 
-function Settings({ user }: { user: DemoUser }) {
-  const [tab, setTab] = useState<SettingsTab>("brand");
+function Settings({ user, activeTab, onTabChange }: { user: DemoUser; activeTab?: SettingsTab; onTabChange?: (tab: SettingsTab) => void }) {
+  const [internalTab, setInternalTab] = useState<SettingsTab>("brand");
+  const tab = activeTab ?? internalTab;
+  const setTab = onTabChange ?? setInternalTab;
   const [tone, setTone] = useState("Samimi ve profesyonel");
   const [approvalRequired, setApprovalRequired] = useState(true);
   const [connected, setConnected] = useState<Record<string, boolean>>({ instagram: true, tiktok: true, linkedin: true });

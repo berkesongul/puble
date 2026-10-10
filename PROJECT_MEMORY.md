@@ -255,3 +255,21 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 - Landing header tamamen şeffaf ve viewport üstüne sabit (`fixed`) çalışır; sayfa kaydırılırken görünür kalır, açık zeminlerde okunabilirlik için logo ve merkez navigasyonda hafif gölge kullanılır.
 - Landing header sayfanın tepesinde şeffaftır; 24 px'den fazla kaydırıldığında koyu marka paletinden `%56` opaklıklı arka plan, blur ve hafif gölge devreye girer.
 - Yarışma demosunun sabit kullanıcı profili `Pig Puble` (`PP`, `demo@puble.app`) olarak güncellendi; daha önce açılmış demo oturumları da ekranda otomatik olarak bu profile normalize edilir.
+
+### 10 Ekim 2026
+
+- Panel üst barındaki (profil avatarının solundaki) placeholder buton bildirim sekmesine dönüştürüldü:
+  - Eski `♢` simgesi yerine modern minimalist `BellIcon` SVG'si ve okunmamış bildirim adedini gösteren rozet (`3`) eklendi.
+  - Butona tıklandığında açılan, dışarı tıklama veya Escape ile kapanan etkileşimli Bildirim Paneli (dropdown flyout) entegre edildi.
+  - Panel başlığında okunmamış sayaç rozeti ve tek dokunuşla tüm bildirimleri okundu durumuna getiren “Tümünü okundu yap” aksiyonu eklendi.
+  - Bildirim filtresi için “Tümü”, “Okunmamış” ve “AI & Fırsatlar” sekmeleri konumlandırıldı.
+  - Bildirim kartları Puble'ın temel akışlarına (AI içerik fırsatları, Gelen Kutusu mesajları, Planlayıcı yaklaşan yayınlar, Seriler ve Sistem kotası) bağlandı; her karta tıklandığında ilgili öğe okundu olarak işaretlenip doğrudan hedef yüzeye (`inbox`, `planner`, `series`, `settings`) geçiş sağlandı.
+  - Bildirim paneli alt bilgisine (footer) doğrudan Ayarlar > Bildirimler sekmesini açan hızlı yönetim bağlantısı eklendi; mobil ekranlar (760 px altı) için tam uyumlu fixed görünüm sağlandı.
+- Panel üst barı (`topbar`), sayfa içeriği aşağı kaydırıldığında da görünür kalacak şekilde `position: sticky; top: 0; z-index: 40;` olarak sabitlendi; kaydırma sırasında içeriğin okunabilirliğini korumak için `%88` opaklık, `blur(14px)` cam efekti (glassmorphism) ve hafif alt gölge eklendi.
+- Pencere dikey boyutu kısaldığında sol sidebar'daki "Gönderi oluştur" butonu ve Free Plan kullanım limitleri kartının ekrandan taşmasını ve gizlenmesini engelleyen layout düzenlemesi yapıldı:
+  - Sidebar yapısı `display: flex; flex-direction: column; height: 100svh; overflow: hidden;` olarak sınırlandırıldı.
+  - Sidebar navigasyon listesi (`<nav>`) `flex: 1 1 auto; min-height: 0; overflow-y: auto;` yapılarak ekran boyu kısaldığında bağımsız, ince ve modern bir kaydırma çubuğuyla (`scrollbar`) kendi içinde kaydırılabilir hale getirildi.
+  - "Gönderi oluştur" ve Free Plan kartını içeren `.sidebarBottom` alanı `flex: 0 0 auto; margin-top: auto;` ile panelin altına kalıcı olarak sabitlendi (pinned); pencere ne kadar kısalırsa kısalsın asla gizlenmez ve ekrandan taşmaz.
+  - Kompakt ekran yükseklikleri için (`@media (max-height: 860px)` ve `@media (max-height: 700px)`) buton yükseklikleri, logo boşluğu ve kart dolguları dinamik olarak küçültülerek dikey alan verimliliği optimize edildi.
+
+
