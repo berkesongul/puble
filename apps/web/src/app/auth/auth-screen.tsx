@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { createDemoSession, DEMO_USER } from "@/lib/demo-auth";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import styles from "./auth.module.css";
 
 type Mode = "login" | "signup";
@@ -20,15 +22,20 @@ export function AuthScreen({ initialMode }: { initialMode: Mode }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [pending, setPending] = useState(false);
 
   function changeMode(nextMode: Mode) {
     setMode(nextMode);
     setError("");
+    setNotice("");
     window.history.replaceState(null, "", `/auth?mode=${nextMode}`);
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
+    setNotice("");
     if (mode === "signup" && name.trim().length < 2) {
       setError("Çalışma alanın için adını yazmalısın.");
       return;
@@ -38,8 +45,38 @@ export function AuthScreen({ initialMode }: { initialMode: Mode }) {
       return;
     }
 
-    createDemoSession(mode === "signup" ? name : email.split("@")[0], email);
-    router.push("/panel");
+    if (!isSupabaseConfigured()) {
+      setError("Müşteri paneli henüz Supabase ortam değişkenleriyle yapılandırılmamış. Demo hesabını kullanabilirsin.");
+      return;
+    }
+    setPending(true);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      if (mode === "signup") {
+        const { data, error: authError } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password,
+          options: {
+            data: { full_name: name.trim(), workspace_name: `${name.trim()} Çalışma Alanı` },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/app`,
+          },
+        });
+        if (authError) throw authError;
+        if (!data.session) {
+          setNotice("Doğrulama bağlantısını e-posta adresine gönderdik.");
+          return;
+        }
+      } else {
+        const { error: authError } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+        if (authError) throw authError;
+      }
+      router.push("/app");
+      router.refresh();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Kimlik doğrulama başarısız oldu.");
+    } finally {
+      setPending(false);
+    }
   }
 
   function enterDemo() {
@@ -69,7 +106,8 @@ export function AuthScreen({ initialMode }: { initialMode: Mode }) {
             <label>E-posta<input value={email} onChange={(event) => setEmail(event.target.value)} type="email" autoComplete="email" placeholder="sen@markan.com" required /></label>
             <label>Şifre<span className={styles.labelRow}><small>En az 6 karakter</small></span><input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} placeholder="••••••••" minLength={6} required /></label>
             {error ? <p className={styles.error} role="alert">{error}</p> : null}
-            <button className={styles.primaryButton} type="submit">{mode === "login" ? "Çalışma alanına gir" : "Ücretsiz hesabını oluştur"}<span>→</span></button>
+            {notice ? <p className={styles.success} role="status">{notice}</p> : null}
+            <button className={styles.primaryButton} type="submit" disabled={pending}>{pending ? "İşleniyor…" : mode === "login" ? "Çalışma alanına gir" : "Ücretsiz hesabını oluştur"}<span>→</span></button>
           </form>
 
           <div className={styles.or}><span />veya<span /></div>

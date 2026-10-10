@@ -68,39 +68,41 @@ export function SiteHeader() {
         <nav aria-label="Main navigation">
           <a href="#product">{text.product}</a><a href="#flow">{text.how}</a><a href="#creators">{text.creator}</a><a href="#pricing">{text.pricing}</a><a href="#corporate">{text.corporate}</a>
         </nav>
-        <div className="language-dropdown-wrapper">
+        <div className="language-dropdown-wrapper notranslate" translate="no">
           <button
             type="button"
-            className="language-trigger"
+            className="language-trigger notranslate"
             aria-expanded={langOpen}
             aria-haspopup="listbox"
             aria-label={text.language}
             onClick={() => setLangOpen((prev) => !prev)}
+            translate="no"
           >
             <b aria-hidden="true">◎</b>
-            <span>{languageNames[language]}</span>
+            <span className="notranslate" translate="no">{languageNames[language]}</span>
             <svg className={`language-chevron ${langOpen ? "language-chevron-open" : ""}`} viewBox="0 0 20 20" aria-hidden="true">
               <path d="m6 8 4 4 4-4" />
             </svg>
           </button>
 
           {langOpen ? (
-            <div className="language-menu" role="listbox" aria-label={text.language}>
+            <div className="language-menu notranslate" role="listbox" aria-label={text.language} translate="no">
               {Object.entries(languageNames).map(([code, name]) => {
                 const isSelected = language === code;
                 return (
                   <button
                     type="button"
                     key={code}
-                    className={`language-option ${isSelected ? "language-option-selected" : ""}`}
+                    className={`language-option notranslate ${isSelected ? "language-option-selected" : ""}`}
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => {
                       setLanguage(code as SiteLanguage);
                       setLangOpen(false);
                     }}
+                    translate="no"
                   >
-                    <span className="language-option-name">{name}</span>
+                    <span className="language-option-name notranslate" translate="no">{name}</span>
                     {isSelected ? <span className="language-option-check">✓</span> : null}
                   </button>
                 );

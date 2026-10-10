@@ -1,6 +1,6 @@
 # Puble - Proje Hafızası
 
-Son güncelleme: 8 Ekim 2026
+Son güncelleme: 10 Ekim 2026
 
 ## Proje bağlamı
 
@@ -258,6 +258,14 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 
 ### 10 Ekim 2026
 
+- Mevcut `/panel` yüzeyinin Startup Weekend demo/test alanı olarak korunmasına, gerçek müşteri ürününün ayrı `/app` rotasında geliştirilmesine karar verildi.
+- Ana müşteri paneli için Supabase Auth, workspace üyeliği, PostgreSQL RLS, private medya depolama ve Next.js Route Handler tabanlı backend eklendi.
+- Konuşma/mesaj, AI profesyonelleştirme, konuşmadan içerik fırsatı çıkarma, gönderi/taslak/planlama/yayın kuyruğu, kitaplık yükleme, seri, reklam, analitik, bildirim, marka hafızası, kullanım ve creator takip akışları kalıcı veri modeline bağlandı.
+- Normal kayıt/giriş `/app` müşteri alanına yönlenirken “Demo hesabıyla keşfet” akışı mevcut `Pig Puble` profiliyle `/panel` alanını açmaya devam eder.
+- Sosyal hesap credential'ları istemciye veya normal workspace sorgularına açılmaz; AES-256-GCM ile şifrelenerek yalnızca server service-role erişimli `social_account_secrets` kasasında tutulur.
+- OpenAI Responses API çağrıları strict Structured Outputs ile sunucu tarafında çalışır; API anahtarı yoksa müşteri akışı sahte AI sonucu üretmek yerine açık yapılandırma hatası verir.
+- Gerçek sosyal platform yayını için onaylı OAuth uygulaması ve provider worker'ları gerektiği kaydedildi; sistem mevcut durumda gönderileri kalıcı `publishing` kuyruğuna alır ancak dış platform başarısını taklit etmez.
+
 - Panel üst barındaki (profil avatarının solundaki) placeholder buton bildirim sekmesine dönüştürüldü:
   - Eski `♢` simgesi yerine modern minimalist `BellIcon` SVG'si ve okunmamış bildirim adedini gösteren rozet (`3`) eklendi.
   - Butona tıklandığında açılan, dışarı tıklama veya Escape ile kapanan etkileşimli Bildirim Paneli (dropdown flyout) entegre edildi.
@@ -295,6 +303,11 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
     2. *Sıfırdan İçerik Üretici:* Serbest prompt giriş alanı, ton seçimi (Profesyonel, Samimi, Heyecanlı, Eğitici), canlı yükleme animasyonlu `✦ İçerik Üret` butonu ve üretilen içeriği doğrudan editöre aktarma ya da sona ekleme butonları (`Editöre Aktar & Önizle →`, `Sona Ekle +`).
   - Editör araç çubuğuna (`postTools`) popüler emoji ekleme (`☺`), hızlı hashtag girişi (`#`) ve doğrudan AI asistan sekmesini açan satır içi `AI İle Düzenle` çipi yerleştirildi.
   - Modalın sağ paneli (`.postPreviewPane`) içerik uzadığında modal düzenini bozmadan akıcı bir şekilde kaydırılabilmesi için özel koyu scrollbar ile dikey kaydırmaya (`overflow-y: auto`) uyarlandı; mobil ekranlarda da sekmelerin kullanılabilmesi sağlandı.
-
+- Dil çevirileri ve dil seçici için Google Translate eklentisi (Google Website Translator widget) entegre edildi:
+  - Mevcut 5 dil seçeneği (Türkçe, English, Español, Français, العربية) ve header'daki özel glassmorphic CSS toggle bar tasarımı (`.language-dropdown-wrapper`, `.language-trigger`, `.language-menu`) birebir korundu.
+  - Sayfa genelindeki tüm içeriklerin (landing, kartlar, fiyatlar, akışlar, özellikler vb.) eksiksiz ve anlık çevrilmesi için Google Translate Element (`element.js`) entegrasyonu sağlandı (`GoogleTranslateScript`).
+  - Google Translate'in varsayılan kaba üst banner'ı (`.goog-te-banner-frame`), iframe'leri, tooltip balonları (`#goog-gt-tt`) ve `body` 40px itme davranışı CSS ile tamamen gizlendi; Puble'ın modern arayüz estetiği korundu.
+  - Özel toggle menüden bir dil seçildiğinde `googtrans` çerezi (`/tr/en`, `/tr/es`, `/tr/fr`, `/tr/ar`) ve Google Translate combo eventi tetiklenerek sayfa dinamik olarak hedef dile çevrilir; Türkçe seçildiğinde çerezler temizlenip orijinal kaynak metinlere dönülür; Arapça (`ar`) seçiminde `dir="rtl"` desteği sağlanır.
+  - Dil seçici menü elemanlarına `notranslate` sınıfı ve `translate="no"` öznitelikleri eklenerek Google Translate'in dil adlarını çevirmesi engellendi.
 
 

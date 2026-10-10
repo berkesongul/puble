@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 
+import { LanguageProvider } from "@/components/site-language";
+import { GoogleTranslateScript } from "@/components/google-translate";
+
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin", "latin-ext"],
@@ -20,7 +23,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={poppins.variable} data-scroll-behavior="smooth">
-      <body>{children}</body>
+      <body>
+        <LanguageProvider>
+          {children}
+          <GoogleTranslateScript />
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

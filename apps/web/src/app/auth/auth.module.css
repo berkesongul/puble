@@ -16,6 +16,7 @@
 .form input:focus { border-color: #836fff; box-shadow: 0 0 0 4px rgb(131 111 255 / 11%); }
 .labelRow { position: absolute; right: 0; color: #9795a2; font-weight: 400; }
 .error { margin: 0; padding: 10px 12px; border-radius: 9px; color: #8a2440; background: #fff0f3; font-size: 11px; }
+.success { margin: 0; padding: 10px 12px; border-radius: 9px; color: #08765f; background: rgb(21 245 186 / 12%); border: 1px solid rgb(21 245 186 / 42%); font-size: 11px; }
 .primaryButton, .demoButton { height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; cursor: pointer; font-weight: 700; }
 .primaryButton { margin-top: 3px; border: 0; color: #fff; background: #0002a1; box-shadow: 0 15px 30px rgb(0 2 161 / 16%); }
 .primaryButton span { font-size: 20px; }

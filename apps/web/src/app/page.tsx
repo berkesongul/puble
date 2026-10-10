@@ -54,7 +54,7 @@ function CalendarIcon() {
 }
 
 export default function Home() {
-  return <LanguageProvider><HomeContent /></LanguageProvider>;
+  return <HomeContent />;
 }
 
 function HomeContent() {

@@ -86,6 +86,45 @@ button:active, .button:active { transform: translateY(0); }
 .language-option:hover { color: white; background: rgb(255 255 255 / 9%); padding-left: 14px; }
 .language-option-selected { color: white !important; font-weight: 700 !important; background: linear-gradient(135deg, rgb(51 47 208 / 75%), rgb(0 2 161 / 90%)) !important; border: 1px solid rgb(21 245 186 / 35%) !important; box-shadow: 0 4px 12px rgb(0 2 161 / 25%); }
 .language-option-check { color: var(--mint); font-size: 11px; font-weight: 700; }
+
+/* Google Translate Plugin Integration - Stealth & Zero Banner */
+#google_translate_element {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-balloon-frame {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+font {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 .nav-profile { position: relative; }
 .profile-trigger { display: flex; align-items: center; gap: 10px; padding: 6px 9px 6px 6px; border: 1px solid rgb(255 255 255 / 22%); border-radius: 13px; color: white; background: rgb(8 8 56 / 38%); cursor: pointer; backdrop-filter: blur(12px); }
 .profile-trigger > span:first-child { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: #00251e; background: var(--mint); font-size: 10px; font-weight: 700; }
