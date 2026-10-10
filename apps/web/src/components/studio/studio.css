@@ -1,0 +1,617 @@
+.puble-studio-root {
+  /* Puble Brand Tokens */
+  --deep-blue: #0002a1;
+  --deep-blue-dark: #00016f;
+  --indigo: #332fd0;
+  --purple: #836fff;
+  --mint: #15f5ba;
+  --ink: #12111b;
+  --puble-gradient: linear-gradient(105deg, #0002a1 0%, #332fd0 33.6928%, #836fff 66.6145%, #15f5ba 100%);
+  --puble-gradient-hover: linear-gradient(105deg, #090bc0 0%, #4742e4 33.6928%, #9585ff 66.6145%, #35f8c7 100%);
+  --puble-gradient-soft: linear-gradient(105deg, rgb(0 2 161 / 8%) 0%, rgb(51 47 208 / 10%) 33.6928%, rgb(131 111 255 / 12%) 66.6145%, rgb(21 245 186 / 10%) 100%);
+  --puble-gradient-border: linear-gradient(105deg, #0002a1, #332fd0 34%, #836fff 67%, #15f5ba);
+
+  /* Light Theme Studio Surfaces matching Puble Web App */
+  --bg-dark: #f5f5f9;
+  --bg-main: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface-glass: rgba(255, 255, 255, 0.94);
+  --bg-card: #ffffff;
+  --bg-panel: #fafafd;
+  --border-color: #e5e4ec;
+  --border-color-active: #836fff;
+  
+  --primary: #836fff;
+  --primary-hover: #6f59ff;
+  --primary-glow: rgba(131, 111, 255, 0.28);
+  --accent: #15f5ba;
+  --accent-glow: rgba(21, 245, 186, 0.35);
+  --cyan: #0002a1;
+  
+  --text-main: #171620;
+  --text-muted: #6e6c7c;
+  --text-dim: #9ba0be;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 2, 161, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 30px -8px rgba(0, 2, 161, 0.1);
+  --shadow-glow: 0 0 20px rgba(131, 111, 255, 0.25);
+
+  --font-sans: 'Plus Jakarta Sans', var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 640px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e1e9;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 2, 161, 0.04);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+}
+
+.puble-studio-root * {
+  box-sizing: border-box;
+}
+
+.puble-studio-root.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+}
+
+/* App Container */
+.puble-studio-root .app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* Header */
+.puble-studio-root .app-header {
+  height: 60px;
+  min-height: 60px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface-glass);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+  gap: 12px;
+}
+
+.puble-studio-root .logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.puble-studio-root .logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--puble-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 10px rgba(51, 47, 208, 0.28);
+  flex-shrink: 0;
+}
+
+.puble-studio-root .logo-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #0002a1 0%, #836fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.puble-studio-root .logo-badge {
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(21, 245, 186, 0.18);
+  color: #007058;
+  border: 1px solid rgba(21, 245, 186, 0.45);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+}
+
+.puble-studio-root .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.puble-studio-root .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+  outline: none;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.puble-studio-root .btn-secondary {
+  background: #ffffff;
+  color: #171620;
+  border: 1px solid #dedde6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.puble-studio-root .btn-secondary:hover {
+  background: #f4f3ff;
+  border-color: var(--primary);
+  color: #0002a1;
+  transform: translateY(-1px);
+}
+
+.puble-studio-root .btn-primary {
+  background: var(--puble-gradient);
+  color: white;
+  border: 0;
+  box-shadow: 0 4px 16px rgba(51, 47, 208, 0.25);
+}
+
+.puble-studio-root .btn-primary:hover {
+  background: var(--puble-gradient-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(51, 47, 208, 0.35);
+}
+
+.puble-studio-root .btn-accent {
+  background: linear-gradient(105deg, var(--mint), #00d29f);
+  color: #00372e;
+  font-weight: 700;
+  border: 0;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.puble-studio-root .btn-accent:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px var(--accent-glow);
+}
+
+.puble-studio-root .btn-icon {
+  padding: 7px;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.puble-studio-root .btn-icon:hover {
+  color: #0002a1;
+  background: #f4f3ff;
+  border-color: var(--primary);
+}
+
+.puble-studio-root .btn:disabled,
+.puble-studio-root .btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Main Studio Viewport */
+.puble-studio-root .studio-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+}
+
+/* Floating Tools Bar (Left) */
+.puble-studio-root .tools-sidebar {
+  width: 68px;
+  min-width: 68px;
+  background: #fafafd;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0;
+  gap: 8px;
+  z-index: 80;
+  overflow-y: auto;
+}
+
+.puble-studio-root .tool-btn {
+  width: 52px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.65rem;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.puble-studio-root .tool-btn:hover {
+  color: #0002a1;
+  background: #f0eeff;
+}
+
+.puble-studio-root .tool-btn.active {
+  color: white;
+  background: var(--puble-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(51, 47, 208, 0.25);
+}
+
+/* Secondary Tool Options Panel (Top) */
+.puble-studio-root .tool-options-bar {
+  position: absolute;
+  top: 14px;
+  left: 80px;
+  right: 310px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 16px;
+  z-index: 70;
+  box-shadow: 0 10px 25px -5px rgba(0, 2, 161, 0.08);
+  overflow-x: auto;
+}
+
+.puble-studio-root .option-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.puble-studio-root .option-group label {
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.puble-studio-root .color-picker-input {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #e2e1e9;
+  cursor: pointer;
+  background: none;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.puble-studio-root .color-picker-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.puble-studio-root .color-picker-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.puble-studio-root .range-slider {
+  accent-color: var(--primary);
+  width: 90px;
+  cursor: pointer;
+}
+
+.puble-studio-root .select-input {
+  background: #ffffff;
+  border: 1px solid #dfdee6;
+  color: var(--text-main);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.puble-studio-root .select-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(131, 111, 255, 0.15);
+}
+
+/* Canvas Container Area */
+.puble-studio-root .canvas-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #f3f3f8;
+  background-image: 
+    radial-gradient(rgba(131, 111, 255, 0.2) 1.2px, transparent 1.2px),
+    radial-gradient(rgba(131, 111, 255, 0.2) 1.2px, transparent 1.2px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  padding: 16px;
+}
+
+.puble-studio-root .canvas-card {
+  position: relative;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 16px 40px -10px rgba(0, 2, 161, 0.1);
+  border: 1px solid #e2e1e9;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* Empty Canvas Upload Placeholder */
+.puble-studio-root .upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 32px;
+  border: 2px dashed rgba(131, 111, 255, 0.35);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  text-align: center;
+  max-width: 460px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 2, 161, 0.04);
+}
+
+.puble-studio-root .upload-dropzone:hover {
+  border-color: var(--mint);
+  background: #f7f6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(131, 111, 255, 0.14);
+}
+
+.puble-studio-root .upload-icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #eeecff;
+  color: #0002a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Preset Images Bar */
+.puble-studio-root .preset-images {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.puble-studio-root .preset-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.puble-studio-root .preset-thumb:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+/* Right Inspector Panel (Layers & Properties) */
+.puble-studio-root .inspector-panel {
+  width: 290px;
+  min-width: 290px;
+  background: #fafafd;
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  z-index: 80;
+  overflow-y: auto;
+}
+
+.puble-studio-root .panel-header {
+  padding: 14px 16px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-main);
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.puble-studio-root .panel-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.puble-studio-root .panel-section-title {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* Filter Preset Grid */
+.puble-studio-root .filters-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.puble-studio-root .filter-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.puble-studio-root .filter-card:hover {
+  background: #f4f3ff;
+  border-color: var(--primary);
+}
+
+.puble-studio-root .filter-card.active {
+  border-color: var(--primary);
+  background: #eeecff;
+  box-shadow: 0 0 12px rgba(131, 111, 255, 0.2);
+}
+
+.puble-studio-root .filter-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* Stickers grid */
+.puble-studio-root .stickers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.puble-studio-root .sticker-btn {
+  font-size: 1.4rem;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.puble-studio-root .sticker-btn:hover {
+  transform: scale(1.15);
+  background: #f2f0ff;
+  border-color: var(--primary);
+}
+
+/* Toast Message */
+.puble-studio-root .toast-notice {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #171620;
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--primary);
+  color: white;
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 2, 161, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  animation: studioFadeIn 0.3s ease;
+}
+
+@keyframes studioFadeIn {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.puble-studio-root .spin {
+  animation: studioSpin 1s linear infinite;
+}
+
+@keyframes studioSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Video Studio Layout */
+.puble-studio-root .video-studio-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
+  color: var(--text-main);
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .puble-studio-root .inspector-panel {
+    display: none;
+  }
+  .puble-studio-root .tool-options-bar {
+    right: 20px;
+  }
+}

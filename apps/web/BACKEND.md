@@ -27,7 +27,7 @@
 
 - `GET /api/v1/bootstrap`: müşteri panelinin çalışma alanı özeti
 - `GET|POST /api/v1/resources/:resource`: posts, assets, series, ads, notifications, conversations, opportunities
-- `PATCH|DELETE /api/v1/resources/:resource/:id`: workspace kontrollü güncelleme/silme
+- `PATCH|DELETE /api/v1/resources/:resource/:id`: workspace kontrollü güncelleme/silmeİÜ--
 - `GET|POST /api/v1/conversations/:id/messages`: konuşma mesajları
 - `GET|POST /api/v1/social-accounts`: bağlı hesaplar ve güvenli credential kasası
 - `DELETE /api/v1/social-accounts/:id`: bağlantıyı ve secret'ı birlikte kaldırma

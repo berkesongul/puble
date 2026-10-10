@@ -258,6 +258,7 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 
 ### 10 Ekim 2026
 
+- `/panel` demo alanı ile `/app` ana müşteri paneli aynı UI bileşenini ve aynı özellik akışlarını kullanır. Aralarındaki tek ürün farkı veri kaynağıdır: demo paneli dolu örnek veri ve tarayıcı ömründeki mock mutasyonlarla gerçek bir çalışma alanı varmış gibi davranır; müşteri paneli Supabase backend'indeki gerçek ve workspace-izole veriyi kullanır. Bundan sonraki panel tasarımı ve özellik değişiklikleri iki yüzeyde de eş zamanlı uygulanmalıdır.
 - Mevcut `/panel` yüzeyinin Startup Weekend demo/test alanı olarak korunmasına, gerçek müşteri ürününün ayrı `/app` rotasında geliştirilmesine karar verildi.
 - Ana müşteri paneli için Supabase Auth, workspace üyeliği, PostgreSQL RLS, private medya depolama ve Next.js Route Handler tabanlı backend eklendi.
 - Konuşma/mesaj, AI profesyonelleştirme, konuşmadan içerik fırsatı çıkarma, gönderi/taslak/planlama/yayın kuyruğu, kitaplık yükleme, seri, reklam, analitik, bildirim, marka hafızası, kullanım ve creator takip akışları kalıcı veri modeline bağlandı.
@@ -306,8 +307,88 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
 - Dil çevirileri ve dil seçici için Google Translate eklentisi (Google Website Translator widget) entegre edildi:
   - Mevcut 5 dil seçeneği (Türkçe, English, Español, Français, العربية) ve header'daki özel glassmorphic CSS toggle bar tasarımı (`.language-dropdown-wrapper`, `.language-trigger`, `.language-menu`) birebir korundu.
   - Sayfa genelindeki tüm içeriklerin (landing, kartlar, fiyatlar, akışlar, özellikler vb.) eksiksiz ve anlık çevrilmesi için Google Translate Element (`element.js`) entegrasyonu sağlandı (`GoogleTranslateScript`).
-  - Google Translate'in varsayılan kaba üst banner'ı (`.goog-te-banner-frame`), iframe'leri, tooltip balonları (`#goog-gt-tt`) ve `body` 40px itme davranışı CSS ile tamamen gizlendi; Puble'ın modern arayüz estetiği korundu.
+  - Google Translate'in sayfayı çevirirken tepeye enjekte ettiği üst banner çubuğu (`.VIpgJd-ZVi9od-ORHb-OEVmcd`, `iframe.skiptranslate`, `iframe.goog-te-banner-frame`), tooltip balonları (`#goog-gt-tt`) ve `body`'ye uygulanan 40px kaydırma (`top: 40px`, `margin-top: 40px`) hem CSS kurallarıyla (`display: none !important; opacity: 0; pointer-events: none;`) hem de JavaScript `MutationObserver` koruyucusuyla tamamen gizlenip sıfırlandı; sayfada hiçbir Google çubuğu görünmeden arka planda temiz çeviri sağlandı.
+
   - Özel toggle menüden bir dil seçildiğinde `googtrans` çerezi (`/tr/en`, `/tr/es`, `/tr/fr`, `/tr/ar`) ve Google Translate combo eventi tetiklenerek sayfa dinamik olarak hedef dile çevrilir; Türkçe seçildiğinde çerezler temizlenip orijinal kaynak metinlere dönülür; Arapça (`ar`) seçiminde `dir="rtl"` desteği sağlanır.
   - Dil seçici menü elemanlarına `notranslate` sınıfı ve `translate="no"` öznitelikleri eklenerek Google Translate'in dil adlarını çevirmesi engellendi.
-
-
+- Puble için kapsamlı **Kurumsal** sayfası (`/kurumsal`) oluşturuldu ve site genelindeki bağlantılar bağlandı:
+  - Header navigasyonundaki (`site-header.tsx`) `Kurumsal` bağlantısı `#corporate` çapasından doğrudan `/kurumsal` sayfasına (`<Link href="/kurumsal">`) yönlendirildi.
+  - Landing sayfası footer'ındaki bağlantı listesine de doğrudan `/kurumsal` linki eklendi; Kurumsal sayfasından ana sayfaya dönmek için degrade hap formunda geri dönüş aksiyonu (`Ana sayfaya dön`) ve alt bilgide tüm sayfa bağlantıları yerleştirildi.
+- Fiyatlandırma (Pricing) bölümüne, ana 4 paketin altına 3 adet ek AI kredi paketi kartı yerleştirildi:
+  - Kart 1: `Biraz daha üret` etiketi, `100 AI kredisi`, `49 TL` fiyat, `Satın Al` butonu ve mor Puble tavşan amblem filigranı.
+  - Kart 2: `Biraz daha üret` etiketi, `250 AI kredisi`, `99 TL` fiyat, `Satın Al` butonu ve mor Puble tavşan amblem filigranı.
+  - Kart 3 (Öne Çıkan): `Biraz daha üret` etiketi, `500 AI kredisi`, `179 TL` fiyat, `Satın Al` butonu, ışıltılı mint (`#15f5ba`) kontur, mint tavşan amblem filigranı ve özel degrade buton.
+  - Kartlar; koyu cam efektli (glassmorphism) arka plan, hover mikro-animasyonları, mobil/tablet duyarlı ızgara düzeni ve sayfa kaydırıldığında yumuşak açılma (scroll-reveal) efektleriyle donatıldı.
+- Fiyatlandırma planlarının (Pricing) üzerine ortalanmış modern faturalandırma toggle switch'i ve yıllık planda %20 indirim mekaniği eklendi:
+  - Plan kartlarının hemen üstüne ortalanmış, koyu cam efektli (`rgba(12, 16, 42, 0.85)`), blur ve mor konturlu hap biçiminde `Aylık` ve `Yıllık` faturalandırma geçiş anahtarı (`.pricing-billing-toggle`) yerleştirildi.
+  - `Yıllık` butonu yanına mint ışıltılı `%20 İndirim` rozeti (`.pricing-discount-badge`) konumlandırıldı; sekme aktif olduğunda rozet neon mint zemin ve koyu metinle vurgulandı.
+  - Yıllık faturalandırma seçildiğinde tüm planlara anlık %20 indirim uygulandı:
+    - Free Plan: `0 TL /ay` olarak korundu.
+    - Creator: `149 TL` yerine üstü çizili eski fiyatla `119 TL /ay` gösterildi.
+    - Pro: `299 TL` yerine üstü çizili eski fiyatla `239 TL /ay` gösterildi.
+    - Studio: `699 TL` yerine üstü çizili eski fiyatla `559 TL /ay` gösterildi.
+  - Fiyat bloklarının (`.price`) yüksekliği ve hizalaması optimize edilerek, kartlar arası dikey kayma olmadan kusursuz kart dengesi ve mobil duyarlı boşluklar sağlandı.
+- Paneldeki Puble editor (`view === "editor"`) alanına profesyonel **Puble Studio (Video ve Fotoğraf Editörü)** entegre edildi (`photo-studio-app-main` kaynak kodundan uyarlandı):
+  - `fabric.js` ve `lucide-react` bağımlılıkları Next.js (`apps/web`) ortamına kuruldu ve SSR çakışmalarını önlemek adına dinamik istemci yüklemesi (`next/dynamic` with `ssr: false`) sağlandı.
+  - Bileşenler `apps/web/src/components/studio/` altına taşındı; stiller sayfa genelindeki düzeni bozmaması için `.puble-studio-root` seçicisi altında kapsamlandırıldı (scoped):
+    1. **Fotoğraf Stüdyosu:** Kapsamlı tuval (Canvas) çizim, silgi, metin katmanları, geometrik şekiller, emojiler, ikincil görsel/filigran yerleştirme, görsel kırpma (serbest, 1:1, 4:5 Instagram, 16:9, 9:16 Dikey, 4:3, 21:9), görsel filtreleri (parlaklık, kontrast, doygunluk, bulanıklık, siyah-beyaz, sepya, vintage vb.), geri al/yinele ve HTML kod çıktısı üretici modülü.
+    2. **Video Stüdyosu (CapCut Stili):** Çok kanallı zaman çizelgesi (V1 ana video, V2 ikincil video, T1 metin/altyazı, A1 ses/müzik), kırpma tutamaçları (trim handles), çoklu klip geçişleri, oynatma hızı ayarı, telifsiz stok müzik ve ses miksajı, en/boy oranı uyarlama ve `MediaRecorder` ile doğrudan WebM video dışa aktarma.
+  - Üst barda Puble marka kimliğine uygun butonlar, mod geçişleri ("Video Stüdyosu" ↔ "Fotoğraf Stüdyosu"), tam ekran modu ("Tam Ekran"), doğrudan indirme ("İndir") ve Puble Kitaplığı'na anlık kaydetme ("Kitaplığa Kaydet") aksiyonları sağlandı.
+  - Panel içerik alanı (`panel.module.css` `.editor`) tam ekran çalışma tezgahı (workbench) formuna dönüştürüldü; editör açıldığında üst başlık alanı gizlenerek çalışma alanından maksimum verim elde edildi.
+- Paneldeki editör uygulamasının (Puble Studio: Fotoğraf & Video Editörü) tüm renk paleti Puble'ın kurumsal marka kimliğiyle (`#0002A1`, `#332FD0`, `#836FFF`, `#15F5BA`) tam uyumlu hale getirildi:
+  - Eski harici uygulamanın slate/indigo/rose renkleri (`#0f172a`, `#1e293b`, `#6366f1`, `#ec4899`, `#f43f5e`, `#e11d48`) kaldırılarak Puble uzay laciverti/mürekkep dark zeminleri (`--bg-dark: #070926`, `--bg-main: #060822`, `--bg-surface: #0f1338`, `--bg-panel: #0d1134`), parlak mor (`#836FFF`) ve neon mint (`#15F5BA`) vurguları tanımlandı.
+  - Arka planlar Puble'ın derin radyal degrade geçişine (`radial-gradient(circle at 50% 0%, #1a175e 0%, #060822 75%)`) uyarlandı.
+  - Buton sistemi (`.btn-primary`, `.btn-secondary`, `.btn-accent`), Puble'ın imza 4-duraklı degrade hap butonlarına (`--puble-gradient`, `border-radius: 999px`) ve hover efektlerine dönüştürüldü.
+  - Araç çubuğu (Sol sidebar `.tool-btn.active`), filtre kartları (`.filter-card.active`), yükleme alanı (`.upload-dropzone`), rozetler (`.logo-badge`) ve toast bildirimleri Puble mor-mint ışıltılı kontur ve neon zeminlerle giydirildi.
+  - Tuval kırpma tutamaçları (Crop handles), silgi araç çubuğu, metin gölgesi, geometrik şekil varsayılanları ve HTML kod çıktı modalı Puble mint ve mor tonlarına eşitlendi.
+  - Video Stüdyosu'nun CapCut stili zaman çizelgesi (Timeline filmstrip), çok kanallı katman rozetleri (V1, V2, T1, A1), oynatma/durdurma ve dışa aktarma butonları rose/kırmızıdan Puble degrade ve mint/mor renklerine revize edildi; dynamic import yüklenme ekranı da aynı tasarım diline entegre edildi.
+- `apps/web/public/UI/icons` klasöründeki 17 özel Puble vektör ve grafik ikonu web paneline eksiksiz entegre edildi:
+  1. **Sol Navigasyon (Sidebar):** `kitaplik.svg` (Kitaplık), `reklamlar.svg` (Reklamlar), `analitik.svg` (Analitik) ve `ayarlar-calisma-alani.svg` (Ayarlar) nav butonlarına bağlandı; aktif sekmede otomatik beyaz (`invert(1)`) filtre uygulandı.
+  2. **Üst Bar (Topbar):** Arama kutusundaki unicode simge yerine degrade geçişli `arama-cubugu.svg` yerleştirildi; bildirim butonu ve bildirim listesi boş durumu için Puble laciverti `notifications.svg` zili kullanıldı.
+  3. **Bildirim Açılır Paneli:** Bildirim kartlarının rozetlerine `ai-firsat.svg`, `bildirim-tercihleri-yeni-bildirimler.svg`, `yaklasan-yayin.svg`, `icerik-onayi.svg` ve `plan-ve-kullanim.svg` ikonları entegre edildi.
+  4. **Ayarlar Yan Menüsü:** Sekme ikonları unicode yerine özel SVG'lerle değiştirildi: Profil (`ayarlar-profil.svg`), Bağlı Hesaplar (`bagli-hesaplar.svg`), Marka Hafızası (`marka-hafizasi.svg`), Bildirimler (`notifications.svg`), Plan ve Kullanım (`plan-ve-kullanim.svg`), Güvenlik (`security.svg`).
+  5. **Bildirim Tercihleri:** Ayarlar > Bildirimler sekmesindeki 6 ayar maddesinin her birine birebir karşılık gelen ikonlar bağlandı: Yeni Mesaj (`bildirim-tercihleri-yeni-bildirimler.svg`), İçerik Onayı (`icerik-onayi.svg`), Yaklaşan Yayın (`yaklasan-yayin.svg`), Başarısız Yayın (`basarisiz-yayin.png`), AI Fırsatları (`ai-firsat.svg`), E-posta Özeti (`e-posta-ozet.svg`).
+- Puble Studio'nun (Fotoğraf ve Video Düzenleyici) renkleri web panelinin aydınlık, modern ve temiz tasarım diliyle (`#ffffff` beyaz yüzeyler, `#f5f5f9` çalışma alanı, `#0002a1` derin marka mavisi, `#836fff` mor ve `#15f5ba` neon mint) tam uyumlu hale getirildi:
+  - Eski karanlık gece/geceyarısı laciverti (`#070926`, `#060822`, `#0f172a`, `#000`) zeminler kaldırıldı; ana stüdyo çerçevesi ve alt panelleri beyaz ve açık lavanta yüzeylere (`#ffffff`, `#fafafd`, `#f5f5f9`) geçirildi.
+  - Panel konteyneri (`panel.module.css` `.editor`) ve dinamik import yükleme iskeleti (`panel-app.tsx`) koyu gradyan yerine beyaz kart (`#ffffff`, `border: 1px solid #e2e1e9`, gölge `0 8px 30px rgba(0, 2, 161, 0.04)`) stiline dönüştürüldü.
+  - Stüdyo üst başlığı (`.app-header`), sol araç çubuğu (`.tools-sidebar`) ve sağ denetçi paneli (`.inspector-panel`) temiz beyaz ve açık gri zeminlere kavuşturuldu; metinler yüksek kontrastlı `#171620` ve `#6e6c7c` olarak ayarlandı.
+  - Sol araç butonları (`.tool-btn`), üst seçenekler çubuğu (`.tool-options-bar`), emojiler (`.sticker-btn`) ve hazır filtre kartları (`.filter-card`) panelin buton diliyle eşitlendi; aktif seçimlerde degrade vurgusu (`var(--puble-gradient)`), pasiflerde temiz beyaz butonlar uygulandı.
+  - Çizim tuvali (`PhotoStudioCanvas.tsx`) başlangıç arka planı koyu lacivertten temiz beyaza (`#ffffff`) çekildi; tuval çalışma alanı mor nokta ızgarasıyla (`#f3f3f8` zemin) donatıldı.
+  - Video Stüdyosu'nun zaman çizelgesi, klip şeridi ve genel panel zeminleri de panel temasıyla uyumlu açık yüzeylere uyarlandı.
+- `.env` içerisindeki OpenAI anahtarı (`OPENAI_API_KEY` ve `OPENAI_MODEL=gpt-5-mini`) Puble AI sohbet asistanına ve gelen kutusu (Inbox) AI araçlarına bağlandı:
+  - Özel ve güvenli sunucu uç noktası (`apps/web/src/app/api/v1/ai-chat/route.ts`) oluşturuldu:
+    1. **Sohbet Modu (`mode: "chat"`):** Kullanıcı mesaj geçmişi ve Puble AI sistem kimliğiyle OpenAI Chat Completions API'sine (`https://api.openai.com/v1/chat/completions`) doğrudan bağlanır; canlı ve bağlamsal yanıtlar üretir.
+    2. **Profesyonelleştirme Modu (`mode: "professionalize"`):** Gelen kutusunda (Inbox) yazılan taslak müşteri yanıtını kibar, kurumsal ve akıcı bir sosyal medya üslubuna dönüştürür.
+    3. **Kota ve Hata Güvencesi:** API anahtarının kota/bakiye durumu (`credit_balance_exhausted` / `insufficient_quota`) veya olası ağ kesintileri durumunda paneli kilitlemeyen, kullanıcıya bilgilendirici Puble AI yanıtları üreten akıllı hata ve fallback mekanizması eklendi.
+  - Web panelindeki (`panel-app.tsx`) `AIChat` bileşeni canlı API'ye bağlandı:
+    - Mesaj gönderme sırasında gerçek zamanlı yüklenme durumu (`loading`), giriş alanı ve buton kilitleme, "Puble AI düşünüyor..." animasyonlu göstergesi ve Enter tuşuyla gönderme desteği eklendi.
+    - AI Chat başlığına "OpenAI ile güçlendirildi" rozeti entegre edildi.
+    - Gelen kutusundaki (Inbox) "Profesyonelleştir" butonu canlı olarak bu OpenAI uç noktasını çağıracak ve taslak mesajı anında güncelleyecek şekilde bağlandı.
+- **Kurumsal Sayfası (`/kurumsal`) Puble Tasarım Diline, Logoya ve Ambleme Tam Uyumlu Olarak Yeniden Tasarlandı:**
+  - **Genel Tasarım ve Header Bütünlüğü:** Sayfanın tepesine sitenin birleşik navigasyon ve dil seçici bileşeni (`<SiteHeader />`) entegre edildi; ana sayfa ve panel ile kesintisiz bir deneyim oluşturuldu.
+  - **Büyüleyici Hero & Marka Vitrin Sahnesi (Brand Stage):**
+    - Arka planda `banner_background.png` dokusu, radyal uzay laciverti degrade (`#050821`), neon mint (`#15F5BA`) ve mor (`#836FFF`) parıltılı ışık küreleri konumlandırıldı.
+    - Hero sağında 3D cam efektli (glassmorphism) Puble marka vitrin kartı oluşturuldu: Tavşan amblemi (`/assets/Amblem.svg`), resmi logo (`/assets/Main Logo.svg`), Puble AI Studio yıldız rozeti (`/UI/UX/publeai.svg`), "Create. Manage. Connect." marka mottosu, 4-duraklı resmi degrade çubuğu ve 3 canlı istatistik rozeti yerleştirildi.
+  - **01 · Vizyon & Misyon:** `publeai.svg` logolu ve tavşan amblem filigranlı vurgu kutusu ile marka hafızası (`marka-hafizasi.svg`) ve AI fırsat (`ai-firsat.svg`) ikonlarıyla desteklenen 2 kartlı yapı kuruldu.
+  - **02 · Dört Temel Akış (Connect, Communicate, Create, Plan):**
+    - Connect sütununa 8 adet gerçek sosyal ağ logo ikonu (`instagram.png`, `linkedin.png`, `x.png`, `tiktok.png`, `threads.png`, `youtube.png`, `bluesky.png`, `pinterest.png`) yerleştirildi.
+    - Communicate sütununa `gelen_kutusu.svg` ve `profesyonellestir.svg` UI rozetleri eklendi.
+    - Create sütununa `kitaplik.svg` ve `publeai.svg` Studio göstergeleri bağlandı.
+    - Plan sütununa `yaklasan-yayin.svg` takvim planlayıcı göstergesi bağlandı.
+  - **03 · Marka Varlıkları & Tasarım Dili (Yeni Özel Bölüm):**
+    - **Puble Tavşan Amblemi:** Koyu degrade kartta parıltılı amblem (`/assets/Amblem.svg`), amblemin çeviklik, hız ve dinamik sosyal iletişimi temsil eden hikayesiyle sunuldu.
+    - **Puble Ana Logosu:** Koyu ve açık zeminlerde logo kullanım kartı (`/assets/Main Logo.svg`).
+    - **4 Renk Spektrumu:** Deep Blue (`#0002A1`), Indigo (`#332FD0`), Purple (`#836FFF`), Neon Mint (`#15F5BA`) renk kartları, HEX kodları ve kurumsal anlamları sergilendi.
+    - **Basın Kiti:** Vektörel `Amblem.svg` ve `Main Logo.svg` dosyalarını doğrudan yeni sekmede açan/indiren butonlar yerleştirildi.
+  - **04 · Değerlerimiz:** `publeai.svg`, `ayarlar-calisma-alani.svg`, `kitaplik.svg` ve `security.svg` ikonlarıyla donatılmış 4 ilke kartı oluşturuldu.
+  - **05 · Hikayemiz & Urla:** Techstars Startup Weekend Urla 2026 hikayesi; arka planda büyük şeffaf tavşan amblem filigranı ve yüzen `inbox_bubbles.svg` illüstrasyonuyla zenginleştirildi.
+  - **06 · İletişim & Kurumsal Bağlantılar:** Genel iletişim (`e-posta-ozet.svg`), Ortaklık (`bagli-hesaplar.svg`) ve Basın (`plan-ve-kullanim.svg`) kartlarıyla tamamlandı.
+  - **Puble ile Tanış Final CTA & Footer:** Devasa amblem filigranlı "Daha az yönet. Daha çok üret." çağrı alanı ve tam sayfa alt bilgisi (Footer) ile sayfaya bütünlük kazandırıldı.
+- **Dil Seçici Menüsüne Ülke Bayrakları Eklendi:**
+  - Header navigasyonundaki dil seçici menüsüne ve tetikleyici butonuna (`.language-trigger`, `.language-menu`, `site-header.tsx`, `site-language.tsx`) bayrak eşleştirmeleri tanımlandı:
+    - 🇹🇷 **Türkçe**
+    - 🇬🇧 **English**
+    - 🇪🇸 **Español**
+    - 🇫🇷 **Français**
+    - 🇸🇦 **العربية**
+  - Tetikleyici butonda aktif seçili dilin bayrağı (`.language-trigger-flag`) gösterilecek şekilde güncellendi; açılır menüdeki tüm seçeneklerde bayrak ve metin sola hizalı, gölgeli ve mint renkli onay işareti (`✓`) sağa hizalı modern bir düzene kavuşturuldu.

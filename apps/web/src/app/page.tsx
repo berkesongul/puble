@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 import { SiteHeader } from "@/components/site-header";
-import { copy, LanguageProvider, useSiteLanguage } from "@/components/site-language";
+import { copy, useSiteLanguage } from "@/components/site-language";
 
 const flows = [
   { number: "01", title: "Connect", eyebrow: "Hesaplarını bağla", text: "Tüm sosyal kanallarını tek bir çalışma alanında buluştur.", color: "blue" },
@@ -41,6 +42,12 @@ const plans = [
   ], note: "*AI düzenlemede adil kullanım koşulları geçerlidir." },
 ] as const;
 
+const creditPacks = [
+  { tag: "Biraz daha üret", credits: "100 AI kredisi", price: "49 TL", cta: "Satın Al", featured: false },
+  { tag: "Biraz daha üret", credits: "250 AI kredisi", price: "99 TL", cta: "Satın Al", featured: false },
+  { tag: "Biraz daha üret", credits: "500 AI kredisi", price: "179 TL", cta: "Satın Al", featured: true },
+] as const;
+
 function ArrowIcon() {
   return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5" /></svg>;
 }
@@ -60,6 +67,7 @@ export default function Home() {
 function HomeContent() {
   const { language } = useSiteLanguage();
   const text = copy[language];
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
     const selectors = [
@@ -67,7 +75,7 @@ function HomeContent() {
       ".feature-demo", ".feature-copy > *",
       ".planner-copy > *", ".timeline-card",
       ".creator-section .section-heading > *", ".creator-row", ".creator-profile",
-      ".pricing-heading > *", ".price-card", ".pricing-note",
+      ".pricing-heading > *", ".pricing-billing-toggle-wrap", ".price-card", ".pricing-note", ".credit-pack-card",
       ".final-cta .cta-content > *", ".footer-grid > *",
     ];
     const elements = selectors.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector)));
@@ -221,12 +229,49 @@ function HomeContent() {
       <section className="pricing-section" id="pricing">
         <div className="shell">
           <h2 className="sr-only">{text.pricingA} {text.pricingB}</h2>
+
+          <div className="pricing-billing-toggle-wrap">
+            <div className="pricing-billing-toggle" role="group" aria-label="Faturalandırma periyodu">
+              <button
+                type="button"
+                className={`pricing-billing-tab ${billingPeriod === "monthly" ? "active" : ""}`}
+                onClick={() => setBillingPeriod("monthly")}
+              >
+                Aylık
+              </button>
+              <button
+                type="button"
+                className={`pricing-billing-tab ${billingPeriod === "yearly" ? "active" : ""}`}
+                onClick={() => setBillingPeriod("yearly")}
+              >
+                <span>Yıllık</span>
+                <span className="pricing-discount-badge">%20 İndirim</span>
+              </button>
+            </div>
+          </div>
+
           <div className="pricing-grid">
             {plans.map((plan) => (
               <article className={`price-card price-card-${plan.slug}`} key={plan.name}>
                 <div className="price-card-head"><span>{plan.name}</span><p>{plan.description}</p></div>
                 <a href="/auth?mode=signup">{plan.cta}</a>
-                <div className="price"><b>{plan.price} TL</b><span>/ay</span></div>
+                <div className="price">
+                  <div className="price-content">
+                    {billingPeriod === "yearly" && plan.price !== "0" ? (
+                      <span className="price-old">{plan.price} TL</span>
+                    ) : (
+                      <span className="price-old price-old-spacer" aria-hidden="true" />
+                    )}
+                    <div className="price-main">
+                      <b>
+                        {billingPeriod === "yearly" && plan.price !== "0"
+                          ? `${Math.round(Number(plan.price) * 0.8)} TL`
+                          : `${plan.price} TL`}
+                      </b>
+                      <span>/ay</span>
+                    </div>
+                  </div>
+                </div>
                 <div className="price-groups">{plan.groups.map((group) => <section key={group.title}>
                   <h3><i>✓</i>{group.title}</h3>
                   <ul>{group.items.map((feature) => <li key={feature}>{feature}</li>)}</ul>
@@ -235,6 +280,25 @@ function HomeContent() {
               </article>
             ))}
           </div>
+
+          <div className="credit-packs-grid" aria-label="Ek AI kredi paketleri">
+            {creditPacks.map((pack) => (
+              <article className={`credit-pack-card ${pack.featured ? "credit-pack-featured" : ""}`} key={pack.credits}>
+                <div className="credit-pack-watermark" aria-hidden="true">
+                  <Image src="/assets/Amblem.svg" alt="" width={120} height={160} unoptimized />
+                </div>
+                <div className="credit-pack-content">
+                  <span className="credit-pack-tag">{pack.tag}</span>
+                  <h3 className="credit-pack-title">{pack.credits}</h3>
+                  <div className="credit-pack-bottom">
+                    <b className="credit-pack-price">{pack.price}</b>
+                    <a className="credit-pack-btn" href="/auth?mode=signup">{pack.cta}</a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
           <p className="pricing-note">Fiyatlar lansman öncesi taslaktır; kullanıcı görüşmeleri ve kullanım maliyetlerine göre güncellenebilir.</p>
         </div>
       </section>
@@ -253,7 +317,14 @@ function HomeContent() {
       <footer className="site-footer" id="corporate">
         <div className="shell footer-grid">
           <div><Image src="/assets/Main Logo.svg" alt="Puble" width={381} height={126} unoptimized /><p>Create. Manage. Connect.</p></div>
-          <div className="footer-links"><a href="#product">Ürün</a><a href="#flow">Akış</a><a href="#creators">Creator</a><a href="#pricing">Pricing</a><a href="/kvkk">{text.kvkk}</a></div>
+          <div className="footer-links">
+            <Link href="/#product">Ürün</Link>
+            <Link href="/#flow">Akış</Link>
+            <Link href="/#creators">Creator</Link>
+            <Link href="/#pricing">Pricing</Link>
+            <Link href="/kurumsal">Kurumsal</Link>
+            <Link href="/kvkk">{text.kvkk}</Link>
+          </div>
           <p>© 2026 Puble. Sosyal medyayı yönetmekten fazlası.</p>
         </div>
       </footer>

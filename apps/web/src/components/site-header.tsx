@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AUTH_EVENT, clearDemoSession, readDemoSession, type DemoUser } from "@/lib/demo-auth";
-import { copy, languageNames, useSiteLanguage, type SiteLanguage } from "@/components/site-language";
+import { copy, languageNames, languageFlags, useSiteLanguage, type SiteLanguage } from "@/components/site-language";
 
 function ChevronIcon() {
   return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4" /></svg>;
@@ -66,7 +66,11 @@ export function SiteHeader() {
           <Image src="/assets/Main Logo.svg" alt="Puble" width={381} height={126} priority unoptimized />
         </Link>
         <nav aria-label="Main navigation">
-          <a href="#product">{text.product}</a><a href="#flow">{text.how}</a><a href="#creators">{text.creator}</a><a href="#pricing">{text.pricing}</a><a href="#corporate">{text.corporate}</a>
+          <Link href="/#product">{text.product}</Link>
+          <Link href="/#flow">{text.how}</Link>
+          <Link href="/#creators">{text.creator}</Link>
+          <Link href="/#pricing">{text.pricing}</Link>
+          <Link href="/kurumsal">{text.corporate}</Link>
         </nav>
         <div className="language-dropdown-wrapper notranslate" translate="no">
           <button
@@ -78,7 +82,9 @@ export function SiteHeader() {
             onClick={() => setLangOpen((prev) => !prev)}
             translate="no"
           >
-            <b aria-hidden="true">◎</b>
+            <span className="language-trigger-flag notranslate" translate="no" aria-hidden="true">
+              {languageFlags[language]}
+            </span>
             <span className="notranslate" translate="no">{languageNames[language]}</span>
             <svg className={`language-chevron ${langOpen ? "language-chevron-open" : ""}`} viewBox="0 0 20 20" aria-hidden="true">
               <path d="m6 8 4 4 4-4" />
@@ -102,7 +108,12 @@ export function SiteHeader() {
                     }}
                     translate="no"
                   >
-                    <span className="language-option-name notranslate" translate="no">{name}</span>
+                    <div className="language-option-left notranslate" translate="no">
+                      <span className="language-flag notranslate" translate="no" aria-hidden="true">
+                        {languageFlags[code as SiteLanguage]}
+                      </span>
+                      <span className="language-option-name notranslate" translate="no">{name}</span>
+                    </div>
                     {isSelected ? <span className="language-option-check">✓</span> : null}
                   </button>
                 );

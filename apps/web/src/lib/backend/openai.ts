@@ -27,7 +27,7 @@ export async function generateStructured<T>({
   name: string;
   schema: Record<string, unknown>;
 }): Promise<T> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) throw new ApiError(503, "OpenAI API anahtarı yapılandırılmamış.", "AI_NOT_CONFIGURED");
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -53,4 +53,3 @@ export async function generateStructured<T>({
     throw new ApiError(502, "AI yanıtı işlenemedi.", "AI_INVALID_RESPONSE");
   }
 }
-

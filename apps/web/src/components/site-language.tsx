@@ -12,6 +12,14 @@ export const languageNames: Record<SiteLanguage, string> = {
   ar: "العربية",
 };
 
+export const languageFlags: Record<SiteLanguage, string> = {
+  tr: "🇹🇷",
+  en: "🇬🇧",
+  es: "🇪🇸",
+  fr: "🇫🇷",
+  ar: "🇸🇦",
+};
+
 const baseCopy = {
   product: "Ürün",
   how: "Nasıl çalışır?",

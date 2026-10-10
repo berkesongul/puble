@@ -4,8 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
+import dynamic from "next/dynamic";
 import { AUTH_EVENT, SESSION_KEY, clearDemoSession, readDemoSession, type DemoUser } from "@/lib/demo-auth";
 import styles from "./panel.module.css";
+
+const PubleStudio = dynamic(() => import("@/components/studio"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ display: "grid", placeItems: "center", height: "650px", color: "#0002a1", background: "#ffffff", border: "1px solid #e2e1e9", borderRadius: "20px", boxShadow: "0 8px 30px rgba(0, 2, 161, 0.04)" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: "28px", marginBottom: "12px", color: "#836fff" }}>✦</div>
+        <p style={{ fontWeight: 600, letterSpacing: "-0.3px", color: "#171620" }}>Puble Studio Yükleniyor…</p>
+      </div>
+    </div>
+  ),
+});
 
 type View = "overview" | "inbox" | "editor" | "library" | "planner" | "series" | "ads" | "analytics" | "social" | "settings";
 type SettingsTab = "profile" | "accounts" | "brand" | "notifications" | "usage" | "security";
@@ -29,6 +42,7 @@ type NotificationItem = {
   targetSettingsTab?: SettingsTab;
   unread: boolean;
   badge: string;
+  iconSrc?: string;
   tone: "purple" | "blue" | "mint" | "dark";
 };
 
@@ -42,6 +56,7 @@ const initialNotifications: NotificationItem[] = [
     targetView: "planner",
     unread: true,
     badge: "✦",
+    iconSrc: "/UI/icons/ai-firsat.svg",
     tone: "purple",
   },
   {
@@ -53,6 +68,7 @@ const initialNotifications: NotificationItem[] = [
     targetView: "inbox",
     unread: true,
     badge: "●",
+    iconSrc: "/UI/icons/bildirim-tercihleri-yeni-bildirimler.svg",
     tone: "blue",
   },
   {
@@ -64,6 +80,7 @@ const initialNotifications: NotificationItem[] = [
     targetView: "planner",
     unread: true,
     badge: "▣",
+    iconSrc: "/UI/icons/yaklasan-yayin.svg",
     tone: "mint",
   },
   {
@@ -75,6 +92,7 @@ const initialNotifications: NotificationItem[] = [
     targetView: "series",
     unread: false,
     badge: "≋",
+    iconSrc: "/UI/icons/icerik-onayi.svg",
     tone: "dark",
   },
   {
@@ -87,6 +105,7 @@ const initialNotifications: NotificationItem[] = [
     targetSettingsTab: "usage",
     unread: false,
     badge: "⚙",
+    iconSrc: "/UI/icons/plan-ve-kullanim.svg",
     tone: "purple",
   },
 ];
@@ -103,14 +122,14 @@ const initialLibrary: LibraryItem[] = [
 const navItems: { id: View; label: string; icon: string; iconSrc?: string }[] = [
   { id: "overview", label: "Ana panel", icon: "⌂", iconSrc: "/UI/UX/ana_akis.svg" },
   { id: "inbox", label: "Gelen Kutusu", icon: "●", iconSrc: "/UI/UX/gelen_kutusu.svg" },
-  { id: "editor", label: "Puble editor", icon: "◆" },
-  { id: "library", label: "Kitaplık", icon: "▦" },
-  { id: "planner", label: "Puble Planlayıcı", icon: "▣" },
+  { id: "editor", label: "Editör", icon: "◆" },
+  { id: "library", label: "Kitaplık", icon: "▦", iconSrc: "/UI/icons/kitaplik.svg" },
+  { id: "planner", label: "Planlayıcı", icon: "▣" },
   { id: "series", label: "Seriler", icon: "≋" },
-  { id: "ads", label: "Reklamlar", icon: "◎" },
-  { id: "analytics", label: "Analitik", icon: "⌁" },
+  { id: "ads", label: "Reklamlar", icon: "◎", iconSrc: "/UI/icons/reklamlar.svg" },
+  { id: "analytics", label: "Analitik", icon: "⌁", iconSrc: "/UI/icons/analitik.svg" },
   { id: "social", label: "Kreatörler", icon: "✦" },
-  { id: "settings", label: "Ayarlar", icon: "⚙" },
+  { id: "settings", label: "Ayarlar", icon: "⚙", iconSrc: "/UI/icons/ayarlar-calisma-alani.svg" },
 ];
 
 const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> = {
@@ -130,12 +149,16 @@ function SparkIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.5 5.8 4.2 9.5 10 10-5.8.5-9.5 4.2-10 10-.5-5.8-4.2-9.5-10-10 5.8-.5 9.5-4.2 10-10Z" /></svg>;
 }
 
-function BellIcon() {
+function BellIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
+    <Image
+      src="/UI/icons/notifications.svg"
+      alt="Bildirimler"
+      width={19}
+      height={24}
+      unoptimized
+      className={className || styles.topbarBellIcon}
+    />
   );
 }
 
@@ -240,9 +263,16 @@ export function PanelApp() {
     setFollowing((items) => items.includes(handle) ? items.filter((item) => item !== handle) : [...items, handle]);
   }
 
-  function saveEditorOutput() {
-    const names = ["Gradient Reel", "Bold Launch", "Soft Product"];
-    setLibraryItems((items) => [{ id: Date.now(), title: names[selectedTemplate], type: selectedTemplate === 1 ? "video" : "image", format: selectedTemplate === 1 ? "1080 × 1920" : "1080 × 1350", date: "Şimdi", tone: selectedTemplate === 2 ? "mint" : selectedTemplate === 1 ? "dark" : "purple" }, ...items]);
+  function saveEditorOutput(asset?: { title?: string; type?: "image" | "video"; format?: string; date?: string }) {
+    const newItem: LibraryItem = {
+      id: Date.now(),
+      title: asset?.title || "Puble Studio Tasarımı",
+      type: asset?.type || "image",
+      format: asset?.format || "1080 × 1350",
+      date: asset?.date || "Şimdi",
+      tone: asset?.type === "video" ? "dark" : "purple",
+    };
+    setLibraryItems((items) => [newItem, ...items]);
     setView("library");
   }
 
@@ -261,7 +291,7 @@ export function PanelApp() {
 
       <section className={styles.workspace}>
         <header className={styles.topbar}>
-          <div className={styles.search}><span>⌕</span><input aria-label="Panelde ara" placeholder="Mesaj, içerik veya creator ara…" /><kbd>⌘ K</kbd></div>
+          <div className={styles.search}><span className={styles.searchIconWrap}><Image src="/UI/icons/arama-cubugu.svg" alt="" width={18} height={18} unoptimized className={styles.searchIconImg} /></span><input aria-label="Panelde ara" placeholder="Mesaj, içerik veya creator ara…" /><kbd>⌘ K</kbd></div>
           <div className={styles.notificationWrapper}>
             <button
               className={`${styles.notification} ${notificationsOpen ? styles.notificationActive : ""}`}
@@ -316,7 +346,7 @@ export function PanelApp() {
                   <div className={styles.notificationBody}>
                     {filteredNotifications.length === 0 ? (
                       <div className={styles.notificationEmpty}>
-                        <BellIcon />
+                        <BellIcon className={styles.emptyBellIcon} />
                         <p>Yeni bildirim bulunmuyor.</p>
                         <small>Tüm gelişmeler burada anlık olarak listelenir.</small>
                       </div>
@@ -329,7 +359,7 @@ export function PanelApp() {
                             className={`${styles.notificationCard} ${item.unread ? styles.notificationUnread : ""}`}
                             onClick={() => handleNotificationClick(item)}
                           >
-                            <span className={`${styles.notificationBadge} ${styles[item.tone]}`}>{item.badge}</span>
+                            <span className={`${styles.notificationBadge} ${styles[item.tone]} ${item.iconSrc ? styles.notificationBadgeWithIcon : ""}`}>{item.iconSrc ? <Image src={item.iconSrc} alt="" width={18} height={18} unoptimized className={styles.notifBadgeImg} /> : item.badge}</span>
                             <div className={styles.notificationContent}>
                               <div className={styles.notificationTopRow}>
                                 <b>{item.title}</b>
@@ -371,7 +401,7 @@ export function PanelApp() {
                 <Image src="/UI/UX/inbox_bubbles.svg" alt="" width={480} height={180} unoptimized priority />
               </div>
             </div>
-          ) : (
+          ) : view === "editor" ? null : (
             <div className={styles.pageHead}>
               <div>
                 <span>{viewCopy[view].eyebrow}</span>
@@ -390,7 +420,7 @@ export function PanelApp() {
           )}
           {view === "overview" ? <Overview onOpen={setView} /> : null}
           {view === "inbox" ? <Inbox draft={draft} sent={sent} onDraft={setDraft} onProfessionalize={professionalize} onSend={() => setSent(true)} /> : null}
-          {view === "editor" ? <Editor selected={selectedTemplate} onSelect={setSelectedTemplate} onExport={saveEditorOutput} /> : null}
+          {view === "editor" ? <Editor onExport={saveEditorOutput} /> : null}
           {view === "library" ? <Library items={libraryItems} onEdit={() => setView("editor")} /> : null}
           {view === "planner" ? <Planner planned={planned} onPlan={() => setPlanned(true)} /> : null}
           {view === "series" ? <Series /> : null}
@@ -601,13 +631,12 @@ function Inbox({ draft, sent, onDraft, onProfessionalize, onSend }: { draft: str
   );
 }
 
-function Editor({ selected, onSelect, onExport }: { selected: number; onSelect: (index: number) => void; onExport: () => void }) {
-  const templates = ["Gradient Reel", "Bold Launch", "Soft Product"];
-  return <section className={styles.editor}>
-    <aside className={styles.editorTools}><div className={styles.toolTabs}><button type="button" className={styles.toolActive}>Template</button><button type="button">Medya</button><button type="button">Metin</button></div><label>Template&apos;lerde ara<input placeholder="Ara…" /></label><div className={styles.templateGrid}>{templates.map((name, index) => <button className={selected === index ? styles.selectedTemplate : ""} type="button" onClick={() => onSelect(index)} key={name}><i className={styles[`template${index}`]}><span>puble</span></i><b>{name}</b><small>1080 × 1350</small></button>)}</div></aside>
-    <div className={styles.canvasArea}><div className={styles.canvasTop}><span>1080 × 1350 · Instagram Post</span><div><button type="button">−</button><em>72%</em><button type="button">+</button></div></div><div className={`${styles.artboard} ${styles[`artboard${selected}`]}`}><span>15 / 10</span><div><small>YENİ KOLEKSİYON</small><h2>akışını<br />yenile.</h2><p>Mira Studio · FW26</p></div><Image src="/assets/Amblem.svg" alt="" width={266} height={408} unoptimized /></div><p>Değişiklikler otomatik kaydedildi</p></div>
-    <aside className={styles.properties}><h3>Tasarım</h3><label>Marka adı<input defaultValue="Mira Studio" /></label><label>Başlık<textarea defaultValue={"akışını\nyenile."} /></label><span>Marka renkleri</span><div className={styles.colorRow}><button type="button" /><button type="button" /><button type="button" /><button type="button" /></div><label>Format<select defaultValue="post"><option value="post">Instagram Post</option><option value="story">Story / Reel</option></select></label><button className={styles.exportButton} type="button" onClick={onExport}>Kitaplığa kaydet <span>→</span></button></aside>
-  </section>;
+function Editor({ onExport }: { onExport: (asset?: any) => void }) {
+  return (
+    <section className={styles.editor}>
+      <PubleStudio onSaveToLibrary={onExport} />
+    </section>
+  );
 }
 
 function Planner({ planned, onPlan }: { planned: boolean; onPlan: () => void }) {
@@ -1312,13 +1341,13 @@ function Settings({ user, activeTab, onTabChange }: { user: DemoUser; activeTab?
   const [notifications, setNotifications] = useState({ message: true, approval: true, publish: true, failed: true, opportunity: true, email: false });
   const [saved, setSaved] = useState(false);
 
-  const tabs: { id: SettingsTab; icon: string; label: string; description: string }[] = [
-    { id: "profile", icon: "○", label: "Profil ve çalışma alanı", description: "Kimlik ve marka bilgileri" },
-    { id: "accounts", icon: "↗", label: "Bağlı hesaplar", description: "Sosyal kanal bağlantıları" },
-    { id: "brand", icon: "✦", label: "Marka Hafızası", description: "AI tonu ve marka kuralları" },
-    { id: "notifications", icon: "◇", label: "Bildirimler", description: "Uyarı ve e-posta tercihleri" },
-    { id: "usage", icon: "▤", label: "Plan ve kullanım", description: "Kota ve paket bilgileri" },
-    { id: "security", icon: "⌾", label: "Güvenlik", description: "Hesap ve oturumlar" },
+  const tabs: { id: SettingsTab; iconSrc: string; label: string; description: string }[] = [
+    { id: "profile", iconSrc: "/UI/icons/ayarlar-profil.svg", label: "Profil ve çalışma alanı", description: "Kimlik ve marka bilgileri" },
+    { id: "accounts", iconSrc: "/UI/icons/bagli-hesaplar.svg", label: "Bağlı hesaplar", description: "Sosyal kanal bağlantıları" },
+    { id: "brand", iconSrc: "/UI/icons/marka-hafizasi.svg", label: "Marka Hafızası", description: "AI tonu ve marka kuralları" },
+    { id: "notifications", iconSrc: "/UI/icons/notifications.svg", label: "Bildirimler", description: "Uyarı ve e-posta tercihleri" },
+    { id: "usage", iconSrc: "/UI/icons/plan-ve-kullanim.svg", label: "Plan ve kullanım", description: "Kota ve paket bilgileri" },
+    { id: "security", iconSrc: "/UI/icons/security.svg", label: "Güvenlik", description: "Hesap ve oturumlar" },
   ];
 
   function saveSettings() {
@@ -1330,7 +1359,7 @@ function Settings({ user, activeTab, onTabChange }: { user: DemoUser; activeTab?
   return <section className={styles.settings}>
     <aside className={styles.settingsNav}>
       <span>AYARLAR</span>
-      {tabs.map((item) => <button className={tab === item.id ? styles.activeSetting : ""} type="button" key={item.id} onClick={() => setTab(item.id)}><i>{item.icon}</i><div><b>{item.label}</b><small>{item.description}</small></div><em>›</em></button>)}
+      {tabs.map((item) => <button className={tab === item.id ? styles.activeSetting : ""} type="button" key={item.id} onClick={() => setTab(item.id)}><i><Image src={item.iconSrc} alt="" width={18} height={18} unoptimized className={styles.settingsTabIcon} /></i><div><b>{item.label}</b><small>{item.description}</small></div><em>›</em></button>)}
       <div className={styles.settingsHelp}><i>?</i><div><b>Yardıma mı ihtiyacın var?</b><small>Puble destek merkezine göz at.</small></div></div>
     </aside>
 
@@ -1361,13 +1390,13 @@ function Settings({ user, activeTab, onTabChange }: { user: DemoUser; activeTab?
       {tab === "notifications" ? <div className={styles.settingPage}>
         <SettingTitle eyebrow="UYARILAR" title="Bildirim tercihleri" text="Hangi gelişmelerden, hangi kanalda haberdar olmak istediğini seç." />
         <div className={styles.notificationList}>{[
-          ["message", "Yeni mesaj", "Bağlı hesaplarına yeni mesaj geldiğinde"],
-          ["approval", "İçerik onayı", "Bir taslak veya fırsat onay beklediğinde"],
-          ["publish", "Yaklaşan yayın", "Planlanan içerikten 30 dakika önce"],
-          ["failed", "Başarısız yayın", "Bir içerik yayınlanamadığında"],
-          ["opportunity", "AI içerik fırsatları", "Konuşmalardan yeni bir fırsat çıkarıldığında"],
-          ["email", "E-posta özeti", "Haftalık performans ve yapılacaklar özeti"],
-        ].map(([key, title, text]) => <div key={key}><i>{key === "message" ? "●" : key === "opportunity" ? "✦" : "◇"}</i><div><b>{title}</b><small>{text}</small></div><Toggle checked={notifications[key as keyof typeof notifications]} onChange={() => setNotifications((items) => ({ ...items, [key]: !items[key as keyof typeof items] }))} label={`${title} bildirimi`} /></div>)}</div>
+          { key: "message", title: "Yeni mesaj", text: "Bağlı hesaplarına yeni mesaj geldiğinde", iconSrc: "/UI/icons/bildirim-tercihleri-yeni-bildirimler.svg" },
+          { key: "approval", title: "İçerik onayı", text: "Bir taslak veya fırsat onay beklediğinde", iconSrc: "/UI/icons/icerik-onayi.svg" },
+          { key: "publish", title: "Yaklaşan yayın", text: "Planlanan içerikten 30 dakika önce", iconSrc: "/UI/icons/yaklasan-yayin.svg" },
+          { key: "failed", title: "Başarısız yayın", text: "Bir içerik yayınlanamadığında", iconSrc: "/UI/icons/basarisiz-yayin.png" },
+          { key: "opportunity", title: "AI içerik fırsatları", text: "Konuşmalardan yeni bir fırsat çıkarıldığında", iconSrc: "/UI/icons/ai-firsat.svg" },
+          { key: "email", title: "E-posta özeti", text: "Haftalık performans ve yapılacaklar özeti", iconSrc: "/UI/icons/e-posta-ozet.svg" },
+        ].map((item) => <div key={item.key}><i><Image src={item.iconSrc} alt="" width={20} height={20} unoptimized className={styles.notifPrefIcon} /></i><div><b>{item.title}</b><small>{item.text}</small></div><Toggle checked={notifications[item.key as keyof typeof notifications]} onChange={() => setNotifications((items) => ({ ...items, [item.key]: !items[item.key as keyof typeof items] }))} label={`${item.title} bildirimi`} /></div>)}</div>
       </div> : null}
 
       {tab === "usage" ? <div className={styles.settingPage}>
