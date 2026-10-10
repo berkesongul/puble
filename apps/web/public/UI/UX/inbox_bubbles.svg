@@ -1,0 +1,20 @@
+<svg width="480" height="200" viewBox="0 0 480 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Large main bubble -->
+  <path d="M260 100C260 52 320 15 390 15C460 15 510 52 510 100C510 135 480 165 435 178C440 195 448 208 455 215C435 214 405 200 392 185C330 185 260 148 260 100Z" stroke="#CBC9D4" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dots inside large bubble -->
+  <circle cx="370" cy="80" r="4" fill="#B9B7C4"/>
+  <circle cx="395" cy="65" r="4" fill="#B9B7C4"/>
+
+  <!-- Left medium bubble -->
+  <path d="M120 70C120 40 155 20 200 20C245 20 280 40 280 70C280 92 260 110 230 118C233 130 238 138 242 142C230 141 210 132 202 122C155 122 120 98 120 70Z" stroke="#CBC9D4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dots inside left bubble -->
+  <circle cx="180" cy="65" r="3.5" fill="#B9B7C4"/>
+  <circle cx="195" cy="60" r="3.5" fill="#B9B7C4"/>
+
+  <!-- Right small bubble -->
+  <path d="M410 140C410 115 440 98 475 98C510 98 535 115 535 140C535 158 520 172 495 178C498 188 502 194 505 197C495 196 480 189 473 181C435 181 410 162 410 140Z" stroke="#CBC9D4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Dots inside right bubble -->
+  <circle cx="460" cy="135" r="3" fill="#B9B7C4"/>
+  <circle cx="472" cy="132" r="3" fill="#B9B7C4"/>
+  <circle cx="484" cy="135" r="3" fill="#B9B7C4"/>
+</svg>

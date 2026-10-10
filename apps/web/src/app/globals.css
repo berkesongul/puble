@@ -73,10 +73,19 @@ button:active, .button:active { transform: translateY(0); }
 .nav-auth { display: flex; align-items: center; gap: 18px; }
 .nav-login { font-size: 13px; font-weight: 700; opacity: .78; transition: opacity .2s ease; }
 .nav-login:hover { opacity: 1; }
-.language-select { display: flex; align-items: center; gap: 6px; margin-left: auto; margin-right: 14px; padding: 7px 9px; border: 1px solid rgb(255 255 255 / 20%); border-radius: 10px; background: rgb(8 8 56 / 28%); backdrop-filter: blur(10px); }
-.language-select b { color: var(--mint); font-size: 12px; }
-.language-select select { max-width: 82px; border: 0; outline: 0; color: white; background: transparent; font-size: 10px; font-weight: 700; cursor: pointer; }
-.language-select option { color: var(--ink); background: white; }
+.language-dropdown-wrapper { position: relative; margin-left: auto; margin-right: 14px; }
+.language-trigger { display: flex; align-items: center; gap: 7px; padding: 7px 12px; border: 1px solid rgb(255 255 255 / 22%); border-radius: 12px; color: white; background: rgb(8 8 56 / 35%); cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 600; backdrop-filter: blur(12px); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.language-trigger:hover { border-color: rgba(21, 245, 186, 0.45); background: rgb(8 8 56 / 55%); transform: translateY(-1px); box-shadow: 0 4px 14px rgb(0 2 161 / 20%); }
+.language-trigger b { color: var(--mint); font-size: 12px; line-height: 1; display: grid; place-items: center; }
+.language-trigger span { letter-spacing: 0.01em; }
+.language-chevron { width: 13px; height: 13px; fill: none; stroke: rgb(255 255 255 / 70%); stroke-width: 2; transition: transform 0.2s ease; margin-left: 1px; }
+.language-chevron-open { transform: rotate(180deg); stroke: var(--mint); }
+.language-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 148px; padding: 6px; border: 1px solid rgb(255 255 255 / 16%); border-radius: 14px; background: rgb(14 13 26 / 96%); backdrop-filter: blur(18px); box-shadow: 0 16px 42px rgb(0 0 40 / 45%), 0 0 0 1px rgb(255 255 255 / 5%); z-index: 100; display: flex; flex-direction: column; gap: 3px; transform-origin: top right; animation: langMenuIn 0.18s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes langMenuIn { from { opacity: 0; transform: translateY(-6px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.language-option { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border: 0; border-radius: 9px; color: #e5e4ee; background: transparent; font-family: inherit; font-size: 11.5px; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s ease; }
+.language-option:hover { color: white; background: rgb(255 255 255 / 9%); padding-left: 14px; }
+.language-option-selected { color: white !important; font-weight: 700 !important; background: linear-gradient(135deg, rgb(51 47 208 / 75%), rgb(0 2 161 / 90%)) !important; border: 1px solid rgb(21 245 186 / 35%) !important; box-shadow: 0 4px 12px rgb(0 2 161 / 25%); }
+.language-option-check { color: var(--mint); font-size: 11px; font-weight: 700; }
 .nav-profile { position: relative; }
 .profile-trigger { display: flex; align-items: center; gap: 10px; padding: 6px 9px 6px 6px; border: 1px solid rgb(255 255 255 / 22%); border-radius: 13px; color: white; background: rgb(8 8 56 / 38%); cursor: pointer; backdrop-filter: blur(12px); }
 .profile-trigger > span:first-child { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: #00251e; background: var(--mint); font-size: 10px; font-weight: 700; }
@@ -348,9 +357,9 @@ button:active, .button:active { transform: translateY(0); }
   .brand { width: 86px; }
   .button-small { min-height: 38px; padding: 0 13px; }
   .nav-auth { gap: 10px; }
-  .language-select { margin-left: auto; margin-right: 7px; padding: 6px; }
-  .language-select select { width: 30px; color: transparent; }
-  .language-select select option { color: var(--ink); }
+  .language-dropdown-wrapper { margin-left: auto; margin-right: 8px; }
+  .language-trigger { padding: 6px 9px; font-size: 10px; }
+  .language-menu { min-width: 136px; }
   .nav-login { font-size: 11px; }
   .profile-trigger-copy { display: none; }
   .hero-grid { gap: 50px; padding: 130px 0 110px; }

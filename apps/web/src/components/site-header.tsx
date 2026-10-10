@@ -15,6 +15,7 @@ export function SiteHeader() {
   const text = copy[language];
   const [user, setUser] = useState<DemoUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -35,6 +36,24 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", syncScroll);
   }, []);
 
+  useEffect(() => {
+    if (!langOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest(".language-dropdown-wrapper")) {
+        setLangOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLangOpen(false);
+    };
+    window.addEventListener("click", handleClick);
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [langOpen]);
+
   function signOut() {
     clearDemoSession();
     setMenuOpen(false);
@@ -49,7 +68,46 @@ export function SiteHeader() {
         <nav aria-label="Main navigation">
           <a href="#product">{text.product}</a><a href="#flow">{text.how}</a><a href="#creators">{text.creator}</a><a href="#pricing">{text.pricing}</a><a href="#corporate">{text.corporate}</a>
         </nav>
-        <label className="language-select"><span className="sr-only">{text.language}</span><b aria-hidden="true">◎</b><select value={language} onChange={(event) => setLanguage(event.target.value as SiteLanguage)}>{Object.entries(languageNames).map(([code, name]) => <option key={code} value={code}>{name}</option>)}</select></label>
+        <div className="language-dropdown-wrapper">
+          <button
+            type="button"
+            className="language-trigger"
+            aria-expanded={langOpen}
+            aria-haspopup="listbox"
+            aria-label={text.language}
+            onClick={() => setLangOpen((prev) => !prev)}
+          >
+            <b aria-hidden="true">◎</b>
+            <span>{languageNames[language]}</span>
+            <svg className={`language-chevron ${langOpen ? "language-chevron-open" : ""}`} viewBox="0 0 20 20" aria-hidden="true">
+              <path d="m6 8 4 4 4-4" />
+            </svg>
+          </button>
+
+          {langOpen ? (
+            <div className="language-menu" role="listbox" aria-label={text.language}>
+              {Object.entries(languageNames).map(([code, name]) => {
+                const isSelected = language === code;
+                return (
+                  <button
+                    type="button"
+                    key={code}
+                    className={`language-option ${isSelected ? "language-option-selected" : ""}`}
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      setLanguage(code as SiteLanguage);
+                      setLangOpen(false);
+                    }}
+                  >
+                    <span className="language-option-name">{name}</span>
+                    {isSelected ? <span className="language-option-check">✓</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
         {user ? (
           <div className="nav-profile">
             <button className="profile-trigger" type="button" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>

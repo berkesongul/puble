@@ -364,7 +364,30 @@ export function PanelApp() {
         </header>
 
         <div className={styles.content}>
-          <div className={styles.pageHead}><div><span>{viewCopy[view].eyebrow}</span><h1>{viewCopy[view].title}</h1><p>{viewCopy[view].text}</p></div>{view !== "settings" ? <div className={styles.headActions}><span><i /> 3 hesap bağlı</span><button type="button">+ Yeni oluştur</button></div> : <div className={styles.settingsStatus}><i /> Demo çalışma alanı</div>}</div>
+          {view === "inbox" ? (
+            <div className={styles.inboxPageHead}>
+              <h1 className={styles.inboxPageTitle}>Gelen Kutusu</h1>
+              <div className={styles.inboxBubblesBg} aria-hidden="true">
+                <Image src="/UI/UX/inbox_bubbles.svg" alt="" width={480} height={180} unoptimized priority />
+              </div>
+            </div>
+          ) : (
+            <div className={styles.pageHead}>
+              <div>
+                <span>{viewCopy[view].eyebrow}</span>
+                <h1>{viewCopy[view].title}</h1>
+                <p>{viewCopy[view].text}</p>
+              </div>
+              {view !== "settings" ? (
+                <div className={styles.headActions}>
+                  <span><i /> 3 hesap bağlı</span>
+                  <button type="button">+ Yeni oluştur</button>
+                </div>
+              ) : (
+                <div className={styles.settingsStatus}><i /> Demo çalışma alanı</div>
+              )}
+            </div>
+          )}
           {view === "overview" ? <Overview onOpen={setView} /> : null}
           {view === "inbox" ? <Inbox draft={draft} sent={sent} onDraft={setDraft} onProfessionalize={professionalize} onSend={() => setSent(true)} /> : null}
           {view === "editor" ? <Editor selected={selectedTemplate} onSelect={setSelectedTemplate} onExport={saveEditorOutput} /> : null}
@@ -401,11 +424,181 @@ function Overview({ onOpen }: { onOpen: (view: View) => void }) {
 }
 
 function Inbox({ draft, sent, onDraft, onProfessionalize, onSend }: { draft: string; sent: boolean; onDraft: (value: string) => void; onProfessionalize: () => void; onSend: () => void }) {
-  return <section className={styles.inbox}>
-    <div className={styles.conversations}><div className={styles.filterRow}><button type="button">Tümü <b>12</b></button><button type="button">Okunmamış</button></div>{[["MS", "Mira Studio", "Lansman tarihini netleştirdik…", "14:02"], ["SF", "Studio Form", "Story paketini ilettim.", "12:48"], ["ML", "Motion Lab", "TikTok versiyonu da hazır.", "11:20"], ["AK", "Atelier K", "Teklifi inceleme fırsatınız…", "Dün"]].map((row, index) => <button className={index === 0 ? styles.selectedConversation : ""} type="button" key={row[1]}><i>{row[0]}</i><div><b>{row[1]}</b><small>{row[2]}</small></div><time>{row[3]}</time></button>)}</div>
-    <div className={styles.chat}><div className={styles.chatHead}><div><i>MS</i><span><b>Mira Studio</b><small><u /> Instagram · Aktif</small></span></div><button type="button">•••</button></div><div className={styles.messages}><div className={styles.inMessage}>Merhaba! Yeni ürünümüz 15 Ekim&apos;de çıkıyor. Lansman için nasıl ilerleyelim?<time>13:48</time></div><div className={styles.outMessage}>Harika! İki gün önce teaser, lansman günü de reel paylaşabiliriz.<time>13:55 ✓✓</time></div><div className={styles.aiCard}><SparkIcon /><div><b>4 içerik fırsatı bulduk</b><small>Konuşmadaki tarihlerden otomatik çıkarıldı.</small></div><button type="button">Görüntüle</button></div>{sent ? <div className={styles.outMessage}>{draft}<time>Şimdi ✓</time></div> : null}</div><div className={styles.composerBox}><textarea aria-label="Mesaj" value={draft} onChange={(event) => onDraft(event.target.value)} /><div><button type="button" onClick={onProfessionalize}><SparkIcon /> Profesyonelleştir</button><span>⌘ Enter</span><button className={styles.sendButton} type="button" onClick={onSend}>Gönder ↑</button></div></div></div>
-    <aside className={styles.contact}><div className={styles.contactAvatar}>MS</div><h3>Mira Studio</h3><p>@mirastudio · Instagram</p><div className={styles.contactStat}><span>Aktif sohbet</span><b>23 / 100 AI</b></div><h4>Konuşmadan çıkanlar</h4><button type="button"><span>13 Eki</span><div><b>Teaser paylaşımı</b><small>Planner&apos;a eklendi</small></div><i>✓</i></button><button type="button"><span>15 Eki</span><div><b>Lansman reels</b><small>Onay bekliyor</small></div><i>+</i></button></aside>
-  </section>;
+  const [activeFilter, setActiveFilter] = useState<"all" | "unread">("all");
+  const [calendarToast, setCalendarToast] = useState(false);
+  const [fileToast, setFileToast] = useState(false);
+
+  const mediaPosts = [
+    { id: 1, img: "/UI/UX/inbox_media/post1.jpg", type: "pin" },
+    { id: 2, img: "/UI/UX/inbox_media/post2.jpg", type: "pin" },
+    { id: 3, img: "/UI/UX/inbox_media/post3.jpg", type: "" },
+    { id: 4, img: "/UI/UX/inbox_media/post4.jpg", type: "video" },
+    { id: 5, img: "/UI/UX/inbox_media/post5.jpg", type: "video" },
+    { id: 6, img: "/UI/UX/inbox_media/post6.jpg", type: "video" },
+    { id: 7, img: "/UI/UX/inbox_media/post7.jpg", type: "video" },
+    { id: 8, img: "/UI/UX/inbox_media/post8.jpg", type: "" },
+    { id: 9, img: "/UI/UX/inbox_media/post9.jpg", type: "" },
+    { id: 10, img: "/UI/UX/inbox_media/post10.jpg", type: "" },
+    { id: 11, img: "/UI/UX/inbox_media/post11.jpg", type: "carousel" },
+    { id: 12, img: "/UI/UX/inbox_media/post12.jpg", type: "video" },
+  ];
+
+  function handleCalendarAdd() {
+    setCalendarToast(true);
+    window.setTimeout(() => setCalendarToast(false), 2400);
+  }
+
+  function handleFileAdd() {
+    setFileToast(true);
+    window.setTimeout(() => setFileToast(false), 2400);
+  }
+
+  return (
+    <section className={styles.inboxCard}>
+      {/* 1. SOL KOLON: Konuşmalar Listesi */}
+      <div className={styles.inboxConversations}>
+        <div className={styles.inboxFilterRow}>
+          <button
+            type="button"
+            className={activeFilter === "all" ? styles.inboxPillActive : styles.inboxPillInactive}
+            onClick={() => setActiveFilter("all")}
+          >
+            Tümü <b>12</b>
+          </button>
+          <button
+            type="button"
+            className={activeFilter === "unread" ? styles.inboxPillActive : styles.inboxPillInactive}
+            onClick={() => setActiveFilter("unread")}
+          >
+            Okunmamış
+          </button>
+        </div>
+
+        <div className={styles.inboxChatList}>
+          <button className={styles.inboxChatRowActive} type="button">
+            <span className={styles.inboxChatAvatar}>NS</span>
+            <div className={styles.inboxChatInfo}>
+              <div className={styles.inboxChatTop}>
+                <b>Nira Studio</b>
+                <time>16.04</time>
+              </div>
+              <small>Lansman tarihini netleştirdik.</small>
+            </div>
+          </button>
+
+          <div className={styles.inboxEmptySlot} />
+          <div className={styles.inboxEmptySlot} />
+          <div className={styles.inboxEmptySlot} />
+          <div className={styles.inboxEmptySlot} />
+        </div>
+      </div>
+
+      {/* 2. ORTA KOLON: Aktif Sohbet */}
+      <div className={styles.inboxMainChat}>
+        <header className={styles.inboxChatHead}>
+          <span className={styles.inboxHeadAvatar}>NS</span>
+          <b>Nira Studio</b>
+        </header>
+
+        <div className={styles.inboxMessagesArea}>
+          <div className={styles.inboxIncomingBubble}>
+            <p>Merhaba! Yeni ürünümüz 15 Ekim&apos;de çıkıyor. Lansman tarihini netleştirdik, nasıl ilerleyelim?</p>
+          </div>
+
+          <div className={styles.inboxOutgoingBubble}>
+            <p>Harika! İki gün önce teaser, lansman günü de reel paylaşabiliriz.</p>
+          </div>
+
+          {sent && draft ? (
+            <div className={styles.inboxOutgoingBubble}>
+              <p>{draft}</p>
+            </div>
+          ) : null}
+
+          <div className={styles.inboxActionCluster}>
+            <button type="button" className={styles.inboxBtnProfessional} onClick={onProfessionalize}>
+              Profesyonelleştir
+            </button>
+            <button type="button" className={styles.inboxBtnAction} onClick={handleCalendarAdd}>
+              {calendarToast ? "Takvim'e eklendi ✓" : "Takvim'e ekle"}
+            </button>
+            <button type="button" className={styles.inboxBtnAction} onClick={handleFileAdd}>
+              {fileToast ? "Dosya seçildi ✓" : "Dosya ekle"}
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.inboxComposerWrap}>
+          <div className={styles.inboxComposerBar}>
+            <button type="button" className={styles.inboxAddBtn} aria-label="Ekle" onClick={handleFileAdd}>
+              +
+            </button>
+            <input
+              type="text"
+              className={styles.inboxInput}
+              placeholder="Mesaj yaz veya şablon seç…"
+              value={draft}
+              onChange={(e) => onDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && draft.trim()) {
+                  e.preventDefault();
+                  onSend();
+                }
+              }}
+            />
+            {draft.trim() ? (
+              <button type="button" className={styles.inboxSendSmall} onClick={onSend} aria-label="Gönder">
+                ↑
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. SAĞ KOLON: Profil ve Medya Izgarası */}
+      <aside className={styles.inboxProfilePane}>
+        <div className={styles.inboxProfileHeader}>
+          <div className={styles.inboxLargeAvatar}>NS</div>
+          <span className={styles.inboxProfileHandle}>@ninastudio / Instagram</span>
+          <span className={styles.inboxFollowerCount}>2,026 Followers</span>
+        </div>
+
+        <div className={styles.inboxMediaGrid}>
+          {mediaPosts.map((post) => (
+            <div key={post.id} className={styles.inboxMediaItem}>
+              <Image
+                src={post.img}
+                alt={`Nira Studio post ${post.id}`}
+                width={120}
+                height={120}
+                className={styles.inboxMediaImg}
+                unoptimized
+              />
+              {post.type === "pin" ? (
+                <span className={styles.inboxMediaBadge} title="Sabitlendi">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6l.8.8.8-.8v-6H18v-2l-2-2z" />
+                  </svg>
+                </span>
+              ) : post.type === "video" ? (
+                <span className={styles.inboxMediaBadge} title="Video">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="6,4 20,12 6,20" />
+                  </svg>
+                </span>
+              ) : post.type === "carousel" ? (
+                <span className={styles.inboxMediaBadge} title="Çoklu görsel">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+                  </svg>
+                </span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </aside>
+    </section>
+  );
 }
 
 function Editor({ selected, onSelect, onExport }: { selected: number; onSelect: (index: number) => void; onExport: () => void }) {
@@ -504,11 +697,120 @@ function Analytics() {
 }
 
 function PostComposerModal({ onClose }: { onClose: () => void }) {
-  const channels = [{ id: "instagram", icon: "ig", name: "Instagram" }, { id: "facebook", icon: "fb", name: "Facebook" }, { id: "linkedin", icon: "in", name: "LinkedIn" }, { id: "tiktok", icon: "tt", name: "TikTok" }, { id: "youtube", icon: "yt", name: "YouTube" }, { id: "threads", icon: "th", name: "Threads" }, { id: "bluesky", icon: "bs", name: "BlueSky" }, { id: "pinterest", icon: "pi", name: "Pinterest" }];
+  const channels = [
+    { id: "instagram", name: "Instagram", iconFile: "instagram.png" },
+    { id: "threads", name: "Threads", iconFile: "Threads.png" },
+    { id: "linkedin", name: "LinkedIn", iconFile: "Linkedin.png" },
+    { id: "facebook", name: "Facebook", iconFile: "Facebook icon.png" },
+    { id: "x", name: "X", iconFile: "X icon.png" },
+    { id: "tiktok", name: "TikTok", iconFile: "Tiktok icon.png" },
+    { id: "youtube", name: "YouTube", iconFile: "Youtube icon.png" },
+    { id: "pinterest", name: "Pinterest", iconFile: "Pinterest icon.png" },
+    { id: "bluesky", name: "BlueSky", iconFile: "Bluesky icon.png" },
+    { id: "substack", name: "Substack", iconFile: "Substack icon.png" },
+    { id: "mastodon", name: "Mastodon", iconFile: "Mastodon icon.png" },
+    { id: "google_business", name: "Google Business", iconFile: "Google Business icon.png" },
+  ];
   const [selectedChannels, setSelectedChannels] = useState<string[]>(["instagram"]);
   const [postText, setPostText] = useState("");
   const [hasMedia, setHasMedia] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [activeNavTab, setActiveNavTab] = useState<"preview" | "templates" | "ai">("preview");
+  const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiTone, setAiTone] = useState("Profesyonel");
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [aiGeneratedOutput, setAiGeneratedOutput] = useState("");
+
+  const templatesData = [
+    {
+      id: "t1",
+      category: "Lansman",
+      title: "🚀 Yeni Ürün & Özellik Lansmanı",
+      channelHint: "Instagram · LinkedIn · X",
+      text: "🚀 Heyecanla beklenen an geldi! Yeni [Ürün / Özellik] artık yayında.\n\nİşlerinizi %40 daha hızlı ve keyifli hale getirmek için tasarlandı. İlk deneyenlerden olmak ve lansmana özel avantajları yakalamak için profildeki bağlantıya göz atın! 👇\n\nSiz en çok hangi özelliği merak ediyorsunuz? Yorumlarda buluşalım! #Lansman #YeniÜrün #Puble #Girişimcilik",
+    },
+    {
+      id: "t2",
+      category: "Kampanya",
+      title: "⏳ 48 Saatlik Sınırlı Fırsat",
+      channelHint: "Instagram · Facebook · Threads",
+      text: "⏳ Bu fırsat sadece 48 saat geçerli!\n\nSeçili paket ve ürünlerimizde geçerli %30 indirim fırsatını kaçırmayın. İndirim Kodu: PUBLE30 💥\n\nStoklar tükenmeden bio'daki linke tıkla, avantajı yakala! Arkadaşını etiketle, o da faydalansın! 👇 #Kampanya #Fırsat #İndirim",
+    },
+    {
+      id: "t3",
+      category: "Eğitici",
+      title: "💡 5 Altın İpucu / Mikro Rehber",
+      channelHint: "LinkedIn · Threads · X",
+      text: "💡 Sosyal medyada etkileşimi katlamanın 5 pratik kuralı:\n\n1. İlk 3 saniyede kancayı atın 🎣\n2. Değer odaklı ve samimi bir hikaye anlatın 📖\n3. Okunabilirliği yüksek, net cümleler kurun ✨\n4. Harekete geçirici net bir çağrı (CTA) ekleyin 🎯\n5. Yorumlara ilk 30 dakikada mutlaka yanıt verin 💬\n\nBu rehberi daha sonra uygulamak için kaydetmeyi unutmayın! 📌 #İçerikÜretimi #SosyalMedyaİpuçları",
+    },
+    {
+      id: "t4",
+      category: "Topluluk",
+      title: "☕ Haftanın Sorusu & Tartışma",
+      channelHint: "Threads · Instagram · LinkedIn",
+      text: "☕ Pazartesi kahvesi eşliğinde soruyoruz:\n\nSosyal medya akışınızı yönetirken en çok hangi aşamada zorlanıyorsunuz?\n\nA) Yeni fikir ve kurgu bulma\nB) Metin yazma & görsel düzenleme\nC) Düzenli yayın takvimi sürdürme\nD) Gelen mesajlara yetişme\n\nCevabınızı yoruma bırakın; en çok seçilen konu hakkında yarın özel bir mini rehber paylaşıyoruz! 👇 #SoruCevap #Topluluk",
+    },
+    {
+      id: "t5",
+      category: "Topluluk",
+      title: "🎬 Kamera Arkası & Ekip Ruhu",
+      channelHint: "Instagram · TikTok · BlueSky",
+      text: "🎬 Harika sonuçların arkasında nasıl bir süreç var?\n\nBugün ekibimizle birlikte yeni sürüm testlerindeydik. Bazen kahveler dökülüyor, bazen saatlerce aynı detaya odaklanıyoruz ama ortaya çıkan deneyim tüm yorgunluğa değiyor! 🙌\n\nSizin bu haftaki en büyük başarınız ne oldu? Yorumlarda kutlayalım! 💬 #KameraArkası #EkipRuhu #Girişimcilik",
+    },
+    {
+      id: "t6",
+      category: "Duyuru",
+      title: "📢 Önemli Sistem & Özellik Güncellemesi",
+      channelHint: "Tüm Kanallar",
+      text: "📢 Topluluğumuz için heyecan verici bir güncelleme!\n\nKullanıcılarımızdan gelen geri bildirimleri dinledik ve [Özellik Adı] altyapısını baştan sona yeniledik. Artık [elde edilen fayda] çok daha hızlı ve akıcı.\n\nHemen panelinize girip yeni deneyimi keşfedebilirsiniz. Görüşlerinizi bizimle paylaşmayı unutmayın! 🚀 #Puble #Güncelleme #Duyuru",
+    },
+  ];
+
+  const categories = ["Tümü", "Lansman", "Kampanya", "Eğitici", "Topluluk", "Duyuru"];
+
+  const filteredTemplates = selectedCategory === "Tümü"
+    ? templatesData
+    : templatesData.filter((t) => t.category === selectedCategory);
+
+  const aiQuickActions = [
+    {
+      id: "professionalize",
+      icon: "✦",
+      label: "Metni Profesyonelleştir",
+      desc: "Kurumsal ve akıcı tona çevir",
+    },
+    {
+      id: "hook",
+      icon: "⚡",
+      label: "Kanca (Hook) Ekle",
+      desc: "Girişe merak uyandıran açılış koy",
+    },
+    {
+      id: "hashtags",
+      icon: "🏷️",
+      label: "Viral Hashtag'ler",
+      desc: "Kanallara uygun trend etiketleri ekle",
+    },
+    {
+      id: "cta",
+      icon: "🎯",
+      label: "Etkili CTA Ekle",
+      desc: "Kaydetme ve yorum çağrısı yerleştir",
+    },
+    {
+      id: "shorten",
+      icon: "✂️",
+      label: "X & Threads İçin Kısalt",
+      desc: "280 karaktere sığacak özet çıkar",
+    },
+    {
+      id: "friendly",
+      icon: "✨",
+      label: "Samimi & Enerjik Yap",
+      desc: "Daha sıcak ve emojili bir üslup yap",
+    },
+  ];
 
   function toggleChannel(id: string) {
     setSelectedChannels((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
@@ -516,20 +818,401 @@ function PostComposerModal({ onClose }: { onClose: () => void }) {
 
   function complete(message: string) {
     setFeedback(message);
-    window.setTimeout(() => setFeedback(""), 2200);
+    window.setTimeout(() => setFeedback(""), 2400);
+  }
+
+  function handleAiQuickAction(actionId: string) {
+    if (actionId === "professionalize") {
+      if (!postText.trim()) {
+        const generated = "🚀 Puble ile tüm sosyal medya akışınızı tek ekranda yönetin, mesajlarınızı profesyonelleştirin ve konuşmalardan içerik takvimi üretin. Detaylı bilgi ve erken erişim için profilimizdeki bağlantıyı ziyaret edebilirsiniz. #Puble #İnovasyon #SosyalMedya";
+        setPostText(generated);
+        complete("Profesyonel taslak oluşturuldu ✓");
+      } else {
+        const polished = `✦ ${postText.trim().replace(/^([🚀✨💡\s]+)/, "")}\n\nİş akışınızı optimize etmek ve performansı artırmak için hazırlandı. Detaylı bilgi için profildeki bağlantıyı inceleyebilirsiniz. #Puble #Büyüme`;
+        setPostText(polished);
+        complete("Metin profesyonelleştirildi ✓");
+      }
+    } else if (actionId === "hook") {
+      const hooks = [
+        "👀 Birçok markanın gözden kaçırdığı en kritik detay:\n\n",
+        "🔥 Sosyal medyada fark yaratmanın kestirme yolu:\n\n",
+        "💡 Bunu bilseydiniz içerik üretiminiz yarı yarıya kısalırdı:\n\n",
+      ];
+      const randomHook = hooks[Math.floor(Math.random() * hooks.length)];
+      setPostText((prev) => randomHook + (prev ? prev : "Yeni ürünümüzle iş akışınızı 3 katına çıkarın! Link bio'da."));
+      complete("Kanca (Hook) eklendi ✓");
+    } else if (actionId === "hashtags") {
+      const channelTags: Record<string, string> = {
+        instagram: "#InstagramGrowth #Reels #Puble #ContentCreator #ViralPost",
+        linkedin: "#LinkedInMarketing #BusinessGrowth #Leadership #Innovation #Puble",
+        x: "#TechTrends #SocialMedia #SaaS #Startup #Puble",
+        threads: "#ThreadsApp #DailyTips #Community #Puble #CreatorEconomy",
+        tiktok: "#FYP #ForYou #TrendAlert #CreatorTips #Puble",
+      };
+      const tags = selectedChannels.map((c) => channelTags[c]).filter(Boolean).join(" ") || "#Puble #SocialMedia #Growth #ContentCreation #Trending";
+      setPostText((prev) => (prev ? prev.trim() + "\n\n" + tags : tags));
+      complete("Trend hashtag'ler eklendi ✓");
+    } else if (actionId === "cta") {
+      const ctas = [
+        "\n\n👉 Siz ne düşünüyorsunuz? Deneyimlerinizi yorumlarda paylaşmayı ve bu gönderiyi kaydetmeyi unutmayın! 📌",
+        "\n\n💡 Bu fırsattan yararlanmak için hemen profilimizdeki bağlantıya tıklayın ve bize katılın! 🚀",
+        "\n\n💬 Arkadaşını etiketle, bu gelişmeden o da haberdar olsun! 👇",
+      ];
+      const chosenCta = ctas[Math.floor(Math.random() * ctas.length)];
+      setPostText((prev) => (prev ? prev.trim() + chosenCta : "İçeriğimizi beğendiyseniz kaydetmeyi ve yorum yapmayı unutmayın! 👇"));
+      complete("CTA eklendi ✓");
+    } else if (actionId === "shorten") {
+      if (!postText.trim()) {
+        setPostText("⚡ Puble ile sosyal medya yönetimini tek çatı altında toplayın. Hızlı, akıllı ve dağınıklıktan uzak. Link profilde! #Puble");
+      } else {
+        const words = postText.trim().split(" ");
+        const shortened = words.slice(0, 22).join(" ") + "… 🚀 Keşfetmek için bio'daki linke göz atın! #Puble";
+        setPostText(shortened);
+      }
+      complete("Metin X & Threads için kısaltıldı ✓");
+    } else if (actionId === "friendly") {
+      setPostText((prev) => {
+        const base = prev || "Yeni özelliklerimizi denediniz mi? Çok heyecanlıyız!";
+        return `Selamlar! ✨ Harika bir haberle geldik: ${base} \n\nSizce nasıl olmuş? Yorumlarınızı çok merak ediyoruz, bize yazın! 💬🎉`;
+      });
+      complete("Samimi tona uyarlandı ✓");
+    }
+  }
+
+  function handleGenerateAiContent() {
+    if (!aiPrompt.trim()) return;
+    setIsAiGenerating(true);
+    setAiGeneratedOutput("");
+
+    setTimeout(() => {
+      setIsAiGenerating(false);
+      let output = "";
+      if (aiTone === "Profesyonel") {
+        output = `🚀 ${aiPrompt.trim()}\n\nKurumsal hedeflerinize ulaşmak ve kitle iletişimini en üst verimlilikle sürdürmek için geliştirdiğimiz bu çözüm; operasyonel performansı ölçülebilir biçimde artırır.\n\nDetaylı bilgi edinmek ve erken erişim ayrıcalıklarından yararlanmak için profilimizdeki bağlantıyı ziyaret edebilirsiniz.\n\n#Puble #${selectedChannels[0] || "Business"} #İnovasyon #Büyüme`;
+      } else if (aiTone === "Samimi") {
+        output = `✨ Merhaba herkese! Bugün sizinle harika bir haberi paylaşmak istiyoruz:\n\n${aiPrompt.trim()} 😍\n\nEkip olarak üzerinde uzun zamandır çalışıyorduk ve nihayet sizinle buluştu! Siz ne düşünüyorsunuz? Yorumlarda buluşalım, tüm fikirlerinizi bekliyoruz! 👇🎉\n\n#Puble #Topluluk #Heyecan`;
+      } else if (aiTone === "Heyecanlı") {
+        output = `🔥 BOMBA GİBİ BİR GELİŞME!\n\n${aiPrompt.trim()} 💥\n\nBeklediğinize değecek bu yenilik tam şu an yayında! Sınırlı süreli avantajları kaçırmamak için hemen bio'daki linke tıkla! ⏳\n\nArkadaşını etiketle, bu fırsatı ilk o öğrensin! 👇🚀 #Fırsat #Trend #Puble`;
+      } else {
+        output = `💡 ${aiPrompt.trim()}:\n\nDoğru stratejiyi uygulamak için dikkat etmeniz gereken 3 altın adım:\n1. Hedef kitlenizi iyi tanıyın 🎯\n2. Düzenli ve tutarlı içerik ritmi oluşturun 📅\n3. Verileri haftalık analiz edin 📊\n\nDaha sonra dönüp bakmak için gönderiyi kaydetmeyi unutmayın! 📌 #Eğitim #İpuçları #Puble`;
+      }
+
+      setAiGeneratedOutput(output);
+      complete("Puble AI içeriği başarıyla üretti ✓");
+    }, 600);
+  }
+
+  function handleUseTemplate(templateText: string) {
+    setPostText(templateText);
+    complete("Şablon editöre aktarıldı ✓");
   }
 
   return <div className={styles.composerBackdrop} role="presentation">
     <section className={styles.postComposer} role="dialog" aria-modal="true" aria-labelledby="post-composer-title">
-      <header className={styles.postComposerHead}><div><h2 id="post-composer-title">Gönderi oluştur</h2><button type="button">◇ Etiketler⌄</button></div><nav><button type="button">▤ Şablonlar</button><button type="button">✦ AI Asistan</button><button className={styles.previewActive} type="button">◉ Önizleme</button><button type="button" aria-label="Tam ekran">↗</button><button type="button" onClick={onClose} aria-label="Gönderi penceresini kapat">×</button></nav></header>
+      <header className={styles.postComposerHead}>
+        <div>
+          <h2 id="post-composer-title">Gönderi oluştur</h2>
+          <button type="button" onClick={() => { setPostText((p) => p ? p + "\n\n#Puble #SosyalMedya #Urla2026" : "#Puble #SosyalMedya #Urla2026"); complete("Kampanya etiketleri eklendi ✓"); }}>◇ Etiketler⌄</button>
+        </div>
+        <nav>
+          <button
+            type="button"
+            className={activeNavTab === "templates" ? styles.previewActive : ""}
+            onClick={() => setActiveNavTab("templates")}
+          >
+            ▤ Şablonlar
+          </button>
+          <button
+            type="button"
+            className={activeNavTab === "ai" ? styles.previewActive : ""}
+            onClick={() => setActiveNavTab("ai")}
+          >
+            <Image src="/UI/UX/publeai.svg" alt="" width={13} height={13} className={styles.navAiIcon} unoptimized />
+            AI Asistan
+          </button>
+          <button
+            type="button"
+            className={activeNavTab === "preview" ? styles.previewActive : ""}
+            onClick={() => setActiveNavTab("preview")}
+          >
+            ◉ Önizleme
+          </button>
+          <button type="button" aria-label="Tam ekran">↗</button>
+          <button type="button" onClick={onClose} aria-label="Gönderi penceresini kapat">×</button>
+        </nav>
+      </header>
       <div className={styles.postComposerBody}>
         <div className={styles.postEditorPane}>
-          <div className={styles.channelPicker} aria-label="Paylaşım kanalları">{channels.map((channel) => <button className={selectedChannels.includes(channel.id) ? styles.selectedChannel : ""} type="button" key={channel.id} onClick={() => toggleChannel(channel.id)} aria-pressed={selectedChannels.includes(channel.id)} title={channel.name}><span>{channel.icon}</span><small>{channel.name}</small></button>)}</div>
-          <div className={styles.postTextArea}><textarea value={postText} onChange={(event) => setPostText(event.target.value)} placeholder="Bir şeyler yaz veya şablonlardan ilham al…" maxLength={2200} /><div className={styles.mediaDrop}><input type="file" accept="image/*,video/*" onChange={(event) => setHasMedia(Boolean(event.target.files?.length))} aria-label="Gönderiye medya ekle" /><span>{hasMedia ? "✓" : "▧"}</span><b>{hasMedia ? "Medya eklendi" : "Sürükleyip bırak"}</b><small>{hasMedia ? "Dosya önizlemeye hazır" : "veya dosya seç"}</small></div><div className={styles.postTools}><button type="button">＋⌄</button><button type="button">☺</button><button type="button">#</button><span>{postText.length} / 2200</span></div></div>
+          <div className={styles.channelPicker} aria-label="Paylaşım kanalları">
+            {channels.map((channel) => (
+              <button
+                className={selectedChannels.includes(channel.id) ? styles.selectedChannel : ""}
+                type="button"
+                key={channel.id}
+                onClick={() => toggleChannel(channel.id)}
+                aria-pressed={selectedChannels.includes(channel.id)}
+                title={channel.name}
+              >
+                <span className={styles.channelIconWrap}>
+                  <Image
+                    src={`/assets/app_icons/${channel.iconFile}`}
+                    alt={channel.name}
+                    width={26}
+                    height={26}
+                    className={styles.channelIconImg}
+                    unoptimized
+                  />
+                </span>
+                <small>{channel.name}</small>
+              </button>
+            ))}
+          </div>
+          <div className={styles.postTextArea}>
+            <textarea
+              value={postText}
+              onChange={(event) => setPostText(event.target.value)}
+              placeholder="Bir şeyler yaz, AI asistan ile profesyonelleştir veya hazır şablonlardan ilham al…"
+              maxLength={2200}
+            />
+            <div className={styles.mediaDrop}>
+              <input type="file" accept="image/*,video/*" onChange={(event) => setHasMedia(Boolean(event.target.files?.length))} aria-label="Gönderiye medya ekle" />
+              <span>{hasMedia ? "✓" : "▧"}</span>
+              <b>{hasMedia ? "Medya eklendi" : "Sürükleyip bırak"}</b>
+              <small>{hasMedia ? "Dosya önizlemeye hazır" : "veya dosya seç"}</small>
+            </div>
+            <div className={styles.postTools}>
+              <button
+                type="button"
+                title="Alan/Değişken Ekle"
+                onClick={() => setPostText((p) => p ? p + " [Bağlantı/Detay]" : "[Bağlantı/Detay]")}
+              >
+                ＋⌄
+              </button>
+              <button
+                type="button"
+                title="Popüler Emojiler Ekle"
+                onClick={() => setPostText((p) => p ? p + " ✨ 🚀 🔥" : "✨ 🚀 🔥")}
+              >
+                ☺
+              </button>
+              <button
+                type="button"
+                title="Hashtag Ekle"
+                onClick={() => handleAiQuickAction("hashtags")}
+              >
+                #
+              </button>
+              <button
+                type="button"
+                className={styles.inlineAiChip}
+                onClick={() => setActiveNavTab("ai")}
+                title="Puble AI Asistanını Aç"
+              >
+                <Image src="/UI/UX/publeai.svg" alt="" width={12} height={12} unoptimized />
+                <span>AI İle Düzenle</span>
+              </button>
+              <span>{postText.length} / 2200</span>
+            </div>
+          </div>
         </div>
-        <aside className={styles.postPreviewPane}><div className={styles.previewTitle}><h3>Gönderi önizlemesi</h3><span>ⓘ</span></div>{postText || hasMedia ? <div className={styles.socialPostPreview}><div><i>BÖ</i><span><b>Puble</b><small>{selectedChannels.length || 0} kanalda yayınlanacak</small></span><em>•••</em></div><p>{postText || "Gönderi metnin burada görünecek."}</p>{hasMedia ? <div className={styles.previewMedia}><SparkIcon /><b>Medya önizlemesi</b></div> : null}<footer><span>♡</span><span>◇</span><span>↗</span></footer></div> : <div className={styles.emptyPostPreview}><SparkIcon /><div><i /><i /><i /></div><p>Gönderinin önizlemesini burada göreceksin.</p><small>Bir kanal seçip içeriğini yazmaya başla.</small></div>}</aside>
+
+        <aside className={styles.postPreviewPane}>
+          {activeNavTab === "templates" ? (
+            <div className={styles.composerSubPane}>
+              <div className={styles.previewTitle}>
+                <div>
+                  <h3>İçerik Şablonları</h3>
+                  <small>Hazır kurguları tek tıkla editöre aktar.</small>
+                </div>
+                <span className={styles.templateCountBadge}>{filteredTemplates.length} Şablon</span>
+              </div>
+              <div className={styles.templateCategoryRow}>
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={selectedCategory === cat ? styles.templateCatActive : styles.templateCatBtn}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <div className={styles.templateList}>
+                {filteredTemplates.map((template) => (
+                  <article key={template.id} className={styles.templateCard}>
+                    <div className={styles.templateCardHead}>
+                      <span className={styles.templateTag}>{template.category}</span>
+                      <span className={styles.templateChannels}>{template.channelHint}</span>
+                    </div>
+                    <h4>{template.title}</h4>
+                    <p>{template.text}</p>
+                    <div className={styles.templateCardFoot}>
+                      <button
+                        type="button"
+                        className={styles.useTemplateBtn}
+                        onClick={() => handleUseTemplate(template.text)}
+                      >
+                        Şablonu kullan ↗
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : activeNavTab === "ai" ? (
+            <div className={styles.composerSubPane}>
+              <div className={styles.aiPaneHead}>
+                <div className={styles.aiPaneTitle}>
+                  <span className={styles.aiPaneIconWrap}>
+                    <Image src="/UI/UX/publeai.svg" alt="Puble AI" width={22} height={22} unoptimized priority />
+                  </span>
+                  <div>
+                    <h3>Puble AI Asistanı</h3>
+                    <small>İçeriğini zenginleştir, kanca ekle ve dönüştür.</small>
+                  </div>
+                </div>
+                <span className={styles.aiLiveBadge}>● Aktif</span>
+              </div>
+
+              <div className={styles.aiSection}>
+                <label className={styles.aiSectionLabel}>HIZLI DOKUNUŞLAR (1-TIK)</label>
+                <div className={styles.aiQuickGrid}>
+                  {aiQuickActions.map((action) => (
+                    <button
+                      key={action.id}
+                      type="button"
+                      className={styles.aiQuickBtn}
+                      onClick={() => handleAiQuickAction(action.id)}
+                    >
+                      <span>{action.icon}</span>
+                      <div>
+                        <b>{action.label}</b>
+                        <small>{action.desc}</small>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.aiSection}>
+                <label className={styles.aiSectionLabel}>SIFIRDAN İÇERİK ÜRETİCİ</label>
+                <div className={styles.aiGeneratorBox}>
+                  <textarea
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="Örn: Yeni yaz koleksiyonumuz için Instagram'da merak uyandıracak bir lansman metni yaz..."
+                    rows={3}
+                  />
+                  <div className={styles.aiToneRow}>
+                    <span>Ton:</span>
+                    {["Profesyonel", "Samimi", "Heyecanlı", "Eğitici"].map((tone) => (
+                      <button
+                        key={tone}
+                        type="button"
+                        className={aiTone === tone ? styles.aiToneActive : styles.aiToneBtn}
+                        onClick={() => setAiTone(tone)}
+                      >
+                        {tone}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.aiGenerateBtn}
+                    onClick={handleGenerateAiContent}
+                    disabled={isAiGenerating || !aiPrompt.trim()}
+                  >
+                    {isAiGenerating ? (
+                      <>
+                        <span className={styles.aiSpinner} />
+                        Puble AI üretiyor…
+                      </>
+                    ) : (
+                      <>
+                        <Image src="/UI/UX/publeai.svg" alt="" width={15} height={15} unoptimized />
+                        ✦ İçerik Üret
+                      </>
+                    )}
+                  </button>
+
+                  {aiGeneratedOutput ? (
+                    <div className={styles.aiResultBox}>
+                      <div className={styles.aiResultHead}>
+                        <span>Üretilen İçerik</span>
+                        <small>Seçili kanallara uyarlandı</small>
+                      </div>
+                      <p>{aiGeneratedOutput}</p>
+                      <div className={styles.aiResultActions}>
+                        <button
+                          type="button"
+                          className={styles.aiApplyBtn}
+                          onClick={() => {
+                            setPostText(aiGeneratedOutput);
+                            complete("Metin editöre aktarıldı ✓");
+                            setActiveNavTab("preview");
+                          }}
+                        >
+                          Editöre Aktar & Önizle →
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.aiAppendBtn}
+                          onClick={() => {
+                            setPostText((prev) => (prev ? prev + "\n\n" + aiGeneratedOutput : aiGeneratedOutput));
+                            complete("Metnin sonuna eklendi ✓");
+                          }}
+                        >
+                          Sona Ekle +
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className={styles.previewTitle}><h3>Gönderi önizlemesi</h3><span>ⓘ</span></div>
+              {postText || hasMedia ? (
+                <div className={styles.socialPostPreview}>
+                  <div>
+                    <i>BÖ</i>
+                    <span>
+                      <b>Puble</b>
+                      <small>{selectedChannels.length || 0} kanalda yayınlanacak</small>
+                    </span>
+                    <div className={styles.previewBadgeRow}>
+                      {channels.filter((c) => selectedChannels.includes(c.id)).map((c) => (
+                        <Image key={c.id} src={`/assets/app_icons/${c.iconFile}`} alt={c.name} width={16} height={16} className={styles.previewChannelBadge} unoptimized />
+                      ))}
+                    </div>
+                    <em>•••</em>
+                  </div>
+                  <p>{postText || "Gönderi metnin burada görünecek."}</p>
+                  {hasMedia ? <div className={styles.previewMedia}><SparkIcon /><b>Medya önizlemesi</b></div> : null}
+                  <footer><span>♡</span><span>◇</span><span>↗</span></footer>
+                </div>
+              ) : (
+                <div className={styles.emptyPostPreview}>
+                  <SparkIcon />
+                  <div><i /><i /><i /></div>
+                  <p>Gönderinin önizlemesini burada göreceksin.</p>
+                  <small>Bir kanal seçip içeriğini yazmaya başla.</small>
+                </div>
+              )}
+            </>
+          )}
+        </aside>
       </div>
-      <footer className={styles.postComposerFoot}><button type="button" onClick={() => complete("Taslak kaydedildi")}>Taslağı kaydet</button><div>{feedback ? <span>{feedback}</span> : null}<button type="button" onClick={() => complete("Gönderi planlandı")}>Planla</button><button type="button" onClick={() => complete("Gönderi paylaşım kuyruğuna alındı")}>Paylaş</button></div></footer>
+      <footer className={styles.postComposerFoot}>
+        <button type="button" onClick={() => complete("Taslak kaydedildi")}>Taslağı kaydet</button>
+        <div>
+          {feedback ? <span>{feedback}</span> : null}
+          <button type="button" onClick={() => complete("Gönderi planlandı")}>Planla</button>
+          <button type="button" onClick={() => complete("Gönderi paylaşım kuyruğuna alındı")}>Paylaş</button>
+        </div>
+      </footer>
     </section>
   </div>;
 }
@@ -583,14 +1266,14 @@ function AIChat({ open, onToggle, onClose, onNavigate }: { open: boolean; onTogg
 
   return <div className={styles.aiChatRoot}>
     {open ? <section className={styles.aiChat} role="dialog" aria-modal="false" aria-labelledby="ai-chat-title">
-      <header className={styles.aiChatHead}><div className={styles.aiAvatar}><SparkIcon /></div><div><span>PUBLE AI</span><h2 id="ai-chat-title">Akış asistanın</h2><small><i /> Çevrimiçi</small></div><button type="button" onClick={onClose} aria-label="AI sohbetini kapat">×</button></header>
+      <header className={styles.aiChatHead}><div className={styles.aiAvatar}><Image src="/UI/UX/publeai.svg" alt="Puble AI" width={26} height={28} className={styles.publeAiIcon} unoptimized priority /></div><div><span>PUBLE AI</span><h2 id="ai-chat-title">Akış asistanın</h2><small><i /> Çevrimiçi</small></div><button type="button" onClick={onClose} aria-label="AI sohbetini kapat">×</button></header>
       <div className={styles.aiContext}><span>Bu çalışma alanını kullanıyor</span><div><i>●</i> Inbox <i>▦</i> Kitaplık <i>▣</i> Planner</div></div>
-      <div className={styles.aiMessages}>{messages.map((message) => <div className={message.role === "user" ? styles.aiUserMessage : styles.aiAssistantMessage} key={message.id}>{message.role === "assistant" ? <span><SparkIcon /></span> : null}<p>{message.text}</p></div>)}</div>
+      <div className={styles.aiMessages}>{messages.map((message) => <div className={message.role === "user" ? styles.aiUserMessage : styles.aiAssistantMessage} key={message.id}>{message.role === "assistant" ? <span><Image src="/UI/UX/publeai.svg" alt="" width={18} height={19} className={styles.publeAiIcon} unoptimized /></span> : null}<p>{message.text}</p></div>)}</div>
       {messages.length < 4 ? <div className={styles.aiPrompts}><button type="button" onClick={() => addPrompt("Bugünkü içerik planımı özetle")}>Bugünkü planı özetle</button><button type="button" onClick={() => addPrompt("Reklam performansım nasıl?")}>Reklam performansı</button><button type="button" onClick={() => { onNavigate("editor"); onClose(); }}>Yeni içerik üret →</button></div> : null}
       <form className={styles.aiComposer} onSubmit={sendMessage}><label><textarea aria-label="Puble AI mesajı" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Puble AI'a bir şey sor…" rows={2} /><span>⌘ Enter</span></label><button type="submit" aria-label="AI mesajını gönder">↑</button></form>
-      <footer><SparkIcon /> Yanıtlar çalışma alanındaki demo verilerinden üretilir.</footer>
+      <footer><Image src="/UI/UX/publeai.svg" alt="" width={15} height={16} className={styles.publeAiIcon} unoptimized /> Yanıtlar çalışma alanındaki demo verilerinden üretilir.</footer>
     </section> : null}
-    <button className={`${styles.aiBubble} ${open ? styles.aiBubbleOpen : ""}`} type="button" aria-label={open ? "AI sohbetini kapat" : "Puble AI sohbetini aç"} aria-expanded={open} onClick={onToggle}><span className={styles.aiBubbleIcon}><SparkIcon /></span><span className={styles.aiBubbleLabel}><b>Puble AI</b><small>Bir şey sor</small></span>{!open ? <i>1</i> : <em>×</em>}</button>
+    <button className={`${styles.aiBubble} ${open ? styles.aiBubbleOpen : ""}`} type="button" aria-label={open ? "AI sohbetini kapat" : "Puble AI sohbetini aç"} aria-expanded={open} onClick={onToggle}><span className={styles.aiBubbleIcon}><Image src="/UI/UX/publeai.svg" alt="Puble AI" width={28} height={30} className={styles.publeAiIcon} unoptimized priority /></span><span className={styles.aiBubbleLabel}><b>Puble AI</b><small>Bir şey sor</small></span>{!open ? <i>1</i> : <em>×</em>}</button>
   </div>;
 }
 
@@ -604,18 +1287,18 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: () =
 }
 
 const socialPlatforms = [
-  { key: "instagram", icon: "ig", name: "Instagram", detail: "Meta Graph API", color: "purple" },
-  { key: "threads", icon: "th", name: "Threads", detail: "Threads API", color: "dark" },
-  { key: "linkedin", icon: "in", name: "LinkedIn", detail: "LinkedIn Marketing API", color: "blue" },
-  { key: "facebook", icon: "fb", name: "Facebook", detail: "Meta Graph API", color: "blue" },
-  { key: "bluesky", icon: "bs", name: "BlueSky", detail: "AT Protocol", color: "mint" },
-  { key: "substack", icon: "su", name: "Substack", detail: "Publication API", color: "dark" },
-  { key: "youtube", icon: "yt", name: "YouTube", detail: "YouTube Data API", color: "purple" },
-  { key: "tiktok", icon: "tt", name: "TikTok", detail: "TikTok for Developers", color: "dark" },
-  { key: "mastodon", icon: "ma", name: "Mastodon", detail: "Mastodon REST API", color: "blue" },
-  { key: "pinterest", icon: "pi", name: "Pinterest", detail: "Pinterest API", color: "purple" },
-  { key: "googleBusiness", icon: "gb", name: "Google Business", detail: "Business Profile API", color: "mint" },
-  { key: "twitter", icon: "x", name: "Twitter / X", detail: "X API", color: "dark" },
+  { key: "instagram", iconFile: "instagram.png", name: "Instagram", detail: "Meta Graph API", color: "purple" },
+  { key: "threads", iconFile: "Threads.png", name: "Threads", detail: "Threads API", color: "dark" },
+  { key: "linkedin", iconFile: "Linkedin.png", name: "LinkedIn", detail: "LinkedIn Marketing API", color: "blue" },
+  { key: "facebook", iconFile: "Facebook icon.png", name: "Facebook", detail: "Meta Graph API", color: "blue" },
+  { key: "bluesky", iconFile: "Bluesky icon.png", name: "BlueSky", detail: "AT Protocol", color: "mint" },
+  { key: "substack", iconFile: "Substack icon.png", name: "Substack", detail: "Publication API", color: "dark" },
+  { key: "youtube", iconFile: "Youtube icon.png", name: "YouTube", detail: "YouTube Data API", color: "purple" },
+  { key: "tiktok", iconFile: "Tiktok icon.png", name: "TikTok", detail: "TikTok for Developers", color: "dark" },
+  { key: "mastodon", iconFile: "Mastodon icon.png", name: "Mastodon", detail: "Mastodon REST API", color: "blue" },
+  { key: "pinterest", iconFile: "Pinterest icon.png", name: "Pinterest", detail: "Pinterest API", color: "purple" },
+  { key: "googleBusiness", iconFile: "Google Business icon.png", name: "Google Business", detail: "Business Profile API", color: "mint" },
+  { key: "twitter", iconFile: "X icon.png", name: "Twitter / X", detail: "X API", color: "dark" },
 ] as const;
 
 function Settings({ user, activeTab, onTabChange }: { user: DemoUser; activeTab?: SettingsTab; onTabChange?: (tab: SettingsTab) => void }) {
@@ -662,7 +1345,7 @@ function Settings({ user, activeTab, onTabChange }: { user: DemoUser; activeTab?
         <SettingTitle eyebrow="CONNECT" title="Bağlı hesaplar" text="Desteklenen sosyal ağların API anahtarlarını ekle ve bağlantı durumlarını yönet." />
         <div className={styles.apiSecurityNote}><span>⌾</span><div><b>Anahtar güvenliği</b><p>Bu demo alanlara yazılan anahtarları kalıcı olarak saklamaz. Production&apos;da anahtarlar şifrelenmiş sunucu secret&apos;ları olarak tutulmalıdır.</p></div></div>
         <div className={styles.integrationGrid}>{socialPlatforms.map((account) => <article key={account.key}>
-          <div className={styles.integrationHead}><i className={styles[account.color]}>{account.icon}</i><div><b>{account.name}</b><small>{account.detail}</small></div><span className={connected[account.key] ? styles.connected : styles.disconnected}><u />{connected[account.key] ? "Bağlı" : "Bağlı değil"}</span></div>
+          <div className={styles.integrationHead}><span className={styles.accountIconWrap}><Image src={`/assets/app_icons/${account.iconFile}`} alt={account.name} width={22} height={22} className={styles.channelIconImg} unoptimized /></span><div><b>{account.name}</b><small>{account.detail}</small></div><span className={connected[account.key] ? styles.connected : styles.disconnected}><u />{connected[account.key] ? "Bağlı" : "Bağlı değil"}</span></div>
           <label>API Key / Access Token<div><input type="password" autoComplete="off" value={apiKeys[account.key] ?? ""} onChange={(event) => setApiKeys((items) => ({ ...items, [account.key]: event.target.value }))} placeholder={`${account.name} anahtarını gir`} /><button type="button" disabled={!apiKeys[account.key]} onClick={() => setConnected((items) => ({ ...items, [account.key]: true }))}>{connected[account.key] ? "Güncelle" : "Bağla"}</button></div></label>
         </article>)}</div>
         <div className={styles.settingNotice}><SparkIcon /><div><b>MockSocialProvider aktif</b><small>Gerçek sağlayıcı bağlantıları tamamlanana kadar güvenli demo verileri kullanılmaya devam eder.</small></div></div>

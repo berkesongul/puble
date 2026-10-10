@@ -271,5 +271,30 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
   - Sidebar navigasyon listesi (`<nav>`) `flex: 1 1 auto; min-height: 0; overflow-y: auto;` yapılarak ekran boyu kısaldığında bağımsız, ince ve modern bir kaydırma çubuğuyla (`scrollbar`) kendi içinde kaydırılabilir hale getirildi.
   - "Gönderi oluştur" ve Free Plan kartını içeren `.sidebarBottom` alanı `flex: 0 0 auto; margin-top: auto;` ile panelin altına kalıcı olarak sabitlendi (pinned); pencere ne kadar kısalırsa kısalsın asla gizlenmez ve ekrandan taşmaz.
   - Kompakt ekran yükseklikleri için (`@media (max-height: 860px)` ve `@media (max-height: 700px)`) buton yükseklikleri, logo boşluğu ve kart dolguları dinamik olarak küçültülerek dikey alan verimliliği optimize edildi.
+- Gönderi oluşturma (`PostComposerModal`) penceresindeki kanal seçim butonlarına ve Ayarlar > Bağlı Hesaplar listesine `public/assets/app_icons` altındaki 12 sosyal medya platform ikonu entegre edildi:
+  - Eski metin tabanlı kısaltmalar yerine Instagram, Threads, LinkedIn, Facebook, X (Twitter), TikTok, YouTube, Pinterest, BlueSky, Substack, Mastodon ve Google Business platformlarının saydam arka planlı gerçek logo ikonları yerleştirildi.
+  - Kanal seçim butonları (`.channelPicker button`) modern kart tasarımına geçirildi: hover sırasında mikro etkileşim (hafif yukarı kayma ve büyüme), seçili kanallarda gradient arka plan vurgusu, ışıltılı kontur ve canlı doygunluk sağlandı; seçili olmayan kanallar hafif opaklık ile ayrıştırıldı.
+  - Gönderi önizleme kartında (`.socialPostPreview`) seçilen tüm kanalların minyatür ikon rozetleri canlı olarak listelenecek şekilde bağlandı.
+- Web panelindeki Gelen Kutusu (`Inbox`) arayüzü, kullanıcının paylaştığı yeni tasarıma birebir uyacak şekilde 3 kolonlu modern görünüme dönüştürüldü:
+  - Üst başlık alanı özelleştirildi: Büyük ve cesur `Gelen Kutusu` başlığı ve arka planda sağ üstte yüzen konuşma balonları çizim illüstrasyonu (`inbox_bubbles.svg`) konumlandırıldı.
+  - Ana kart yapısı 28 px yuvarlatılmış köşeli, gölgeli beyaz zemin üzerinde 3 bölmeli yapıya geçirildi:
+    1. **Sol Kolon (Konuşma Listesi):** `Tümü 12` (aktif mor/mavi pill) ve `Okunmamış` filtre sekmeleri; aktif `Nira Studio` (NS daire avatar, saat ve son mesaj) kartı ve çizgilerle ayrılmış ferah liste bölümleri.
+    2. **Orta Kolon (Sohbet Akışı):** Squircle `NS` avatarı ve `Nira Studio` başlığı; açık gri gelen mesaj balonu ve kraliyet mavisi (`#2722b5`) giden mesaj balonu; mesaj kutusu üzerinde yüzen aksiyon kartı (`Profesyonelleştir` gradyan butonu, `Takvim'e ekle` ve `Dosya ekle` pilleri); alt kısımda `+` simgeli yuvarlak açık gri mesaj giriş barı.
+    3. **Sağ Kolon (Profil ve Medya Izgarası):** Büyük dairesel mavi `NS` avatarı, `@ninastudio / Instagram` kullanıcı adı, `2,026 Followers` takipçi sayısı ve 3 sütunlu 12 adet stüdyo fotoğrafı içeren Instagram tarzı medya ızgarası (sabitlenmiş 📌, video ▷ ve çoklu görsel ⧉ rozetleriyle).
+- Header navigasyonundaki dil seçici, tarayıcının yerel/sarı vurgulu ham `<select>` menüsü yerine Puble tasarım sistemine uygun özel CSS açılır menüsüne (`language-dropdown-wrapper`) dönüştürüldü:
+  - Tetikleyici buton (`.language-trigger`); mint rengi `◎` ikonu, seçili dil etiketi ve dönen chevron (`⌄`) simgesiyle cam efektli (glassmorphism) koyu pill biçimine geçirildi.
+  - Açılır liste (`.language-menu`); koyu arka plan, blur efekti, yumuşak açılma animasyonu, seçili dilde Puble degrade arka planı (`#0002A1 → #332FD0`), mint onay işareti (`✓`), hover mikro-etkileşimleri ve dışarı tıklama/Escape ile kapanma desteğiyle geliştirildi.
+- Panel sağ altındaki Puble AI sohbet baloncuğunda (`.aiBubble`) ve AI sohbet paneli başlığında `public/UI/UX/publeai.svg` logosu kullanılmaya başlandı:
+  - Eski genel spark simgesi yerine mint (`#13F0BC`) ve mor (`#836FFF`) tonlu resmi Puble AI yıldız vektörü entegre edildi.
+  - İkon kapsayıcısı (`.aiBubbleIcon`, `.aiAvatar`) koyu cam efektli (`rgba(12, 10, 36, 0.72)`) bir zeminle desteklenerek logonun çift renkli parıltısı öne çıkarıldı; hover sırasında mikro büyüme ve hafif dönme animasyonu eklendi.
+- Gönderi oluşturma penceresinde (`PostComposerModal`) üst navigasyondaki **Şablonlar** ve **AI Asistan** sekmeleri tam etkileşimli ve fonksiyonel hale getirildi:
+  - Header navigasyonundaki `▤ Şablonlar`, `✦ AI Asistan` ve `◉ Önizleme` butonları dinamik durum yönetimine (`activeNavTab`) bağlandı; aktif sekme Puble degrade arka planı (`var(--puble-gradient)`) ve beyaz metinle vurgulanır hale getirildi.
+  - **Şablonlar Paneli (`templates`):** Lansman, Kampanya, Eğitici, Topluluk ve Duyuru kategorilerini içeren hazır sosyal medya metin şablonları kütüphanesi entegre edildi. Kategori filtre pilleri, kanal uyumluluk rozetleri ve tek tıkla metni editöre aktaran `Şablonu kullan ↗` aksiyonu eklendi.
+  - **AI Asistan Paneli (`ai`):** Resmi `publeai.svg` logolu başlık ve iki ana üretim modülü oluşturuldu:
+    1. *Hızlı Dokunuşlar (1-Tık):* Metni Profesyonelleştir (kurumsal, akıcı dile dönüştürme), Kanca (Hook) Ekle, Viral Hashtag'ler Üret (seçili kanallara duyarlı trend etiketler), Etkili CTA Ekle, X & Threads İçin Özetle (280 karaktere uyarlama) ve Samimi & Enerjik Yap.
+    2. *Sıfırdan İçerik Üretici:* Serbest prompt giriş alanı, ton seçimi (Profesyonel, Samimi, Heyecanlı, Eğitici), canlı yükleme animasyonlu `✦ İçerik Üret` butonu ve üretilen içeriği doğrudan editöre aktarma ya da sona ekleme butonları (`Editöre Aktar & Önizle →`, `Sona Ekle +`).
+  - Editör araç çubuğuna (`postTools`) popüler emoji ekleme (`☺`), hızlı hashtag girişi (`#`) ve doğrudan AI asistan sekmesini açan satır içi `AI İle Düzenle` çipi yerleştirildi.
+  - Modalın sağ paneli (`.postPreviewPane`) içerik uzadığında modal düzenini bozmadan akıcı bir şekilde kaydırılabilmesi için özel koyu scrollbar ile dikey kaydırmaya (`overflow-y: auto`) uyarlandı; mobil ekranlarda da sekmelerin kullanılabilmesi sağlandı.
+
 
 
