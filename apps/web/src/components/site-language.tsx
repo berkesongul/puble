@@ -30,6 +30,7 @@ const baseCopy = {
   login: "Giriş yap",
   signup: "Hesap oluştur",
   panel: "Panele git",
+  profile: "Profil",
   logout: "Çıkış yap",
   eyebrow: "Sosyal çalışma alanın",
   heroA: "Sosyal medyayı",

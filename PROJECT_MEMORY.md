@@ -392,3 +392,61 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
     - 🇫🇷 **Français**
     - 🇸🇦 **العربية**
   - Tetikleyici butonda aktif seçili dilin bayrağı (`.language-trigger-flag`) gösterilecek şekilde güncellendi; açılır menüdeki tüm seçeneklerde bayrak ve metin sola hizalı, gölgeli ve mint renkli onay işareti (`✓`) sağa hizalı modern bir düzene kavuşturuldu.
+- **Panel Sol Navigasyon Butonlarına Yeni Resmi SVG İkonları Entegre Edildi:**
+  - `apps/web/public/UI/` altındaki 4 özel SVG ikonu paneldeki ilgili navigasyon butonlarına bağlandı (`panel-app.tsx` `navItems`):
+    1. **Editör (`editor`):** `public/UI/editor.svg` çizim/kalem ikonu bağlandı.
+    2. **Planlayıcı (`planner`):** `public/UI/Planlayici.svg` takvim ikonu bağlandı.
+    3. **Kreatörler (`social`):** `public/UI/kreatorler.svg` tavşan amblem ikonu bağlandı.
+    4. **Ayarlar (`settings`):** `public/UI/ayarlar.svg` çark/ayar ikonu bağlandı.
+- **Banner Sağındaki Görsel Analitik Dashboard Showcase Olarak Kodlandı:**
+  - Ana sayfa hero bölümündeki (`apps/web/src/app/page.tsx` `.product-stage`) eski gelen kutusu / sohbet mockup'ı kaldırıldı; yerine kullanıcının ilettiği ekran görüntüsüyle birebir uyumlu, piksel hassasiyetinde ve interaktif **Analitik Dashboard** bileşeni kodlandı:
+    - **Header:** `MEASURE` etiketi, `Analitik` başlığı, açıklama metni, `● 3 hesap bağlı` canlı yeşil rozet ve `+ Yeni oluştur` degrade hap butonu.
+    - **Dönem Filtresi:** `30 gün`, `90 gün`, `12 ay` hap butonları ile interaktif durum yönetimi (`analyticsPeriod`) ve `↓ Raporu indir` butonu.
+    - **4 Metrik / KPI Kartı:**
+      1. `Toplam erişim` · `593.4K` · `↗ %21.8` · `Önceki döneme göre`
+      2. `Etkileşim` · `42.8K` · `↗ %14.2` · `Beğeni, yorum ve paylaşım`
+      3. `Yeni takipçi` · `+3,284` · `↗ %18.6` · `Tüm kanallar`
+      4. `Ort. etkileşim` · `%6.3` · `↗ %0.8` · `Sektör ortalaması %3.9`
+    - **Erişim Trendi Kartı (`ERİŞİM TRENDİ`):** "Kanalların birlikte büyüyor." başlığı, alt açıklama, `● Organik` (mor) ve `● Reklam` (neon mint) göstergeleri, 12 adet iki renkli yığılmış dikey sütun grafiği (stacked bars) ve x ekseni tarih etiketleri (`1 Eki`, `8 Eki`, `15 Eki`, `22 Eki`, `30 Eki`).
+    - **En İyi İçerik Kartı (`EN İYİ İÇERİK`):** Mor/mavi degrade görsel önizleme alanı ("akışını yenile. REELS · 18 EKİM"), `Mira Studio lansman reels` başlığı, erişim (`84.2K`) ve etkileşim (`%9.4`) metrik kutusu ve `İçeriği görüntüle →` butonu.
+    - **Yüzen Puble AI Butonu:** Kartın sağ alt köşesinde mor konturlu dairesel gradyan Puble AI yıldız rozeti ve bildirim sayacı (`1`).
+    - **3D Yandan Perspektif & Hover:** Eski vitrin penceresindeki gibi `transform: perspective(1300px) rotateY(-5deg) rotateX(1.8deg)` ile 3D yandan bakış perspektifi, `preserve-3d` derinliği ve hover anında yumuşak hafif yüzleşme (`rotateY(-2deg) rotateX(0.8deg) translateY(-4px)`) animasyonu uygulandı; mobil ekranlarda `transform: none` ile düzeltildi.
+    - Responsive tasarım için `max-width: 1050px` ve `max-width: 760px` breakpoint'leri güncellendi; `minmax(0, 1fr)` grid yapısıyla taşmalar engellendi.
+- **Landing Page Creator Bölümü (04 / SOCIAL - Keşfet. Takip et. Birlikte üret.) Yenilendi:**
+  - Kullanıcının ilettiği görsel tasarımla birebir uyumlu olacak şekilde `#creators` bölümü sıfırdan yeniden düzenlendi:
+    - **Sol Sütun (3 Kreatör Kartı):**
+      - **Kart 1:** `ST` avatarlı derin mavi (`#0002A1`) daire, sağ üstünde açılı neon mint rozet (`#15F5BA`), `@studioform` kullanıcı adı, `Gradient Reel Pack` paket başlığı, `Template'i kullan` gradyan hap butonu ve `#creator` etiketi.
+      - **Kart 2:** `MI` avatarlı neon mint (`#15F5BA`) daire, `@mira.design`, `Launch Story Kit`, `Template'i kullan` butonu ve `#creator` etiketi.
+      - **Kart 3:** `MI` avatarlı mor (`#836FFF`) daire, `@mira.design`, `Launch Story Kit`, `Template'i kullan` butonu ve `#creator` etiketi.
+      - Kartlarda yumuşak kart sınırları (`20px`), hafif gölge, hover'da yukarı süzülme ve derin mavi-mor-mint gradyan butonlar uygulandı.
+    - **Sağ Sütun (Puble STUDIO Vitrin Kartı):**
+      - Üst kısımda aurora/mesh gradyanlı (camgöbeği, mint ve derin mavi geçişli, alta doğru beyaza eriyen) kapak banner'ı.
+      - Banner üzerine binen beyaz kenarlıklı derin mavi dairesel `PU` avatarı.
+      - `Puble STUDIO` marka başlığı ve `24 Template · 1,569 Takipçi` sayaç bilgisi.
+      - Sağ üstte `Takip Et` gradyan hap butonu.
+      - Alt kısımda 3x2 ızgara şeklinde 6 adet palet/renk örneği kartı (`Mint`, `Purple`, `Deep Blue`, `Purple`, `Deep Blue`, `Mint`), 18px köşe yuvarlatması ve hover mikro etkileşimleri.
+    - CSS responsive yapısı `1050px` ve `760px` ekran genişliklerine göre uyarlandı.
+    - Temiz derleme ve görsel doğrulama gerçekleştirildi (`npm run build` hatasız tamamlandı).
+- **Header Profil Tetikleyici & Panel Profil Bölümü Entegrasyonu:**
+  - **Sağ Üst Profil Tetikleyicisi & Açılır Menü Yenilendi:**
+    - `.profile-trigger` fontu büyütüldü ve netleştirildi (`b` font-size 14px, weight 700; `small` font-size 11px); hap biçiminde (`border-radius: 999px`) şık camgöbeği/lacivert gradyan arayüz kazandırıldı.
+    - `PP` avatar rozeti büyütüldü (36x36px, neon mint zemin, koyu zümrüt kalın font).
+    - Açılır menüye (`.profile-dropdown`) "Profil" butonu (`/panel?view=profile`) eklendi ve "Panele git" ile birlikte hiyerarşik olarak konumlandırıldı; dışarı tıklayınca kapanma desteği sağlandı.
+  - **Panelde Profil Sekmesi (`view === "profile"`) Geliştirildi:**
+    - Sol sidebar navigasyonuna resmi `ayarlar-profil.svg` tavşan amblem ikonuyla `Profil` sekmesi eklendi.
+    - Topbar sağındaki kullanıcı kutusuna tıklanarak da doğrudan Profil sekmesine geçiş sağlandı; URL query parametresi (`?view=profile` veya `?tab=profile`) ile doğrudan açılabilmesi desteklendi.
+    - **Aurora Kapak & Yüzen Aksiyon Adası (3 Buton):**
+      - Üst kısımda aurora mesh gradyan kapak banner'ı.
+      - Sağ üstte beyaz kart adası içinde 3 buton:
+        1. **Heart (Beğenilenler):** Degrade kalp ikonu ve `14` rozet sayacı ile "Likelanan İçerikler" görünümüne geçiş.
+        2. **Bookmark (Kaydedilenler):** Degrade kaydet ikonu ve `9` rozet sayacı ile "Kaydedilenler" görünümüne geçiş.
+        3. **Share (Paylaş):** Degrade paylaşım ikonu. Tıklandığında profili X, LinkedIn, WhatsApp ve diğer uygulamalarda paylaşma modalını ve profil bağlantısı kopyalama işlevini açar.
+    - **Kimlik Bilgisi:** Banner'a binen 96px beyaz konturlu lacivert `PP` avatarı, `Pig Puble STUDIO` başlığı, `● Aktif Üretici` rozeti ve alt bilgi.
+    - **Son Zamanlardaki Aktiviteler & Rapor (3 Alt Sekme):**
+      - **Aktivite Raporu (Varsayılan):**
+        - 4 KPI Göstergesi: Üretim Hacmi (24 İçerik), AI Optimizasyon (%94 Oran), Toplam Erişim (142.8K), Topluluk Etkileşimi (387 Kaydetme).
+        - Üretim Ritmi & 4 Haftalık Isı Haritası (Heatmap) + PDF Rapor İndirme butonu.
+        - Kronolojik Son Aktiviteler Zaman Akışı (Editör dışa aktarımı, AI iyileştirmesi, Takvim planlaması, Kreatör takibi, Performans özeti).
+      - **Likelanan İçerikler:** Beğenilen kreatör şablonları kart ızgarası ve "Editörde Aç" aksiyonları.
+      - **Kaydedilenler:** Kullanıcının kaydettiği taslaklar ve şablonlar ile düzenleme butonları.
+

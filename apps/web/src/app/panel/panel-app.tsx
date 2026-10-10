@@ -20,7 +20,7 @@ const PubleStudio = dynamic(() => import("@/components/studio"), {
   ),
 });
 
-type View = "overview" | "inbox" | "editor" | "library" | "planner" | "series" | "ads" | "analytics" | "social" | "settings";
+type View = "overview" | "inbox" | "editor" | "library" | "planner" | "series" | "ads" | "analytics" | "social" | "profile" | "settings";
 type SettingsTab = "profile" | "accounts" | "brand" | "notifications" | "usage" | "security";
 
 type LibraryItem = {
@@ -122,14 +122,15 @@ const initialLibrary: LibraryItem[] = [
 const navItems: { id: View; label: string; icon: string; iconSrc?: string }[] = [
   { id: "overview", label: "Ana panel", icon: "⌂", iconSrc: "/UI/UX/ana_akis.svg" },
   { id: "inbox", label: "Gelen Kutusu", icon: "●", iconSrc: "/UI/UX/gelen_kutusu.svg" },
-  { id: "editor", label: "Editör", icon: "◆" },
+  { id: "editor", label: "Editör", icon: "◆", iconSrc: "/UI/editor.svg" },
   { id: "library", label: "Kitaplık", icon: "▦", iconSrc: "/UI/icons/kitaplik.svg" },
-  { id: "planner", label: "Planlayıcı", icon: "▣" },
+  { id: "planner", label: "Planlayıcı", icon: "▣", iconSrc: "/UI/Planlayici.svg" },
   { id: "series", label: "Seriler", icon: "≋" },
   { id: "ads", label: "Reklamlar", icon: "◎", iconSrc: "/UI/icons/reklamlar.svg" },
   { id: "analytics", label: "Analitik", icon: "⌁", iconSrc: "/UI/icons/analitik.svg" },
-  { id: "social", label: "Kreatörler", icon: "✦" },
-  { id: "settings", label: "Ayarlar", icon: "⚙", iconSrc: "/UI/icons/ayarlar-calisma-alani.svg" },
+  { id: "social", label: "Kreatörler", icon: "✦", iconSrc: "/UI/kreatorler.svg" },
+  { id: "profile", label: "Profil", icon: "👤", iconSrc: "/UI/icons/ayarlar-profil.svg" },
+  { id: "settings", label: "Ayarlar", icon: "⚙", iconSrc: "/UI/ayarlar.svg" },
 ];
 
 const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> = {
@@ -142,6 +143,7 @@ const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> =
   ads: { eyebrow: "GROW", title: "Reklamlar", text: "Kampanyalarını, kreatiflerini ve performansını tek yerden yönet." },
   analytics: { eyebrow: "MEASURE", title: "Analitik", text: "Tüm kanallarının büyümesini, erişimini ve etkileşimini tek görünümde izle." },
   social: { eyebrow: "DISCOVER", title: "Creator Social", text: "Üreticileri ve özgün template paketlerini keşfet." },
+  profile: { eyebrow: "PROFILE & ACTIVITY", title: "Profil & Aktivite Raporu", text: "Hesap özetin, son çalışma alanı ritmin ve kaydettiğin içerikler." },
   settings: { eyebrow: "WORKSPACE", title: "Ayarlar", text: "Çalışma alanını, marka hafızanı ve kullanım tercihlerini yönet." },
 };
 
@@ -219,6 +221,17 @@ export function PanelApp() {
   useEffect(() => {
     if (serializedUser === null) router.replace("/auth?mode=login");
   }, [router, serializedUser]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get("view") || params.get("tab");
+    if (target === "profile" || window.location.hash === "#profile") {
+      setView("profile");
+    } else if (target && navItems.some((n) => n.id === target)) {
+      setView(target as View);
+    }
+  }, []);
 
   useEffect(() => {
     if (!planOpen) return;
@@ -390,7 +403,7 @@ export function PanelApp() {
               </>
             ) : null}
           </div>
-          <div className={styles.user}><span>{user.initials}</span><div><b>{user.name}</b><small>{user.email}</small></div><button type="button" onClick={signOut}>Çıkış</button></div>
+          <div className={styles.user} role="button" tabIndex={0} onClick={() => setView("profile")} title="Profil sayfasına git" style={{ cursor: "pointer" }}><span>{user.initials}</span><div><b>{user.name}</b><small>{user.email}</small></div><button type="button" onClick={(e) => { e.stopPropagation(); signOut(); }}>Çıkış</button></div>
         </header>
 
         <div className={styles.content}>
@@ -401,7 +414,7 @@ export function PanelApp() {
                 <Image src="/UI/UX/inbox_bubbles.svg" alt="" width={480} height={180} unoptimized priority />
               </div>
             </div>
-          ) : view === "editor" ? null : (
+          ) : view === "editor" || view === "profile" ? null : (
             <div className={styles.pageHead}>
               <div>
                 <span>{viewCopy[view].eyebrow}</span>
@@ -427,6 +440,7 @@ export function PanelApp() {
           {view === "ads" ? <Ads /> : null}
           {view === "analytics" ? <Analytics /> : null}
           {view === "social" ? <Social following={following} onFollow={toggleFollow} onUse={() => setView("editor")} /> : null}
+          {view === "profile" ? <Profile user={user} onOpenEditor={() => setView("editor")} /> : null}
           {view === "settings" ? <Settings user={user} activeTab={settingsTab} onTabChange={setSettingsTab} /> : null}
         </div>
       </section>
@@ -1423,4 +1437,441 @@ function SettingTitle({ eyebrow, title, text, badge }: { eyebrow: string; title:
 
 function UsageCard({ title, value, percent, note, color }: { title: string; value: string; percent: number; note: string; color: string }) {
   return <article><span>{title}</span><b>{value}</b><i><u className={styles[color]} style={{ width: `${percent}%` }} /></i><small>{note}</small></article>;
+}
+
+function Profile({ user, onOpenEditor }: { user: DemoUser | null; onOpenEditor: () => void }) {
+  const [activeTab, setActiveTab] = useState<"report" | "likes" | "saved">("report");
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
+
+  const profileUrl = typeof window !== "undefined" ? `${window.location.origin}/@pigpuble` : "https://puble.app/@pigpuble";
+
+  const handleCopyLink = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(profileUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2400);
+    }
+  };
+
+  const handleNativeShare = () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({
+        title: "Pig Puble Studio · Puble",
+        text: "Puble üzerinde içeriklerimi ve şablonlarımı incele!",
+        url: profileUrl,
+      }).catch(() => {});
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const handleDownloadReport = () => {
+    setDownloadNotice("Aktivite ve performans raporu hazırlandı ve PDF olarak indirildi! ✓");
+    setTimeout(() => setDownloadNotice(null), 3400);
+  };
+
+  const likedItems = [
+    { id: 1, title: "Gradient Reel Pack", creator: "@studioform", likes: "1.2K", tone: "blue", type: "Reels Şablonu", date: "Dün" },
+    { id: 2, title: "Launch Story Kit", creator: "@mira.design", likes: "854", tone: "mint", type: "Story Kiti", date: "3 gün önce" },
+    { id: 3, title: "Minimal Motion Set", creator: "@motionlab", likes: "2.4K", tone: "purple", type: "Motion Paketi", date: "5 gün önce" },
+    { id: 4, title: "Dark Aura Carousel", creator: "@creativestudio", likes: "940", tone: "dark", type: "Carousel Paketi", date: "1 hafta önce" },
+  ];
+
+  const savedItems = [
+    { id: 101, title: "Lansman Teaser Taslağı", format: "1080 × 1920", type: "Reels / Video", date: "Bugün 14:24", status: "Taslak" },
+    { id: 102, title: "Fiyat İndirimi Duyuru Postu", format: "1080 × 1350", type: "Görsel Tasarım", date: "6 Eki 10:05", status: "Taslak" },
+    { id: 103, title: "Haftalık Bülten Kapağı", format: "1080 × 1080", type: "Kare Post", date: "4 Eki 19:30", status: "Koleksiyon" },
+  ];
+
+  return (
+    <div className={styles.profileSection}>
+      {/* 1. Aurora Cover Banner matching user mockup */}
+      <div className={styles.profileHeroBanner}>
+        <div className={styles.profileBannerOverlay} />
+
+        {/* Top-Right White Action Island with 3 buttons */}
+        <div className={styles.profileActionIsland}>
+          {/* Heart / Likes */}
+          <button
+            type="button"
+            className={`${styles.profileIslandBtn} ${activeTab === "likes" ? styles.islandBtnActive : ""}`}
+            onClick={() => setActiveTab("likes")}
+            aria-label="Likelanan içerikler"
+            title="Likelanan içerikler (14)"
+          >
+            <svg viewBox="0 0 24 24" className={styles.islandHeartSvg} fill="none">
+              <defs>
+                <linearGradient id="islandHeartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#15f5ba" />
+                  <stop offset="100%" stopColor="#836fff" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                fill="url(#islandHeartGrad)"
+              />
+            </svg>
+            <span className={styles.islandBadge}>14</span>
+          </button>
+
+          {/* Bookmark / Saved */}
+          <button
+            type="button"
+            className={`${styles.profileIslandBtn} ${activeTab === "saved" ? styles.islandBtnActive : ""}`}
+            onClick={() => setActiveTab("saved")}
+            aria-label="Kaydedilen içerikler"
+            title="Kaydedilen içerikler (9)"
+          >
+            <svg viewBox="0 0 24 24" className={styles.islandBookmarkSvg} fill="none">
+              <defs>
+                <linearGradient id="islandSaveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#15f5ba" />
+                  <stop offset="100%" stopColor="#0002a1" />
+                </linearGradient>
+              </defs>
+              <rect x="3" y="3" width="18" height="18" rx="5" fill="url(#islandSaveGrad)" />
+              <path d="M8 8h8v10l-4-3-4 3V8z" fill="#ffffff" />
+            </svg>
+            <span className={styles.islandBadge}>9</span>
+          </button>
+
+          {/* Share Button */}
+          <button
+            type="button"
+            className={styles.profileIslandBtn}
+            onClick={() => setShareOpen(true)}
+            aria-label="Profili paylaş"
+            title="Profili paylaş"
+          >
+            <svg viewBox="0 0 24 24" className={styles.islandShareSvg} fill="none">
+              <defs>
+                <linearGradient id="islandShareGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#836fff" />
+                  <stop offset="100%" stopColor="#332fd0" />
+                </linearGradient>
+              </defs>
+              <circle cx="18" cy="5" r="3" fill="url(#islandShareGrad)" />
+              <circle cx="6" cy="12" r="3" fill="url(#islandShareGrad)" />
+              <circle cx="18" cy="19" r="3" fill="url(#islandShareGrad)" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="url(#islandShareGrad)" strokeWidth="2.4" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="url(#islandShareGrad)" strokeWidth="2.4" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Identity Header */}
+      <div className={styles.profileIdentityRow}>
+        <div className={styles.profileAvatarBox}>
+          <span>{user?.initials || "PP"}</span>
+        </div>
+
+        <div className={styles.profileNameMeta}>
+          <div className={styles.profileTitleRow}>
+            <h1 className={styles.profileDisplayName}>
+              {user?.name || "Pig Puble"} <b>STUDIO</b>
+            </h1>
+            <span className={styles.profileActiveBadge}>● Aktif Üretici</span>
+          </div>
+          <p className={styles.profileSubtitle}>
+            @pigpuble / Instagram · 24 Template · 1,569 Takipçi
+          </p>
+        </div>
+      </div>
+
+      {/* 3. Sub Nav Tabs */}
+      <div className={styles.profileSubNav}>
+        <button
+          type="button"
+          className={`${styles.profileSubNavBtn} ${activeTab === "report" ? styles.profileSubNavActive : ""}`}
+          onClick={() => setActiveTab("report")}
+        >
+          <span>📊</span> Aktivite Raporu
+        </button>
+        <button
+          type="button"
+          className={`${styles.profileSubNavBtn} ${activeTab === "likes" ? styles.profileSubNavActive : ""}`}
+          onClick={() => setActiveTab("likes")}
+        >
+          <span>❤️</span> Likelanan İçerikler <em>14</em>
+        </button>
+        <button
+          type="button"
+          className={`${styles.profileSubNavBtn} ${activeTab === "saved" ? styles.profileSubNavActive : ""}`}
+          onClick={() => setActiveTab("saved")}
+        >
+          <span>🔖</span> Kaydedilenler <em>9</em>
+        </button>
+      </div>
+
+      {downloadNotice && (
+        <div className={styles.profileToastNotice}>
+          {downloadNotice}
+        </div>
+      )}
+
+      {/* TAB 1: Aktivite Raporu */}
+      {activeTab === "report" && (
+        <div className={styles.reportContainer}>
+          {/* 4 Metric Cards */}
+          <div className={styles.reportMetricsGrid}>
+            <article className={styles.reportMetricCard}>
+              <span className={styles.reportMetricTag}>ÜRETİM HACMİ</span>
+              <div className={styles.reportMetricVal}>24 İçerik</div>
+              <div className={styles.reportMetricSub}>
+                <b className={styles.trendUp}>↗ %32</b> son 30 günde (14 görsel, 10 reels)
+              </div>
+            </article>
+
+            <article className={styles.reportMetricCard}>
+              <span className={styles.reportMetricTag}>AI OPTİMİZASYON</span>
+              <div className={styles.reportMetricVal}>%94 Oran</div>
+              <div className={styles.reportMetricSub}>
+                <b className={styles.trendUp}>↗ 48 mesaj</b> AI ile profesyonelleştirildi
+              </div>
+            </article>
+
+            <article className={styles.reportMetricCard}>
+              <span className={styles.reportMetricTag}>TOPLAM ERİŞİM</span>
+              <div className={styles.reportMetricVal}>142.8K</div>
+              <div className={styles.reportMetricSub}>
+                <b className={styles.trendUp}>↗ %18.4</b> bağlı tüm kanallarda büyüme
+              </div>
+            </article>
+
+            <article className={styles.reportMetricCard}>
+              <span className={styles.reportMetricTag}>TOPLULUK ETKİLEŞİMİ</span>
+              <div className={styles.reportMetricVal}>387 Kaydetme</div>
+              <div className={styles.reportMetricSub}>
+                <b className={styles.trendUp}>↗ %8.6</b> ortalama etkileşim oranı
+              </div>
+            </article>
+          </div>
+
+          {/* Activity Rhythm & Heatmap */}
+          <div className={styles.reportRhythmCard}>
+            <div className={styles.reportRhythmHead}>
+              <div>
+                <span className={styles.reportEyebrow}>ÜRETİM RİTMİ</span>
+                <h3>Haftalık Çalışma Alanı Akışı</h3>
+                <p>Son 4 haftada en yoğun üretim Çarşamba (18:00 - 20:00) saatleri arasında gerçekleşti.</p>
+              </div>
+              <button type="button" className={styles.reportDownloadBtn} onClick={handleDownloadReport}>
+                ↓ Raporu PDF İndir
+              </button>
+            </div>
+
+            {/* Heatmap blocks */}
+            <div className={styles.heatmapWrapper}>
+              <div className={styles.heatmapDays}>
+                <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+              </div>
+              <div className={styles.heatmapGrid}>
+                {[
+                  [2, 3, 5, 2, 4, 1, 0],
+                  [1, 4, 6, 3, 5, 2, 1],
+                  [3, 2, 8, 4, 3, 3, 2],
+                  [2, 5, 7, 3, 6, 2, 1],
+                ].map((week, wIdx) => (
+                  <div className={styles.heatmapCol} key={wIdx}>
+                    {week.map((val, dIdx) => (
+                      <div
+                        key={dIdx}
+                        className={`${styles.heatmapTile} ${styles[`heatLevel${val > 5 ? 3 : val > 2 ? 2 : val > 0 ? 1 : 0}`]}`}
+                        title={`${val} aktivite`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className={styles.heatmapLegend}>
+                <small>Daha az</small>
+                <i className={`${styles.heatmapTile} ${styles.heatLevel0}`} />
+                <i className={`${styles.heatmapTile} ${styles.heatLevel1}`} />
+                <i className={`${styles.heatmapTile} ${styles.heatLevel2}`} />
+                <i className={`${styles.heatmapTile} ${styles.heatLevel3}`} />
+                <small>Daha çok</small>
+              </div>
+            </div>
+          </div>
+
+          {/* Chronological Recent Activity Feed */}
+          <div className={styles.reportTimelineCard}>
+            <div className={styles.reportTimelineHead}>
+              <span className={styles.reportEyebrow}>ZAMAN AKIŞI</span>
+              <h3>Son Zamanlardaki Aktiviteler</h3>
+            </div>
+
+            <div className={styles.timelineList}>
+              <article className={styles.timelineRow}>
+                <div className={`${styles.timelineDot} ${styles.dotMint}`} />
+                <div className={styles.timelineBody}>
+                  <div className={styles.timelineTop}>
+                    <b>Puble Studio · Gradient Reel Pack düzenlendi</b>
+                    <time>Bugün, 15:40</time>
+                  </div>
+                  <p>1080 × 1920 dikey video formatında dışa aktarıldı ve Instagram akışına hazırlandı.</p>
+                </div>
+                <span className={styles.timelineStatusSuccess}>Yayına Hazır ✓</span>
+              </article>
+
+              <article className={styles.timelineRow}>
+                <div className={`${styles.timelineDot} ${styles.dotPurple}`} />
+                <div className={styles.timelineBody}>
+                  <div className={styles.timelineTop}>
+                    <b>Mira Studio lansman mesajı profesyonelleştirildi</b>
+                    <time>Bugün, 11:20</time>
+                  </div>
+                  <p>Tek dokunuşla samimi teklif dili kurumsal ve net bir mesaja dönüştürüldü.</p>
+                </div>
+                <span className={styles.timelineStatusAi}>AI İyileştirme ✦</span>
+              </article>
+
+              <article className={styles.timelineRow}>
+                <div className={`${styles.timelineDot} ${styles.dotBlue}`} />
+                <div className={styles.timelineBody}>
+                  <div className={styles.timelineTop}>
+                    <b>15 Ekim · Yeni Koleksiyon Teaser takvime planlandı</b>
+                    <time>Dün, 18:00</time>
+                  </div>
+                  <p>Konuşmalardan otomatik çıkarılan içerik fırsatı onaylandı ve takvime yerleştirildi.</p>
+                </div>
+                <span className={styles.timelineStatusPlan}>Zamanlandı ▣</span>
+              </article>
+
+              <article className={styles.timelineRow}>
+                <div className={`${styles.timelineDot} ${styles.dotMint}`} />
+                <div className={styles.timelineBody}>
+                  <div className={styles.timelineTop}>
+                    <b>@studioform profili takip edildi</b>
+                    <time>2 gün önce</time>
+                  </div>
+                  <p>“Gradient Reel Pack” template paketi favori listenize eklendi.</p>
+                </div>
+                <span className={styles.timelineStatusFollow}>Takip Edildi ❤️</span>
+              </article>
+
+              <article className={styles.timelineRow}>
+                <div className={`${styles.timelineDot} ${styles.dotPurple}`} />
+                <div className={styles.timelineBody}>
+                  <div className={styles.timelineTop}>
+                    <b>Eylül Sonu Performans Analitiği oluşturuldu</b>
+                    <time>4 gün önce</time>
+                  </div>
+                  <p>Tüm bağlı kanallarda %21.8 erişim artışı ve 3,284 yeni takipçi kaydedildi.</p>
+                </div>
+                <span className={styles.timelineStatusReport}>Rapor Hazır ↗</span>
+              </article>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: Likelanan İçerikler */}
+      {activeTab === "likes" && (
+        <div className={styles.cardsShowcaseGrid}>
+          {likedItems.map((item) => (
+            <article className={styles.likedCard} key={item.id}>
+              <div className={`${styles.likedCardThumb} ${styles[`thumb${item.tone}`]}`}>
+                <span className={styles.likedThumbType}>{item.type}</span>
+                <span className={styles.likedHeartBadge}>❤️ {item.likes}</span>
+              </div>
+              <div className={styles.likedCardBody}>
+                <span className={styles.likedCreator}>{item.creator}</span>
+                <h4 className={styles.likedTitle}>{item.title}</h4>
+                <div className={styles.likedCardFooter}>
+                  <time>{item.date}</time>
+                  <button type="button" className={styles.likedUseBtn} onClick={onOpenEditor}>
+                    Editörde Aç →
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {/* TAB 3: Kaydedilen İçerikler */}
+      {activeTab === "saved" && (
+        <div className={styles.cardsShowcaseGrid}>
+          {savedItems.map((item) => (
+            <article className={styles.savedCard} key={item.id}>
+              <div className={styles.savedCardHead}>
+                <span className={styles.savedCardTag}>🔖 {item.status}</span>
+                <span className={styles.savedCardFormat}>{item.format}</span>
+              </div>
+              <h4 className={styles.savedCardTitle}>{item.title}</h4>
+              <p className={styles.savedCardType}>{item.type}</p>
+              <div className={styles.savedCardFooter}>
+                <time>{item.date}</time>
+                <button type="button" className={styles.savedOpenBtn} onClick={onOpenEditor}>
+                  Düzenlemeye Git →
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {/* 4. Share Modal */}
+      {shareOpen && (
+        <div className={styles.modalBackdrop} onClick={() => setShareOpen(false)}>
+          <div className={styles.shareModalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.shareModalHead}>
+              <div>
+                <h3>Profili Paylaş</h3>
+                <p>Puble profilini sosyal medyada paylaşarak vitrinini duyur.</p>
+              </div>
+              <button type="button" className={styles.modalCloseBtn} onClick={() => setShareOpen(false)}>
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.shareLinkBox}>
+              <input readOnly value={profileUrl} />
+              <button type="button" className={styles.shareCopyBtn} onClick={handleCopyLink}>
+                {copied ? "Kopyalandı! ✓" : "Kopyala"}
+              </button>
+            </div>
+
+            <div className={styles.shareChannelsGrid}>
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Puble üzerindeki profilime ve içeriklerime göz atın! ")}&url=${encodeURIComponent(profileUrl)}`}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.channelBtn}
+              >
+                <span>𝕏</span> X&apos;te Paylaş
+              </a>
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.channelBtn}
+              >
+                <span>in</span> LinkedIn&apos;de Paylaş
+              </a>
+              <a
+                href={`https://api.whatsapp.com/send?text=${encodeURIComponent("Puble profilim: " + profileUrl)}`}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.channelBtn}
+              >
+                <span>💬</span> WhatsApp&apos;ta Gönder
+              </a>
+              <button
+                type="button"
+                className={styles.channelBtn}
+                onClick={handleNativeShare}
+              >
+                <span>↗</span> Cihazında Paylaş
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

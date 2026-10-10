@@ -14,9 +14,9 @@ const flows = [
 ] as const;
 
 const creators = [
-  { handle: "@studioform", pack: "Gradient Reel Pack", tone: "purple" },
-  { handle: "@mira.design", pack: "Launch Story Kit", tone: "mint" },
-  { handle: "@motionlab", pack: "Minimal Motion Set", tone: "blue" },
+  { handle: "@studioform", pack: "Gradient Reel Pack", tone: "blue", initials: "ST", hasBadge: true },
+  { handle: "@mira.design", pack: "Launch Story Kit", tone: "mint", initials: "MI", hasBadge: false },
+  { handle: "@mira.design", pack: "Launch Story Kit", tone: "purple", initials: "MI", hasBadge: false },
 ] as const;
 
 const plans = [
@@ -60,6 +60,88 @@ function CalendarIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3m10-3v3M4 9h16M6 5h12a2 2 0 0 1 2 2v12H4V7a2 2 0 0 1 2-2Z" /><path d="m9 14 2 2 4-4" /></svg>;
 }
 
+type AnalyticsPeriod = "30 gün" | "90 gün" | "12 ay";
+
+const analyticsChartData: Record<AnalyticsPeriod, {
+  kpis: { label: string; trend: string; value: string; sub: string }[];
+  trendSubtitle: string;
+  bars: { organic: number; ads: number; date?: string }[];
+  bestPost: { reach: string; engagement: string };
+}> = {
+  "30 gün": {
+    kpis: [
+      { label: "Toplam erişim", trend: "↗ %21.8", value: "593.4K", sub: "Önceki döneme göre" },
+      { label: "Etkileşim", trend: "↗ %14.2", value: "42.8K", sub: "Beğeni, yorum ve paylaşım" },
+      { label: "Yeni takipçi", trend: "↗ %18.6", value: "+3,284", sub: "Tüm kanallar" },
+      { label: "Ort. etkileşim", trend: "↗ %0.8", value: "%6.3", sub: "Sektör ortalaması %3.9" },
+    ],
+    trendSubtitle: "Son 30 günde toplam erişim 593 binin üzerine çıktı.",
+    bars: [
+      { organic: 24, ads: 18, date: "1 Eki" },
+      { organic: 34, ads: 24 },
+      { organic: 26, ads: 22 },
+      { organic: 40, ads: 28, date: "8 Eki" },
+      { organic: 38, ads: 26 },
+      { organic: 46, ads: 34 },
+      { organic: 42, ads: 32, date: "15 Eki" },
+      { organic: 52, ads: 38 },
+      { organic: 44, ads: 30 },
+      { organic: 58, ads: 42, date: "22 Eki" },
+      { organic: 50, ads: 38 },
+      { organic: 66, ads: 48, date: "30 Eki" },
+    ],
+    bestPost: { reach: "84.2K", engagement: "%9.4" },
+  },
+  "90 gün": {
+    kpis: [
+      { label: "Toplam erişim", trend: "↗ %34.2", value: "1.42M", sub: "Önceki döneme göre" },
+      { label: "Etkileşim", trend: "↗ %22.4", value: "118.5K", sub: "Beğeni, yorum ve paylaşım" },
+      { label: "Yeni takipçi", trend: "↗ %29.1", value: "+9,840", sub: "Tüm kanallar" },
+      { label: "Ort. etkileşim", trend: "↗ %1.4", value: "%6.8", sub: "Sektör ortalaması %3.9" },
+    ],
+    trendSubtitle: "Son 90 günde toplam erişim 1.4 milyonun üzerine çıktı.",
+    bars: [
+      { organic: 30, ads: 22, date: "1 Ağu" },
+      { organic: 38, ads: 26 },
+      { organic: 32, ads: 24 },
+      { organic: 44, ads: 30, date: "20 Ağu" },
+      { organic: 42, ads: 28 },
+      { organic: 50, ads: 36 },
+      { organic: 48, ads: 34, date: "10 Eyl" },
+      { organic: 56, ads: 40 },
+      { organic: 52, ads: 36 },
+      { organic: 62, ads: 46, date: "1 Eki" },
+      { organic: 58, ads: 42 },
+      { organic: 72, ads: 52, date: "30 Eki" },
+    ],
+    bestPost: { reach: "192K", engagement: "%11.2" },
+  },
+  "12 ay": {
+    kpis: [
+      { label: "Toplam erişim", trend: "↗ %82.0", value: "5.8M", sub: "Önceki döneme göre" },
+      { label: "Etkileşim", trend: "↗ %64.5", value: "480K", sub: "Beğeni, yorum ve paylaşım" },
+      { label: "Yeni takipçi", trend: "↗ %74.3", value: "+41.2K", sub: "Tüm kanallar" },
+      { label: "Ort. etkileşim", trend: "↗ %2.1", value: "%7.2", sub: "Sektör ortalaması %3.9" },
+    ],
+    trendSubtitle: "Son 12 ayda organik ve reklam büyümeleri hız kesmedi.",
+    bars: [
+      { organic: 22, ads: 16, date: "Kas" },
+      { organic: 28, ads: 20 },
+      { organic: 32, ads: 24 },
+      { organic: 38, ads: 26, date: "Şub" },
+      { organic: 42, ads: 30 },
+      { organic: 48, ads: 34 },
+      { organic: 52, ads: 38, date: "May" },
+      { organic: 58, ads: 42 },
+      { organic: 62, ads: 44 },
+      { organic: 68, ads: 48, date: "Ağu" },
+      { organic: 72, ads: 50 },
+      { organic: 80, ads: 56, date: "Eki" },
+    ],
+    bestPost: { reach: "640K", engagement: "%12.8" },
+  },
+};
+
 export default function Home() {
   return <HomeContent />;
 }
@@ -68,13 +150,16 @@ function HomeContent() {
   const { language } = useSiteLanguage();
   const text = copy[language];
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<AnalyticsPeriod>("30 gün");
+
+  const currentAnalytics = analyticsChartData[analyticsPeriod];
 
   useEffect(() => {
     const selectors = [
       ".flow-section .section-heading > *", ".flow-card",
       ".feature-demo", ".feature-copy > *",
       ".planner-copy > *", ".timeline-card",
-      ".creator-section .section-heading > *", ".creator-row", ".creator-profile",
+      ".creator-section .section-heading > *", ".creator-card", ".creator-studio-showcase",
       ".pricing-heading > *", ".pricing-billing-toggle-wrap", ".price-card", ".pricing-note", ".credit-pack-card",
       ".final-cta .cta-content > *", ".footer-grid > *",
     ];
@@ -117,35 +202,136 @@ function HomeContent() {
             </div>
           </div>
 
-          <div className="product-stage hero-reveal-right" aria-label="Puble ürün önizlemesi">
+          <div className="product-stage hero-reveal-right" aria-label="Puble analitik görünümü">
             <div className="stage-grid" />
-            <div className="app-window">
-              <div className="app-topbar">
-                <span className="mini-logo">puble</span><div className="window-dots"><i /><i /><i /></div><span className="avatar">BK</span>
-              </div>
-              <div className="app-body">
-                <aside className="app-sidebar">
-                  <span className="side-active"><i>●</i> Inbox</span><span><i>◆</i> Editor</span><span><i>▣</i> Planner</span><span><i>✦</i> Social</span><span className="side-bottom"><i>⚙</i> Ayarlar</span>
-                </aside>
-                <div className="conversation-list">
-                  <div className="list-heading"><b>Gelen kutusu</b><em>12</em></div>
-                  <div className="conversation active"><span className="conversation-avatar purple">MS</span><div><b>Mira Studio</b><small>Lansman tarihi netleşti...</small></div><time>14:02</time></div>
-                  <div className="conversation"><span className="conversation-avatar mint">SF</span><div><b>Studio Form</b><small>Story paketini ilettim.</small></div><time>12:48</time></div>
-                  <div className="conversation"><span className="conversation-avatar blue">ML</span><div><b>Motion Lab</b><small>Videoyu TikTok&apos;a da...</small></div><time>11:20</time></div>
+            <div className="analytics-dashboard-window">
+              {/* Header */}
+              <div className="analytics-header">
+                <div className="analytics-title-group">
+                  <span className="analytics-tag">MEASURE</span>
+                  <h2 className="analytics-title">Analitik</h2>
+                  <p className="analytics-subtitle">Tüm kanallarının büyümesini, erişimini ve etkileşimini tek görünümde izle.</p>
                 </div>
-                <div className="chat-panel">
-                  <div className="chat-heading"><div><b>Mira Studio</b><small>Instagram · Aktif</small></div><button aria-label="Daha fazla seçenek">•••</button></div>
-                  <div className="messages">
-                    <div className="bubble bubble-in">Yeni ürün 15 Ekim&apos;de çıkıyor.</div>
-                    <div className="bubble bubble-out">Harika! İki gün önce teaser paylaşalım.</div>
-                    <div className="ai-suggestion"><span><SparkIcon /></span><div><b>4 içerik fırsatı bulduk</b><small>Takvimine eklemeye hazır.</small></div><button>Görüntüle</button></div>
+                <div className="analytics-header-actions">
+                  <div className="analytics-accounts-badge">
+                    <span className="analytics-pulse-dot" />
+                    <span>3 hesap bağlı</span>
                   </div>
-                  <div className="composer"><span>Mesajını yaz...</span><button><SparkIcon /> Profesyonelleştir</button><i>➤</i></div>
+                  <Link href="/panel" className="analytics-btn-create">
+                    + Yeni oluştur
+                  </Link>
                 </div>
+              </div>
+
+              {/* Toolbar */}
+              <div className="analytics-toolbar">
+                <div className="analytics-time-pills">
+                  {(["30 gün", "90 gün", "12 ay"] as const).map((period) => (
+                    <button
+                      key={period}
+                      type="button"
+                      className={`analytics-pill ${analyticsPeriod === period ? "active" : ""}`}
+                      onClick={() => setAnalyticsPeriod(period)}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+                <button type="button" className="analytics-btn-download">
+                  <span className="download-arrow">↓</span> Raporu indir
+                </button>
+              </div>
+
+              {/* 4 Stat Cards */}
+              <div className="analytics-kpi-grid">
+                {currentAnalytics.kpis.map((kpi, idx) => (
+                  <div className="analytics-kpi-card" key={idx}>
+                    <div className="kpi-top">
+                      <span className="kpi-label">{kpi.label}</span>
+                      <span className="kpi-trend">{kpi.trend}</span>
+                    </div>
+                    <div className="kpi-value">{kpi.value}</div>
+                    <div className="kpi-sub">{kpi.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Main Lower Section */}
+              <div className="analytics-main-grid">
+                {/* Left: Trend Card */}
+                <div className="analytics-trend-card">
+                  <div className="trend-card-header">
+                    <div>
+                      <span className="trend-tag">ERİŞİM TRENDİ</span>
+                      <h3 className="trend-title">Kanalların birlikte büyüyor.</h3>
+                      <p className="trend-subtitle">{currentAnalytics.trendSubtitle}</p>
+                    </div>
+                    <div className="trend-legend">
+                      <span className="legend-item">
+                        <i className="legend-dot dot-organic" /> Organik
+                      </span>
+                      <span className="legend-item">
+                        <i className="legend-dot dot-ads" /> Reklam
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="trend-chart-area">
+                    <div className="trend-bars-container">
+                      {currentAnalytics.bars.map((bar, idx) => (
+                        <div className="trend-bar-col" key={idx}>
+                          <div
+                            className="trend-bar-stack"
+                            title={`${bar.date || ''}: ${bar.organic}K Organik, ${bar.ads}K Reklam`}
+                          >
+                            <div className="bar-segment bar-organic" style={{ height: `${bar.organic}px` }} />
+                            <div className="bar-segment bar-ads" style={{ height: `${bar.ads}px` }} />
+                          </div>
+                          <span className="bar-date-label">{bar.date || ""}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Best Content Card */}
+                <div className="analytics-top-post-card">
+                  <span className="top-post-tag">EN İYİ İÇERİK</span>
+
+                  <div className="top-post-preview">
+                    <div className="top-post-glow" />
+                    <div className="top-post-preview-content">
+                      <span className="preview-heading">akışını</span>
+                      <span className="preview-heading">yenile.</span>
+                      <span className="preview-sub">REELS · 18 EKİM</span>
+                    </div>
+                  </div>
+
+                  <h4 className="top-post-title">Mira Studio lansman reels</h4>
+
+                  <div className="top-post-stats">
+                    <div className="post-stat-item">
+                      <span className="stat-val">{currentAnalytics.bestPost.reach}</span>
+                      <span className="stat-lbl">Erişim</span>
+                    </div>
+                    <div className="post-stat-item">
+                      <span className="stat-val">{currentAnalytics.bestPost.engagement}</span>
+                      <span className="stat-lbl">Etkileşim</span>
+                    </div>
+                  </div>
+
+                  <Link href="/panel" className="top-post-view-btn">
+                    İçeriği görüntüle →
+                  </Link>
+                </div>
+              </div>
+
+              {/* Floating Puble AI Star Badge */}
+              <div className="analytics-floating-ai-trigger" title="Puble AI Asistanı">
+                <span className="ai-badge-count">1</span>
+                <SparkIcon />
               </div>
             </div>
-            <div className="floating-card floating-calendar"><span className="floating-icon"><CalendarIcon /></span><div><small>Takvime eklendi</small><b>13 Ekim · 18:00</b><em>Instagram + TikTok</em></div></div>
-            <div className="floating-card floating-social"><span className="live-dot" /><div><small>Bağlı hesaplar</small><b>Instagram · TikTok · LinkedIn</b></div></div>
           </div>
         </div>
         <div className="hero-marquee hero-reveal-up" aria-hidden="true"><span>CONNECT</span><i>✦</i><span>COMMUNICATE</span><i>✦</i><span>CREATE</span><i>✦</i><span>PLAN</span></div>
@@ -211,16 +397,53 @@ function HomeContent() {
           <div className="creator-layout">
             <div className="creator-list">
               {creators.map((creator, index) => (
-                <article className="creator-row" key={creator.handle}>
-                  <span className={`creator-avatar ${creator.tone}`}>{creator.handle.slice(1, 3).toUpperCase()}</span>
-                  <div><small>{creator.handle}</small><b>{creator.pack}</b></div><em>CREATOR</em><button>Template&apos;i kullan <ArrowIcon /></button><span className="creator-number">0{index + 1}</span>
+                <article className="creator-card" key={index}>
+                  <div className="creator-card-left">
+                    <div className={`creator-avatar-wrap ${creator.tone}`}>
+                      <span className="creator-avatar-initials">{creator.initials}</span>
+                      {creator.hasBadge && <span className="creator-avatar-badge" />}
+                    </div>
+                    <div className="creator-card-info">
+                      <span className="creator-handle">{creator.handle}</span>
+                      <h3 className="creator-pack">{creator.pack}</h3>
+                    </div>
+                  </div>
+                  <div className="creator-card-right">
+                    <Link href="/panel" className="creator-use-btn">
+                      Template&apos;i kullan
+                    </Link>
+                    <span className="creator-hashtag">#creator</span>
+                  </div>
                 </article>
               ))}
             </div>
-            <div className="creator-profile">
-              <div className="profile-cover"><Image src="/assets/Amblem.svg" alt="Puble amblemi" width={266} height={408} unoptimized /></div>
-              <div className="profile-body"><span className="profile-avatar">SF</span><div><small>@studioform</small><b>24 template · 12.4K takipçi</b></div><button>Takip et</button></div>
-              <div className="profile-swatches"><i /><i /><i /></div>
+
+            <div className="creator-studio-showcase">
+              <div className="studio-cover-banner">
+                <div className="studio-cover-overlay" />
+              </div>
+
+              <div className="studio-profile-bar">
+                <div className="studio-profile-left">
+                  <div className="studio-avatar">PU</div>
+                  <div className="studio-meta">
+                    <h3 className="studio-brand-title">Puble <b>STUDIO</b></h3>
+                    <p className="studio-stats">24 Template · 1,569 Takipçi</p>
+                  </div>
+                </div>
+                <Link href="/panel" className="studio-follow-btn">
+                  Takip Et
+                </Link>
+              </div>
+
+              <div className="studio-palette-grid">
+                <div className="palette-tile tile-mint" />
+                <div className="palette-tile tile-purple" />
+                <div className="palette-tile tile-deepblue" />
+                <div className="palette-tile tile-purple" />
+                <div className="palette-tile tile-deepblue" />
+                <div className="palette-tile tile-mint" />
+              </div>
             </div>
           </div>
         </div>

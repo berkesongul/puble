@@ -54,6 +54,24 @@ export function SiteHeader() {
     };
   }, [langOpen]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest(".nav-profile")) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("click", handleClick);
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [menuOpen]);
+
   function signOut() {
     clearDemoSession();
     setMenuOpen(false);
@@ -130,6 +148,7 @@ export function SiteHeader() {
               <div className="profile-dropdown">
                 <div><b>{user.name}</b><small>{user.email}</small></div>
                 <Link href="/panel" onClick={() => setMenuOpen(false)}>{text.panel} <span>→</span></Link>
+                <Link href="/panel?view=profile" onClick={() => setMenuOpen(false)}>{text.profile || "Profil"} <span>→</span></Link>
                 <button type="button" onClick={signOut}>{text.logout}</button>
               </div>
             ) : null}
