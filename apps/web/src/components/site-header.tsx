@@ -15,6 +15,7 @@ export function SiteHeader() {
   const text = copy[language];
   const [user, setUser] = useState<DemoUser | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const syncSession = () => setUser(readDemoSession());
@@ -27,19 +28,26 @@ export function SiteHeader() {
     };
   }, []);
 
+  useEffect(() => {
+    const syncScroll = () => setScrolled(window.scrollY > 24);
+    syncScroll();
+    window.addEventListener("scroll", syncScroll, { passive: true });
+    return () => window.removeEventListener("scroll", syncScroll);
+  }, []);
+
   function signOut() {
     clearDemoSession();
     setMenuOpen(false);
   }
 
   return (
-    <header className="site-header">
+    <header className={`site-header${scrolled ? " site-header-scrolled" : ""}`}>
       <div className="shell nav-shell">
         <Link className="brand" href="/#top" aria-label="Puble">
           <Image src="/assets/Main Logo.svg" alt="Puble" width={381} height={126} priority unoptimized />
         </Link>
         <nav aria-label="Main navigation">
-          <a href="#product">{text.product}</a><a href="#flow">{text.how}</a><a href="#creators">{text.creator}</a><a href="#pricing">{text.pricing}</a>
+          <a href="#product">{text.product}</a><a href="#flow">{text.how}</a><a href="#creators">{text.creator}</a><a href="#pricing">{text.pricing}</a><a href="#corporate">{text.corporate}</a>
         </nav>
         <label className="language-select"><span className="sr-only">{text.language}</span><b aria-hidden="true">◎</b><select value={language} onChange={(event) => setLanguage(event.target.value as SiteLanguage)}>{Object.entries(languageNames).map(([code, name]) => <option key={code} value={code}>{name}</option>)}</select></label>
         {user ? (

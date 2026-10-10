@@ -19,10 +19,26 @@ const creators = [
 ] as const;
 
 const plans = [
-  { name: "Free", price: "0", description: "Puble akışını keşfetmek ve ilk hesaplarını yönetmek için.", features: ["5 aktif sohbet", "Sohbet başına 50 AI kullanımı", "Temel editör ve planlayıcı", "Creator keşfi"], cta: "Ücretsiz başla", popular: false },
-  { name: "Creator", price: "149", description: "Kendi sosyal medyasını düzenli yöneten bağımsız üreticiler için.", features: ["30 aktif sohbet", "Sohbet başına 100 AI kullanımı", "İçerik takvimi", "Creator template'leri"], cta: "Creator ile başla", popular: false },
-  { name: "Pro", price: "299", description: "Daha çok marka, daha çok içerik ve ekip akışı isteyenler için.", features: ["70 aktif sohbet", "Sohbet başına 150 AI kullanımı", "Sınırlı AI edit", "Ekip ve müşteri alanları"], cta: "Pro'yu seç", popular: true },
-  { name: "Studio", price: "699", description: "Ajanslar ve çok markalı profesyonel operasyonlar için.", features: ["Sınırsız aktif sohbet", "Sohbet başına 200 AI kullanımı", "Adil kullanımlı AI edit", "Gelişmiş ekip akışları"], cta: "Studio'ya geç", popular: false },
+  { name: "FREE PLAN", slug: "free", price: "0", description: "Üretmeye başlamak için ihtiyacın olan temel araçlar.", cta: "Ücretsiz Başla", groups: [
+    { title: "İletişim", items: ["Ücretsiz sosyal hesap bağlantısı", "5 aktif sohbet", "Sohbet başına 50 AI kullanımı", "Mesajları Profesyonelleştir"] },
+    { title: "İçerik ve planlama", items: ["Temel içerik editörü", "Kullanıma hazır şablonlar", "Otomatik içerik takvimi"] },
+    { title: "Keşif ve analiz", items: ["Creator keşfi ve takip", "Temel performans analizleri"] },
+  ] },
+  { name: "CREATOR", slug: "creator", price: "149", description: "Düzenli üretim için daha fazla kapasite.", cta: "Creator’a Geç", groups: [
+    { title: "İletişim", items: ["Ücretsiz sosyal hesap bağlantısı", "30 aktif sohbet", "Sohbet başına 100 AI kullanımı", "Mesajları Profesyonelleştir"] },
+    { title: "İçerik ve planlama", items: ["Temel içerik editörü", "Kullanıma hazır şablonlar", "Otomatik içerik takvimi"] },
+    { title: "Keşif ve analiz", items: ["Creator keşfi ve takip", "Gelişmiş performans analizleri"] },
+  ] },
+  { name: "PRO", slug: "pro", price: "299", description: "Profesyonel üretim ve müşteri yönetimi bir arada.", cta: "Pro’ya Geç", groups: [
+    { title: "İletişim ve yönetim", items: ["Ücretsiz sosyal hesap bağlantısı", "70 aktif sohbet", "Sohbet başına 150 AI kullanımı", "Mesajları Profesyonelleştir", "Ekip ve müşteri yönetimi"] },
+    { title: "İçerik ve otomasyon", items: ["Temel editör ve şablonlar", "Sınırlı AI düzenleme kapasitesi", "Gelişmiş AI otomasyonları", "Otomatik içerik takvimi", "4K dışa aktarma"] },
+    { title: "Keşif ve analiz", items: ["Creator keşfi ve takip", "İleri performans analizleri"] },
+  ] },
+  { name: "STUDIO", slug: "studio", price: "699", description: "Ajanslar ve çok markalı operasyonlar için sınırsız akış.", cta: "Studio’ya Geç", groups: [
+    { title: "İletişim ve yönetim", items: ["Ücretsiz sosyal hesap bağlantısı", "Sınırsız aktif sohbet", "Sohbet başına 200 AI kullanımı", "Mesajları Profesyonelleştir", "Ekip ve müşteri yönetimi"] },
+    { title: "İçerik ve otomasyon", items: ["Temel editör ve şablonlar", "Sınırsız AI düzenleme kapasitesi*", "Gelişmiş AI otomasyonları", "Otomatik içerik takvimi", "4K dışa aktarma"] },
+    { title: "Keşif ve analiz", items: ["Creator keşfi ve takip", "İleri performans analizleri"] },
+  ], note: "*AI düzenlemede adil kullanım koşulları geçerlidir." },
 ] as const;
 
 function ArrowIcon() {
@@ -203,20 +219,19 @@ function HomeContent() {
       </section>
 
       <section className="pricing-section" id="pricing">
-        <div className="pricing-glow" />
         <div className="shell">
-          <div className="pricing-heading">
-            <div><span className="section-index light">05 / PRICING</span><h2>{text.pricingA}<br /><span>{text.pricingB}</span></h2></div>
-            <div><span className="pricing-badge">{text.early}</span><p>Her pakette sosyal hesap bağlantısı, Profesyonelleştir, içerik planlayıcı, temel editör ve Creator keşfi bulunur.</p></div>
-          </div>
+          <h2 className="sr-only">{text.pricingA} {text.pricingB}</h2>
           <div className="pricing-grid">
             {plans.map((plan) => (
-              <article className={`price-card${plan.popular ? " price-card-featured" : ""}`} key={plan.name}>
-                {plan.popular ? <span className="popular-label">EN POPÜLER</span> : null}
+              <article className={`price-card price-card-${plan.slug}`} key={plan.name}>
                 <div className="price-card-head"><span>{plan.name}</span><p>{plan.description}</p></div>
-                <div className="price"><b>₺{plan.price}</b><span>{plan.price === "0" ? "sonsuza kadar" : "/ ay"}</span></div>
-                <a href="/auth?mode=signup">{plan.cta}<ArrowIcon /></a>
-                <ul>{plan.features.map((feature) => <li key={feature}><i>✓</i>{feature}</li>)}</ul>
+                <a href="/auth?mode=signup">{plan.cta}</a>
+                <div className="price"><b>{plan.price} TL</b><span>/ay</span></div>
+                <div className="price-groups">{plan.groups.map((group) => <section key={group.title}>
+                  <h3><i>✓</i>{group.title}</h3>
+                  <ul>{group.items.map((feature) => <li key={feature}>{feature}</li>)}</ul>
+                </section>)}</div>
+                {"note" in plan ? <small className="price-note">{plan.note}</small> : null}
               </article>
             ))}
           </div>
@@ -235,10 +250,10 @@ function HomeContent() {
         </div>
       </section>
 
-      <footer className="site-footer">
+      <footer className="site-footer" id="corporate">
         <div className="shell footer-grid">
           <div><Image src="/assets/Main Logo.svg" alt="Puble" width={381} height={126} unoptimized /><p>Create. Manage. Connect.</p></div>
-          <div className="footer-links"><a href="#product">Ürün</a><a href="#flow">Akış</a><a href="#creators">Creator</a><a href="#pricing">Pricing</a></div>
+          <div className="footer-links"><a href="#product">Ürün</a><a href="#flow">Akış</a><a href="#creators">Creator</a><a href="#pricing">Pricing</a><a href="/kvkk">{text.kvkk}</a></div>
           <p>© 2026 Puble. Sosyal medyayı yönetmekten fazlası.</p>
         </div>
       </footer>

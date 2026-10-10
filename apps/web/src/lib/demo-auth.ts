@@ -6,6 +6,11 @@ export type DemoUser = {
 
 export const AUTH_EVENT = "puble-auth-change";
 export const SESSION_KEY = "puble.demo.session";
+export const DEMO_USER: DemoUser = {
+  name: "Pig Puble",
+  email: "demo@puble.app",
+  initials: "PP",
+};
 
 function getInitials(name: string) {
   return name
@@ -31,7 +36,9 @@ export function createDemoSession(name: string, email: string): DemoUser {
 export function readDemoSession(): DemoUser | null {
   try {
     const value = window.localStorage.getItem(SESSION_KEY);
-    return value ? (JSON.parse(value) as DemoUser) : null;
+    if (!value) return null;
+    const user = JSON.parse(value) as DemoUser;
+    return user.email === DEMO_USER.email ? DEMO_USER : user;
   } catch {
     return null;
   }

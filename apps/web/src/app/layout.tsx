@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Puble - Sosyal medyayı yönetmekten fazlası",
   description:
     "Mesajlarını yönet, içerik üret, AI ile profesyonelleştir ve konuşmalarından otomatik içerik takvimi çıkar.",
+  icons: {
+    icon: [{ url: "/assets/Favicon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

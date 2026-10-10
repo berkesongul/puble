@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { createDemoSession } from "@/lib/demo-auth";
+import { createDemoSession, DEMO_USER } from "@/lib/demo-auth";
 import styles from "./auth.module.css";
 
 type Mode = "login" | "signup";
@@ -43,7 +43,7 @@ export function AuthScreen({ initialMode }: { initialMode: Mode }) {
   }
 
   function enterDemo() {
-    createDemoSession("Berkes Öngül", "demo@puble.app");
+    createDemoSession(DEMO_USER.name, DEMO_USER.email);
     router.push("/panel");
   }
 

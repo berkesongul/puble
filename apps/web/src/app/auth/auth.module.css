@@ -46,6 +46,14 @@
 .activeStep > span { color: #00241d; background: #15f5ba; }
 .glow { position: absolute; width: 340px; height: 340px; right: -170px; bottom: -130px; border-radius: 50%; background: rgb(21 245 186 / 20%); }
 
+/* Auth buttons inherit the same directional four-stop Puble gradient. */
+.page button { border-radius: 999px; transition: transform .2s ease, box-shadow .2s ease, filter .2s ease; }
+.page button:hover { transform: translateY(-1px); filter: saturate(1.08); }
+.page .primaryButton { border: 0; color: #fff; background: var(--puble-gradient); box-shadow: 0 15px 32px rgb(51 47 208 / 24%); }
+.page .demoButton { border: 1px solid transparent; color: #0002a1; background: linear-gradient(#fff, #fff) padding-box, var(--puble-gradient-border) border-box; box-shadow: 0 10px 24px rgb(51 47 208 / 10%); }
+.page .tabs button { color: #686674; background: var(--puble-gradient-soft); }
+.page .tabs button[aria-selected="true"] { color: #fff; background: var(--puble-gradient); box-shadow: 0 8px 20px rgb(51 47 208 / 20%); }
+
 @media (max-width: 980px) {
   .page { grid-template-columns: 1fr; }
   .visualSide { min-height: 680px; }

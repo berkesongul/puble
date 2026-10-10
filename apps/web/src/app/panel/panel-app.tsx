@@ -4,10 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
-import { AUTH_EVENT, SESSION_KEY, clearDemoSession, type DemoUser } from "@/lib/demo-auth";
+import { AUTH_EVENT, SESSION_KEY, clearDemoSession, readDemoSession, type DemoUser } from "@/lib/demo-auth";
 import styles from "./panel.module.css";
 
-type View = "overview" | "inbox" | "editor" | "library" | "planner" | "ads" | "analytics" | "social" | "settings";
+type View = "overview" | "inbox" | "editor" | "library" | "planner" | "series" | "ads" | "analytics" | "social" | "settings";
 
 type LibraryItem = {
   id: number;
@@ -27,12 +27,13 @@ const initialLibrary: LibraryItem[] = [
   { id: 6, title: "Creator Spotlight", type: "image", format: "1080 × 1080", date: "4 Eki, 19:30", tone: "purple" },
 ];
 
-const navItems: { id: View; label: string; icon: string }[] = [
-  { id: "overview", label: "Ana panel", icon: "⌂" },
-  { id: "inbox", label: "Gelen Kutusu", icon: "●" },
+const navItems: { id: View; label: string; icon: string; iconSrc?: string }[] = [
+  { id: "overview", label: "Ana panel", icon: "⌂", iconSrc: "/UI/UX/ana_akis.svg" },
+  { id: "inbox", label: "Gelen Kutusu", icon: "●", iconSrc: "/UI/UX/gelen_kutusu.svg" },
   { id: "editor", label: "Puble editor", icon: "◆" },
   { id: "library", label: "Kitaplık", icon: "▦" },
   { id: "planner", label: "Puble Planlayıcı", icon: "▣" },
+  { id: "series", label: "Seriler", icon: "≋" },
   { id: "ads", label: "Reklamlar", icon: "◎" },
   { id: "analytics", label: "Analitik", icon: "⌁" },
   { id: "social", label: "Kreatörler", icon: "✦" },
@@ -45,6 +46,7 @@ const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> =
   editor: { eyebrow: "CREATE", title: "İçerik editörü", text: "Template seç, markana uyarla ve yayına hazırla." },
   library: { eyebrow: "ASSET LIBRARY", title: "Kitaplık", text: "Editörde ürettiğin görsel ve videoların tek galeride." },
   planner: { eyebrow: "PLAN", title: "İçerik planı", text: "Konuşmalardan çıkan fırsatları takvimine taşı." },
+  series: { eyebrow: "REPEAT", title: "Seriler", text: "Tekrarlayan içerik formatlarını planla, üret ve düzenli yayınla." },
   ads: { eyebrow: "GROW", title: "Reklamlar", text: "Kampanyalarını, kreatiflerini ve performansını tek yerden yönet." },
   analytics: { eyebrow: "MEASURE", title: "Analitik", text: "Tüm kanallarının büyümesini, erişimini ve etkileşimini tek görünümde izle." },
   social: { eyebrow: "DISCOVER", title: "Creator Social", text: "Üreticileri ve özgün template paketlerini keşfet." },
@@ -71,7 +73,7 @@ export function PanelApp() {
   );
   const user = useMemo(() => {
     if (!serializedUser) return null;
-    try { return JSON.parse(serializedUser) as DemoUser; } catch { return null; }
+    return readDemoSession();
   }, [serializedUser]);
   const [view, setView] = useState<View>("overview");
   const [draft, setDraft] = useState("abi fiyatı biraz düşürürsek yarın hallederiz");
@@ -81,6 +83,7 @@ export function PanelApp() {
   const [following, setFollowing] = useState<string[]>(["@studioform"]);
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>(initialLibrary);
   const [planOpen, setPlanOpen] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
 
   useEffect(() => {
@@ -95,6 +98,13 @@ export function PanelApp() {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [planOpen]);
+
+  useEffect(() => {
+    if (!composerOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setComposerOpen(false); };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [composerOpen]);
 
   if (serializedUser === undefined || !user) {
     return <main className={styles.loading}><span /><p>Çalışma alanın hazırlanıyor…</p></main>;
@@ -123,11 +133,12 @@ export function PanelApp() {
   return (
     <main className={styles.app}>
       <aside className={styles.sidebar}>
-        <Link className={styles.logo} href="/" aria-label="Puble ana sayfa"><Image src="/assets/Main Logo.svg" alt="Puble" width={381} height={126} priority unoptimized /></Link>
+        <Link className={styles.logo} href="/" aria-label="Puble ana sayfa"><Image src="/UI/UX/puble_dashboard_icon.png" alt="Puble" width={636} height={136} priority /></Link>
         <nav aria-label="Panel navigasyonu">
-          {navItems.map((item) => <button className={view === item.id ? styles.activeNav : ""} key={item.id} type="button" onClick={() => setView(item.id)}><i>{item.icon}</i><span>{item.label}</span>{item.id === "inbox" ? <em>12</em> : null}</button>)}
+          {navItems.map((item) => <button className={view === item.id ? styles.activeNav : ""} key={item.id} type="button" onClick={() => setView(item.id)}><i>{item.iconSrc ? <Image className={styles.navIcon} src={item.iconSrc} alt="" width={28} height={31} unoptimized /> : item.icon}</i><span>{item.label}</span>{item.id === "inbox" ? <em>12</em> : null}</button>)}
         </nav>
         <div className={styles.sidebarBottom}>
+          <button className={styles.createPostTrigger} type="button" onClick={() => setComposerOpen(true)} aria-label="Yeni gönderi oluştur"><span>+</span><b>Gönderi oluştur</b></button>
           <button className={styles.planCard} type="button" onClick={() => setPlanOpen(true)} aria-label="Plan kullanım detaylarını aç"><span>FREE PLAN</span><b>3 / 5 aktif sohbet</b><i><u /></i><small>2 slot kullanılabilir</small><em aria-hidden="true">↗</em></button>
         </div>
       </aside>
@@ -146,6 +157,7 @@ export function PanelApp() {
           {view === "editor" ? <Editor selected={selectedTemplate} onSelect={setSelectedTemplate} onExport={saveEditorOutput} /> : null}
           {view === "library" ? <Library items={libraryItems} onEdit={() => setView("editor")} /> : null}
           {view === "planner" ? <Planner planned={planned} onPlan={() => setPlanned(true)} /> : null}
+          {view === "series" ? <Series /> : null}
           {view === "ads" ? <Ads /> : null}
           {view === "analytics" ? <Analytics /> : null}
           {view === "social" ? <Social following={following} onFollow={toggleFollow} onUse={() => setView("editor")} /> : null}
@@ -153,6 +165,7 @@ export function PanelApp() {
         </div>
       </section>
       {planOpen ? <PlanUsageModal onClose={() => setPlanOpen(false)} onPlans={() => { setPlanOpen(false); setView("settings"); }} /> : null}
+      {composerOpen ? <PostComposerModal onClose={() => setComposerOpen(false)} /> : null}
       <AIChat open={aiOpen} onToggle={() => setAiOpen((open) => !open)} onClose={() => setAiOpen(false)} onNavigate={setView} />
     </main>
   );
@@ -238,6 +251,25 @@ function Ads() {
   </section>;
 }
 
+function Series() {
+  const [activeSeries, setActiveSeries] = useState<Record<number, boolean>>({ 1: true, 2: true, 3: false });
+  const series = [
+    { id: 1, title: "Haftanın Sosyal İpucu", category: "Eğitici seri", cadence: "Her Salı · 11:00", channels: "Instagram · LinkedIn", published: 8, total: 12, next: "14 Ekim", tone: "purple" },
+    { id: 2, title: "Creator Spotlight", category: "Topluluk serisi", cadence: "Her Perşembe · 18:00", channels: "Instagram · TikTok", published: 5, total: 10, next: "16 Ekim", tone: "blue" },
+    { id: 3, title: "Puble ile 1 Dakika", category: "Video serisi", cadence: "İki haftada bir", channels: "YouTube · TikTok", published: 3, total: 8, next: "Taslak", tone: "dark" },
+  ];
+
+  return <section className={styles.seriesPage}>
+    <div className={styles.seriesHero}><div><span>İÇERİK SİSTEMİ</span><h2>Bir kez kurgula.<br />Düzenli üret.</h2><p>Tekrarlayan formatlarını seri haline getir; Puble sıradaki konuyu, taslağı ve yayın zamanını senin için takip etsin.</p><button type="button">+ Yeni seri oluştur</button></div><div className={styles.seriesLoop}><i>01</i><i>02</i><i>03</i><span>↻</span><b>3 aktif seri</b><small>16 içerik yayında</small></div></div>
+    <div className={styles.seriesSummary}><article><span>Aktif seri</span><b>{Object.values(activeSeries).filter(Boolean).length}</b><small>3 seriden</small></article><article><span>Bu ay yayın</span><b>11</b><small>4 içerik sırada</small></article><article><span>Ort. devamlılık</span><b>%86</b><small>↗ %12 artış</small></article><article><span>Toplam erişim</span><b>284K</b><small>Seri içeriklerinden</small></article></div>
+    <div className={styles.seriesSectionHead}><div><span>SERİLERİN</span><h3>İçerik ritimleri</h3></div><div><button className={styles.activeSeriesFilter} type="button">Tümü</button><button type="button">Aktif</button><button type="button">Taslak</button></div></div>
+    <div className={styles.seriesGrid}>{series.map((item) => <article key={item.id} className={styles.seriesCard}>
+      <div className={`${styles.seriesCover} ${styles[item.tone]}`}><span>{item.category}</span><b>{item.title}</b><i>0{item.id}</i></div>
+      <div className={styles.seriesCardBody}><div className={styles.seriesCardTitle}><div><b>{item.title}</b><small>{item.channels}</small></div><Toggle checked={activeSeries[item.id]} onChange={() => setActiveSeries((items) => ({ ...items, [item.id]: !items[item.id] }))} label={`${item.title} serisini ${activeSeries[item.id] ? "durdur" : "başlat"}`} /></div><div className={styles.seriesSchedule}><span><small>YAYIN RİTMİ</small><b>{item.cadence}</b></span><span><small>SIRADAKİ</small><b>{item.next}</b></span></div><div className={styles.seriesProgress}><div><span>Seri ilerlemesi</span><b>{item.published} / {item.total}</b></div><i><u style={{ width: `${item.published / item.total * 100}%` }} /></i></div><div className={styles.seriesActions}><button type="button">Seriyi aç</button><button type="button">•••</button></div></div>
+    </article>)}</div>
+  </section>;
+}
+
 function Analytics() {
   const channels = [
     { icon: "ig", name: "Instagram", followers: "24.8K", reach: "186K", engagement: "%6.8", growth: "+%18.4", tone: "purple" },
@@ -256,6 +288,37 @@ function Analytics() {
     </div>
     <div className={styles.channelAnalytics}><div className={styles.channelAnalyticsHead}><div><span>KANAL PERFORMANSI</span><h3>Tüm hesaplar</h3></div><button type="button">Karşılaştır ⇅</button></div><div className={styles.channelRows}><div className={styles.channelLabels}><span>KANAL</span><span>TAKİPÇİ</span><span>ERİŞİM</span><span>ETKİLEŞİM</span><span>BÜYÜME</span></div>{channels.map((channel) => <article key={channel.name}><div><i className={styles[channel.tone]}>{channel.icon}</i><b>{channel.name}</b></div><span>{channel.followers}</span><span>{channel.reach}</span><span>{channel.engagement}</span><em>{channel.growth}</em></article>)}</div></div>
   </section>;
+}
+
+function PostComposerModal({ onClose }: { onClose: () => void }) {
+  const channels = [{ id: "instagram", icon: "ig", name: "Instagram" }, { id: "facebook", icon: "fb", name: "Facebook" }, { id: "linkedin", icon: "in", name: "LinkedIn" }, { id: "tiktok", icon: "tt", name: "TikTok" }, { id: "youtube", icon: "yt", name: "YouTube" }, { id: "threads", icon: "th", name: "Threads" }, { id: "bluesky", icon: "bs", name: "BlueSky" }, { id: "pinterest", icon: "pi", name: "Pinterest" }];
+  const [selectedChannels, setSelectedChannels] = useState<string[]>(["instagram"]);
+  const [postText, setPostText] = useState("");
+  const [hasMedia, setHasMedia] = useState(false);
+  const [feedback, setFeedback] = useState("");
+
+  function toggleChannel(id: string) {
+    setSelectedChannels((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
+  }
+
+  function complete(message: string) {
+    setFeedback(message);
+    window.setTimeout(() => setFeedback(""), 2200);
+  }
+
+  return <div className={styles.composerBackdrop} role="presentation">
+    <section className={styles.postComposer} role="dialog" aria-modal="true" aria-labelledby="post-composer-title">
+      <header className={styles.postComposerHead}><div><h2 id="post-composer-title">Gönderi oluştur</h2><button type="button">◇ Etiketler⌄</button></div><nav><button type="button">▤ Şablonlar</button><button type="button">✦ AI Asistan</button><button className={styles.previewActive} type="button">◉ Önizleme</button><button type="button" aria-label="Tam ekran">↗</button><button type="button" onClick={onClose} aria-label="Gönderi penceresini kapat">×</button></nav></header>
+      <div className={styles.postComposerBody}>
+        <div className={styles.postEditorPane}>
+          <div className={styles.channelPicker} aria-label="Paylaşım kanalları">{channels.map((channel) => <button className={selectedChannels.includes(channel.id) ? styles.selectedChannel : ""} type="button" key={channel.id} onClick={() => toggleChannel(channel.id)} aria-pressed={selectedChannels.includes(channel.id)} title={channel.name}><span>{channel.icon}</span><small>{channel.name}</small></button>)}</div>
+          <div className={styles.postTextArea}><textarea value={postText} onChange={(event) => setPostText(event.target.value)} placeholder="Bir şeyler yaz veya şablonlardan ilham al…" maxLength={2200} /><div className={styles.mediaDrop}><input type="file" accept="image/*,video/*" onChange={(event) => setHasMedia(Boolean(event.target.files?.length))} aria-label="Gönderiye medya ekle" /><span>{hasMedia ? "✓" : "▧"}</span><b>{hasMedia ? "Medya eklendi" : "Sürükleyip bırak"}</b><small>{hasMedia ? "Dosya önizlemeye hazır" : "veya dosya seç"}</small></div><div className={styles.postTools}><button type="button">＋⌄</button><button type="button">☺</button><button type="button">#</button><span>{postText.length} / 2200</span></div></div>
+        </div>
+        <aside className={styles.postPreviewPane}><div className={styles.previewTitle}><h3>Gönderi önizlemesi</h3><span>ⓘ</span></div>{postText || hasMedia ? <div className={styles.socialPostPreview}><div><i>BÖ</i><span><b>Puble</b><small>{selectedChannels.length || 0} kanalda yayınlanacak</small></span><em>•••</em></div><p>{postText || "Gönderi metnin burada görünecek."}</p>{hasMedia ? <div className={styles.previewMedia}><SparkIcon /><b>Medya önizlemesi</b></div> : null}<footer><span>♡</span><span>◇</span><span>↗</span></footer></div> : <div className={styles.emptyPostPreview}><SparkIcon /><div><i /><i /><i /></div><p>Gönderinin önizlemesini burada göreceksin.</p><small>Bir kanal seçip içeriğini yazmaya başla.</small></div>}</aside>
+      </div>
+      <footer className={styles.postComposerFoot}><button type="button" onClick={() => complete("Taslak kaydedildi")}>Taslağı kaydet</button><div>{feedback ? <span>{feedback}</span> : null}<button type="button" onClick={() => complete("Gönderi planlandı")}>Planla</button><button type="button" onClick={() => complete("Gönderi paylaşım kuyruğuna alındı")}>Paylaş</button></div></footer>
+    </section>
+  </div>;
 }
 
 function PlanUsageModal({ onClose, onPlans }: { onClose: () => void; onPlans: () => void }) {
