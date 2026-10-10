@@ -125,7 +125,7 @@ const navItems: { id: View; label: string; icon: string; iconSrc?: string }[] = 
   { id: "editor", label: "Editör", icon: "◆", iconSrc: "/UI/editor.svg" },
   { id: "library", label: "Kitaplık", icon: "▦", iconSrc: "/UI/icons/kitaplik.svg" },
   { id: "planner", label: "Planlayıcı", icon: "▣", iconSrc: "/UI/Planlayici.svg" },
-  { id: "series", label: "Seriler", icon: "≋" },
+  { id: "series", label: "Seriler", icon: "🔥" },
   { id: "ads", label: "Reklamlar", icon: "◎", iconSrc: "/UI/icons/reklamlar.svg" },
   { id: "analytics", label: "Analitik", icon: "⌁", iconSrc: "/UI/icons/analitik.svg" },
   { id: "social", label: "Kreatörler", icon: "✦", iconSrc: "/UI/kreatorler.svg" },
@@ -139,7 +139,7 @@ const viewCopy: Record<View, { eyebrow: string; title: string; text: string }> =
   editor: { eyebrow: "CREATE", title: "İçerik editörü", text: "Template seç, markana uyarla ve yayına hazırla." },
   library: { eyebrow: "ASSET LIBRARY", title: "Kitaplık", text: "Editörde ürettiğin görsel ve videoların tek galeride." },
   planner: { eyebrow: "PLAN", title: "İçerik planı", text: "Konuşmalardan çıkan fırsatları takvimine taşı." },
-  series: { eyebrow: "REPEAT", title: "Seriler", text: "Tekrarlayan içerik formatlarını planla, üret ve düzenli yayınla." },
+  series: { eyebrow: "STREAK & REWARDS", title: "Üretim Serileri", text: "Her gün Puble'da aktivite göstererek serini büyüt, 3, 7, 15 ve 21. günlerde hediye AI kredilerini topla." },
   ads: { eyebrow: "GROW", title: "Reklamlar", text: "Kampanyalarını, kreatiflerini ve performansını tek yerden yönet." },
   analytics: { eyebrow: "MEASURE", title: "Analitik", text: "Tüm kanallarının büyümesini, erişimini ve etkileşimini tek görünümde izle." },
   social: { eyebrow: "DISCOVER", title: "Creator Social", text: "Üreticileri ve özgün template paketlerini keşfet." },
@@ -421,7 +421,12 @@ export function PanelApp() {
                 <h1>{viewCopy[view].title}</h1>
                 <p>{viewCopy[view].text}</p>
               </div>
-              {view !== "settings" ? (
+              {view === "series" ? (
+                <div className={styles.headActions}>
+                  <span><i /> 12 günlük seri aktif</span>
+                  <button type="button" onClick={() => setView("editor")}>✍️ Aktivite Başlat</button>
+                </div>
+              ) : view !== "settings" ? (
                 <div className={styles.headActions}>
                   <span><i /> 3 hesap bağlı</span>
                   <button type="button">+ Yeni oluştur</button>
@@ -436,7 +441,7 @@ export function PanelApp() {
           {view === "editor" ? <Editor onExport={saveEditorOutput} /> : null}
           {view === "library" ? <Library items={libraryItems} onEdit={() => setView("editor")} /> : null}
           {view === "planner" ? <Planner planned={planned} onPlan={() => setPlanned(true)} /> : null}
-          {view === "series" ? <Series /> : null}
+          {view === "series" ? <Series onNavigate={setView} /> : null}
           {view === "ads" ? <Ads /> : null}
           {view === "analytics" ? <Analytics /> : null}
           {view === "social" ? <Social following={following} onFollow={toggleFollow} onUse={() => setView("editor")} /> : null}
@@ -700,23 +705,328 @@ function Ads() {
   </section>;
 }
 
-function Series() {
-  const [activeSeries, setActiveSeries] = useState<Record<number, boolean>>({ 1: true, 2: true, 3: false });
-  const series = [
-    { id: 1, title: "Haftanın Sosyal İpucu", category: "Eğitici seri", cadence: "Her Salı · 11:00", channels: "Instagram · LinkedIn", published: 8, total: 12, next: "14 Ekim", tone: "purple" },
-    { id: 2, title: "Creator Spotlight", category: "Topluluk serisi", cadence: "Her Perşembe · 18:00", channels: "Instagram · TikTok", published: 5, total: 10, next: "16 Ekim", tone: "blue" },
-    { id: 3, title: "Puble ile 1 Dakika", category: "Video serisi", cadence: "İki haftada bir", channels: "YouTube · TikTok", published: 3, total: 8, next: "Taslak", tone: "dark" },
+function Series({ onNavigate }: { onNavigate?: (view: View) => void }) {
+  const [streakDays, setStreakDays] = useState(12);
+  const [claimedRewards, setClaimedRewards] = useState<Record<number, boolean>>({ 3: true, 7: true, 15: false, 21: false });
+  const [tasks, setTasks] = useState([
+    { id: 1, title: "AI ile mesaj profesyonelleştir", subtitle: "Gelen kutusunda yapay zeka tonunu kullanarak mesaj hazırla", done: true, reward: "+10 XP", view: "inbox" as View },
+    { id: 2, title: "Editörde yeni taslak veya şablon kaydet", subtitle: "Görsel veya metin taslağı oluşturup kitaplığına aktar", done: true, reward: "+15 XP", view: "editor" as View },
+    { id: 3, title: "Planlayıcıya sıradaki içerik planını ekle", subtitle: "Haftalık takvimine en az bir yeni yayın tarihi yerleştir", done: false, reward: "+15 XP", view: "planner" as View },
+    { id: 4, title: "Kreatör topluluğunda etkileşim kur", subtitle: "Kreatör profilini incele, ilham al veya takibe al", done: false, reward: "+10 XP", view: "social" as View },
+  ]);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const milestones = [
+    {
+      day: 3,
+      credits: 50,
+      title: "İlk Kıvılcım",
+      desc: "3 gün üst üste aktivite göstererek alışkanlık başlangıcını kutla.",
+      badge: "✦ Başlangıç Hediyesi",
+      unlocked: streakDays >= 3,
+      claimed: claimedRewards[3],
+    },
+    {
+      day: 7,
+      credits: 100,
+      title: "Haftalık Ritim",
+      desc: "Tam 1 hafta boyunca her gün Puble'da kalarak ritmini kanıtla.",
+      badge: "✦✦ Haftalık Şampiyon",
+      unlocked: streakDays >= 7,
+      claimed: claimedRewards[7],
+    },
+    {
+      day: 15,
+      credits: 250,
+      title: "İki Haftalık Güç",
+      desc: "15 gün düzenli üretim. Sıradaki büyük ödül için sadece 3 gün kaldı!",
+      badge: "✦✦✦ Seri Üretici",
+      unlocked: streakDays >= 15,
+      claimed: claimedRewards[15],
+      remaining: Math.max(0, 15 - streakDays),
+    },
+    {
+      day: 21,
+      credits: 500,
+      title: "Alışkanlık Zirvesi",
+      desc: "Bilimsel 21 günlük alışkanlık eşiği. 500 AI kredisi ve vitrin rozeti seni bekliyor.",
+      badge: "👑 Seri Ustası Rozeti",
+      unlocked: streakDays >= 21,
+      claimed: claimedRewards[21],
+      remaining: Math.max(0, 21 - streakDays),
+    },
   ];
 
-  return <section className={styles.seriesPage}>
-    <div className={styles.seriesHero}><div><span>İÇERİK SİSTEMİ</span><h2>Bir kez kurgula.<br />Düzenli üret.</h2><p>Tekrarlayan formatlarını seri haline getir; Puble sıradaki konuyu, taslağı ve yayın zamanını senin için takip etsin.</p><button type="button">+ Yeni seri oluştur</button></div><div className={styles.seriesLoop}><i>01</i><i>02</i><i>03</i><span>↻</span><b>3 aktif seri</b><small>16 içerik yayında</small></div></div>
-    <div className={styles.seriesSummary}><article><span>Aktif seri</span><b>{Object.values(activeSeries).filter(Boolean).length}</b><small>3 seriden</small></article><article><span>Bu ay yayın</span><b>11</b><small>4 içerik sırada</small></article><article><span>Ort. devamlılık</span><b>%86</b><small>↗ %12 artış</small></article><article><span>Toplam erişim</span><b>284K</b><small>Seri içeriklerinden</small></article></div>
-    <div className={styles.seriesSectionHead}><div><span>SERİLERİN</span><h3>İçerik ritimleri</h3></div><div><button className={styles.activeSeriesFilter} type="button">Tümü</button><button type="button">Aktif</button><button type="button">Taslak</button></div></div>
-    <div className={styles.seriesGrid}>{series.map((item) => <article key={item.id} className={styles.seriesCard}>
-      <div className={`${styles.seriesCover} ${styles[item.tone]}`}><span>{item.category}</span><b>{item.title}</b><i>0{item.id}</i></div>
-      <div className={styles.seriesCardBody}><div className={styles.seriesCardTitle}><div><b>{item.title}</b><small>{item.channels}</small></div><Toggle checked={activeSeries[item.id]} onChange={() => setActiveSeries((items) => ({ ...items, [item.id]: !items[item.id] }))} label={`${item.title} serisini ${activeSeries[item.id] ? "durdur" : "başlat"}`} /></div><div className={styles.seriesSchedule}><span><small>YAYIN RİTMİ</small><b>{item.cadence}</b></span><span><small>SIRADAKİ</small><b>{item.next}</b></span></div><div className={styles.seriesProgress}><div><span>Seri ilerlemesi</span><b>{item.published} / {item.total}</b></div><i><u style={{ width: `${item.published / item.total * 100}%` }} /></i></div><div className={styles.seriesActions}><button type="button">Seriyi aç</button><button type="button">•••</button></div></div>
-    </article>)}</div>
-  </section>;
+  const toggleTask = (id: number) => {
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (task.id === id) {
+          const nextState = !task.done;
+          if (nextState) {
+            setToast(`"${task.title}" tamamlandı! Günlük seri korundu 🔥`);
+            setTimeout(() => setToast(null), 3500);
+          }
+          return { ...task, done: nextState };
+        }
+        return task;
+      })
+    );
+  };
+
+  const handleClaim = (day: number, credits: number) => {
+    if (claimedRewards[day]) return;
+    setClaimedRewards((prev) => ({ ...prev, [day]: true }));
+    setToast(`Tebrikler! ${day}. gün ödülü olan +${credits} AI kredisi hesabınıza yüklendi! 🎉`);
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const daysOfWeek = [
+    { label: "Pzt", dayNum: 6, done: true, current: false },
+    { label: "Sal", dayNum: 7, done: true, current: false },
+    { label: "Çar", dayNum: 8, done: true, current: false },
+    { label: "Per", dayNum: 9, done: true, current: false },
+    { label: "Cum", dayNum: 10, done: true, current: false },
+    { label: "Cmt", dayNum: 11, done: true, current: false },
+    { label: "Paz", dayNum: 12, done: true, current: true, today: true },
+  ];
+
+  const totalCreditsClaimed = (claimedRewards[3] ? 50 : 0) + (claimedRewards[7] ? 100 : 0) + (claimedRewards[15] ? 250 : 0) + (claimedRewards[21] ? 500 : 0);
+
+  return (
+    <section className={styles.seriesPage}>
+      {toast ? (
+        <div className={styles.streakToast}>
+          <span>🔥</span>
+          <p>{toast}</p>
+          <button type="button" onClick={() => setToast(null)}>✕</button>
+        </div>
+      ) : null}
+
+      {/* Hero Banner */}
+      <div className={styles.seriesHero}>
+        <div className={styles.seriesHeroMain}>
+          <div className={styles.seriesHeroTag}>
+            <span>GÜNLÜK SERİ & ÖDÜL SİSTEMİ</span>
+            <em>12 Gün Kesintisiz</em>
+          </div>
+          <h2>Her gün üret,<br />serini katla, AI kredisi kazan.</h2>
+          <p>
+            Her gün Puble’da aktivite göstererek serini canlı tut. <strong>3, 7, 15 ve 21. günlerde</strong> hediye yapay zeka kredilerini topla ve içerik üretimini hızlandır.
+          </p>
+
+          <div className={styles.seriesHeroCtaGroup}>
+            <button
+              type="button"
+              className={styles.seriesHeroBtnPrimary}
+              onClick={() => onNavigate?.("editor")}
+            >
+              ✍️ Günün aktivitesini başlat
+            </button>
+            <div className={styles.seriesHeroFreezeBadge}>
+              <i>❄️</i>
+              <span>1 Seri Dondurucu Aktif</span>
+              <small>(Kaçırılan günü telafi eder)</small>
+            </div>
+          </div>
+        </div>
+
+        {/* Orbit / Flame Counter */}
+        <div className={styles.seriesFlameCard}>
+          <div className={styles.flameOrb}>
+            <span className={styles.flameEmoji}>🔥</span>
+            <b>12</b>
+            <small>GÜNLÜK SERİ</small>
+          </div>
+          <div className={styles.streakMeta}>
+            <span>Bugünkü aktivite: <strong>Tamamlandı ✅</strong></span>
+            <small>Serinin bozulmaması için yarın 23:59’a kadar bir aktivite yap.</small>
+          </div>
+        </div>
+      </div>
+
+      {/* Metrics Row */}
+      <div className={styles.streakStatsRow}>
+        <article className={styles.streakStatCard}>
+          <span>MEVCUT SERİ</span>
+          <b>{streakDays} Gün</b>
+          <small>En uzun seri: 18 gün</small>
+        </article>
+        <article className={styles.streakStatCard}>
+          <span>KAZANILAN AI KREDİSİ</span>
+          <b className={styles.purpleAccent}>+{totalCreditsClaimed} Kredi</b>
+          <small>3. ve 7. gün ödülleri alındı</small>
+        </article>
+        <article className={styles.streakStatCard}>
+          <span>SIRADAKİ MİHENK TAŞI</span>
+          <b>15. Gün (+250 AI)</b>
+          <small>Sadece 3 gün aktivite kaldı</small>
+        </article>
+        <article className={styles.streakStatCard}>
+          <span>21 GÜN İLERLEMESİ</span>
+          <b>%{Math.round((streakDays / 21) * 100)}</b>
+          <div className={styles.statMiniProgress}>
+            <u style={{ width: `${(streakDays / 21) * 100}%` }} />
+          </div>
+        </article>
+      </div>
+
+      {/* Milestone Rewards Section */}
+      <div className={styles.milestoneSection}>
+        <div className={styles.milestoneSectionHeader}>
+          <div>
+            <span>ÖDÜL YOLCULUĞU</span>
+            <h3>Seri Milatları ve AI Kredisi Hediyeleri</h3>
+            <p>Her hedefe ulaştığında kilidi açılan AI kredini anında talep et.</p>
+          </div>
+          <div className={styles.milestoneSummaryBadge}>
+            <i>🎁</i> Toplam 900 Hediye AI Kredisi Havuzu
+          </div>
+        </div>
+
+        {/* Milestone Steps Bar */}
+        <div className={styles.milestoneGrid}>
+          {milestones.map((milestone) => (
+            <article
+              key={milestone.day}
+              className={`${styles.milestoneCard} ${
+                milestone.claimed
+                  ? styles.milestoneClaimed
+                  : milestone.unlocked
+                  ? styles.milestoneUnlocked
+                  : styles.milestoneLocked
+              }`}
+            >
+              <div className={styles.milestoneTop}>
+                <span className={styles.milestoneDayBadge}>{milestone.day}. GÜN</span>
+                <span className={styles.milestoneCreditPill}>+{milestone.credits} AI Kredisi</span>
+              </div>
+
+              <div className={styles.milestoneBody}>
+                <h4>{milestone.title}</h4>
+                <p>{milestone.desc}</p>
+                <div className={styles.milestoneBadgeTag}>{milestone.badge}</div>
+              </div>
+
+              <div className={styles.milestoneFooter}>
+                {milestone.claimed ? (
+                  <div className={styles.milestoneStatusClaimed}>
+                    <i>✓</i> Alındı
+                  </div>
+                ) : milestone.unlocked ? (
+                  <button
+                    type="button"
+                    className={styles.claimRewardBtn}
+                    onClick={() => handleClaim(milestone.day, milestone.credits)}
+                  >
+                    🎉 Ödülü Talep Et (+{milestone.credits})
+                  </button>
+                ) : (
+                  <div className={styles.milestoneStatusLocked}>
+                    <i>🔒</i> {milestone.remaining} gün kaldı
+                  </div>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      {/* Two Column Layout: Daily Activities & Weekly Streak Calendar */}
+      <div className={styles.streakBottomGrid}>
+        {/* Left: Daily Missions Checklist */}
+        <div className={styles.streakTasksCard}>
+          <div className={styles.tasksCardHead}>
+            <div>
+              <span>GÜNLÜK SERİ GÖREVLERİ</span>
+              <h3>Bugünkü Aktiviteni Seç</h3>
+              <p>Günde en az 1 aktivite tamamlamak serini bir sonraki güne taşır.</p>
+            </div>
+            <span className={styles.tasksBadge}>
+              {tasks.filter((t) => t.done).length} / {tasks.length} Tamam
+            </span>
+          </div>
+
+          <div className={styles.taskList}>
+            {tasks.map((task) => (
+              <div
+                key={task.id}
+                className={`${styles.taskItem} ${task.done ? styles.taskItemDone : ""}`}
+              >
+                <button
+                  type="button"
+                  className={styles.taskCheckBtn}
+                  onClick={() => toggleTask(task.id)}
+                  aria-label={task.title}
+                >
+                  {task.done ? "✓" : ""}
+                </button>
+                <div className={styles.taskText}>
+                  <b>{task.title}</b>
+                  <small>{task.subtitle}</small>
+                </div>
+                <div className={styles.taskActions}>
+                  <span className={styles.taskXp}>{task.reward}</span>
+                  <button
+                    type="button"
+                    className={styles.taskGoBtn}
+                    onClick={() => onNavigate?.(task.view)}
+                  >
+                    Git ↗
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Weekly Calendar & Habit Science Card */}
+        <div className={styles.streakSidebar}>
+          {/* Weekly Calendar Card */}
+          <div className={styles.weeklyCard}>
+            <div className={styles.weeklyHead}>
+              <h4>Bu Haftanın Akışı</h4>
+              <span>Son 7 gün</span>
+            </div>
+            <div className={styles.weekCalendar}>
+              {daysOfWeek.map((day, idx) => (
+                <div
+                  key={idx}
+                  className={`${styles.calendarDay} ${
+                    day.today ? styles.calendarToday : ""
+                  } ${day.done ? styles.calendarDone : ""}`}
+                >
+                  <span className={styles.calendarDayLabel}>{day.label}</span>
+                  <div className={styles.calendarDayIcon}>
+                    {day.done ? "🔥" : "○"}
+                  </div>
+                  <small>{day.dayNum} Eki</small>
+                </div>
+              ))}
+            </div>
+            <div className={styles.calendarFootnote}>
+              <span>💡 İpucu:</span> Hafta sonları da aktivite sayılır, seriyi asla aksatma!
+            </div>
+          </div>
+
+          {/* Habit Science Card */}
+          <div className={styles.habitCard}>
+            <div className={styles.habitIcon}>🧠</div>
+            <div>
+              <b>Neden 21 Gün?</b>
+              <p>
+                Alışkanlık psikolojisi araştırmaları, düzenli içerik üretimi ve marka iletişiminin kalıcı refleks haline gelmesi için en kritik eşiğin <strong>21 gün</strong> olduğunu gösteriyor.
+              </p>
+              <div className={styles.habitBenefits}>
+                <span>✓ Algoritma tutarlılığı ödüllendirir</span>
+                <span>✓ Üretim süren %40 kısalır</span>
+                <span>✓ 900 hediye AI kredisi kazandırır</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function Analytics() {

@@ -449,4 +449,16 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
         - Kronolojik Son Aktiviteler Zaman Akışı (Editör dışa aktarımı, AI iyileştirmesi, Takvim planlaması, Kreatör takibi, Performans özeti).
       - **Likelanan İçerikler:** Beğenilen kreatör şablonları kart ızgarası ve "Editörde Aç" aksiyonları.
       - **Kaydedilenler:** Kullanıcının kaydettiği taslaklar ve şablonlar ile düzenleme butonları.
+- **Seriler Kısmı: Günlük Aktivite & Seri Alışkanlık Sistemi (Streak & AI Kredisi Ödülleri):**
+  - **Mantık & Değer Önerisi:** Kullanıcı her gün Puble'da en az 1 aktivite göstererek serisini (streak) canlı tutar. Düzenli üretim ritmi kazandırmak için milat günlerinde hediye AI kredileri verilir:
+    - **3. Gün:** +50 AI Kredisi (`✦ İlk Kıvılcım`)
+    - **7. Gün:** +100 AI Kredisi (`✦✦ Haftalık Ritim`)
+    - **15. Gün:** +250 AI Kredisi (`✦✦✦ İki Haftalık Güç`)
+    - **21. Gün:** +500 AI Kredisi & 👑 Seri Ustası Rozeti (`Alışkanlık Zirvesi` - Bilimsel 21 günlük alışkanlık döngüsü)
+    - Toplam ödül havuzu: 900 Hediye AI Kredisi.
+  - **Hero Kartı:** 12 günlük kesintisiz seri sayacı, parlayan alev küresi (`flameOrb`), dondurucu koruma durumu (1 aktif kalkan `❄️`) ve günün aktivitesini başlatma butonu.
+  - **Metrikler:** Mevcut Seri (12 Gün), Kazanılan AI Kredisi (+150 Kredi), Sıradaki Mihenk Taşı (15. Gün), 21 Gün İlerlemesi (%57 mini progress bar).
+  - **Milat Kartları:** 4 aşamalı kart yapısı; "Alındı", kilidi açılmışsa "Ödülü Talep Et" ve kilitli ise kalan gün sayacı (`🔒 3 gün kaldı`).
+  - **Günlük Seri Görevleri:** Seriyi korumak için tek tıkla ilgili sekmelere yönlendiren interaktif kontrol listesi (AI ile mesaj profesyonelleştirme, editörde taslak kaydetme, planlayıcıya takvim ekleme, kreatör topluluğunda etkileşim kurma) ve tamamlandığında beliren bildirim tostu.
+  - **Haftalık Akış & Alışkanlık Bilimi:** Son 7 günlük gün bazlı takvim ve 21 gün alışkanlık psikolojisi bilgilendirme kartı.
 
