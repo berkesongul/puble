@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
 import dynamic from "next/dynamic";
 import { AUTH_EVENT, SESSION_KEY, clearDemoSession, readDemoSession, type DemoUser } from "@/lib/demo-auth";
+import { SeriesSpotlight } from "@/components/series-spotlight";
 import styles from "./panel.module.css";
 
 const PubleStudio = dynamic(() => import("@/components/studio"), {
@@ -801,6 +802,8 @@ function Series({ onNavigate }: { onNavigate?: (view: View) => void }) {
           <button type="button" onClick={() => setToast(null)}>✕</button>
         </div>
       ) : null}
+
+      <SeriesSpotlight />
 
       {/* Hero Banner */}
       <div className={styles.seriesHero}>

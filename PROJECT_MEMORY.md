@@ -461,4 +461,8 @@ Web ve mobil aynı backend ve veri modelini kullanacaktır. Platforma özgü UI 
   - **Milat Kartları:** 4 aşamalı kart yapısı; "Alındı", kilidi açılmışsa "Ödülü Talep Et" ve kilitli ise kalan gün sayacı (`🔒 3 gün kaldı`).
   - **Günlük Seri Görevleri:** Seriyi korumak için tek tıkla ilgili sekmelere yönlendiren interaktif kontrol listesi (AI ile mesaj profesyonelleştirme, editörde taslak kaydetme, planlayıcıya takvim ekleme, kreatör topluluğunda etkileşim kurma) ve tamamlandığında beliren bildirim tostu.
   - **Haftalık Akış & Alışkanlık Bilimi:** Son 7 günlük gün bazlı takvim ve 21 gün alışkanlık psikolojisi bilgilendirme kartı.
+- **Puble AI Chat Tipografi & Mobil Okunabilirlik İyileştirmesi:**
+  - Mobil ekranlarda (<=760px ve tablet) 6px ve 8px gibi mikroskobik boyutlara düşen AI sohbet arayüzü yazı boyutları modernize edildi.
+  - Mesaj balonları 14px ve 1.55 satır yüksekliğine, hızlı soru hapları 12px ve 36px dokunma yüksekliğine, bağlam çubuğu 11-12px'e, başlık 18-19px'e, metin kutusu 14px'e çıkarıldı.
+  - Mobilde sohbet penceresi açıkken arkada kalan tetikleyici buton gizlenerek çakışma önlendi.
 

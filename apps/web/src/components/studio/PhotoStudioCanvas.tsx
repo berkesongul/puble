@@ -15,7 +15,7 @@ if (typeof window !== 'undefined' && fabric && fabric.Control) {
     offsetY: -12,
     offsetX: 12,
     cursorStyle: 'pointer',
-    mouseUpHandler: function(eventData, transform) {
+    mouseUpHandler: function (eventData, transform) {
       const target = transform.target;
       const canvas = target.canvas;
       if (target && canvas) {
@@ -26,13 +26,13 @@ if (typeof window !== 'undefined' && fabric && fabric.Control) {
       }
       return true;
     },
-    render: function(ctx, left, top, styleOverride, fabricObject) {
+    render: function (ctx, left, top, styleOverride, fabricObject) {
       if (fabricObject.id === 'crop_selection_box') return;
       const size = 22;
       ctx.save();
       ctx.translate(left, top);
       ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
-      
+
       // Circle background (Red #ef4444)
       ctx.beginPath();
       ctx.arc(0, 0, size / 2, 0, 2 * Math.PI, false);
@@ -183,7 +183,7 @@ export default function PhotoStudioCanvas({
 
     const canvas = fabricCanvasRef.current;
     const json = JSON.stringify(canvas.toJSON(['id', 'name', 'locked']));
-    
+
     if (onHistoryChange) {
       onHistoryChange(json);
     }
@@ -202,7 +202,7 @@ export default function PhotoStudioCanvas({
     });
 
     // Override _renderObjects to isolate eraser destination-out blending to objects layer only
-    canvas._renderObjects = function(ctx, objects) {
+    canvas._renderObjects = function (ctx, objects) {
       if (!objects || objects.length === 0) return;
 
       const filteredObjects = objects.filter((o) => o.id !== 'crop_selection_box');
@@ -312,7 +312,7 @@ export default function PhotoStudioCanvas({
       const path = e.path;
       if (path) {
         path.id = 'layer_' + Date.now();
-        
+
         if (activeToolRef.current === 'eraser') {
           path.globalCompositeOperation = 'destination-out';
           path.stroke = 'rgba(0,0,0,1)';
@@ -349,7 +349,7 @@ export default function PhotoStudioCanvas({
 
     if (activeTool === 'crop') {
       canvas.isDrawingMode = false;
-      
+
       if (!cropRectRef.current) {
         const cropW = Math.round(canvas.width * 0.75);
         const cropH = Math.round(canvas.height * 0.75);
@@ -711,8 +711,8 @@ export default function PhotoStudioCanvas({
       {/* Upload Dropzone Placeholder Overlay when no image loaded */}
       {!hasImage && (
         <div className="upload-dropzone" style={{ position: 'absolute', zIndex: 10 }}>
-          <label 
-            htmlFor="main-photo-upload-input" 
+          <label
+            htmlFor="main-photo-upload-input"
             style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}
           >
             <div className="upload-icon-circle">
@@ -724,12 +724,12 @@ export default function PhotoStudioCanvas({
                 Tıklayın veya fotoğrafı seçin (PNG, JPG, WebP)
               </p>
             </div>
-            <input 
-              id="main-photo-upload-input" 
-              type="file" 
-              accept="image/*" 
-              onChange={handleFileUpload} 
-              style={{ display: 'none' }} 
+            <input
+              id="main-photo-upload-input"
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              style={{ display: 'none' }}
             />
           </label>
 
@@ -738,18 +738,18 @@ export default function PhotoStudioCanvas({
               veya Örnek Fotoğraflarla Hemen Deneyin:
             </p>
             <div className="preset-images" style={{ justifyContent: 'center' }}>
-              <img 
-                src="/samples/sample1.jpg" 
-                alt="Manzara Fotoğrafı" 
-                className="preset-thumb" 
-                onClick={() => loadImageToCanvas('/samples/sample1.jpg')} 
+              <img
+                src="/samples/sample1.jpg"
+                alt="Manzara Fotoğrafı"
+                className="preset-thumb"
+                onClick={() => loadImageToCanvas('/samples/sample1.jpg')}
                 title="Dağ Manzarası"
               />
-              <img 
-                src="/samples/sample2.jpg" 
-                alt="Sokak Fotoğrafı" 
-                className="preset-thumb" 
-                onClick={() => loadImageToCanvas('/samples/sample2.jpg')} 
+              <img
+                src="/samples/sample2.jpg"
+                alt="Sokak Fotoğrafı"
+                className="preset-thumb"
+                onClick={() => loadImageToCanvas('/samples/sample2.jpg')}
                 title="Siber Neon Şehir"
               />
             </div>
@@ -758,11 +758,11 @@ export default function PhotoStudioCanvas({
       )}
 
       {/* Canvas Element - Always Mounted */}
-      <div 
-        className="canvas-card" 
-        style={{ 
-          transform: `scale(${zoomLevel})`, 
-          transformOrigin: 'center center', 
+      <div
+        className="canvas-card"
+        style={{
+          transform: `scale(${zoomLevel})`,
+          transformOrigin: 'center center',
           transition: 'transform 0.15s ease',
           visibility: hasImage ? 'visible' : 'hidden'
         }}

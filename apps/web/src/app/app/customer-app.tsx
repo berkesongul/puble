@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { clearDemoSession } from "@/lib/demo-auth";
+import { SeriesSpotlight } from "@/components/series-spotlight";
 import styles from "./customer-app.module.css";
 import aiStyles from "./customer-ai.module.css";
 import { demoBootstrap, demoMessages } from "./demo-data";
@@ -183,7 +184,7 @@ export function CustomerApp({ mode = "live" }: { mode?: "live" | "demo" }) {
         {view === "posts" && <Posts rows={data.posts} openComposer={() => setComposer(true)} done={done} />}
         {view === "library" && <Library rows={data.assets} done={done} />}
         {view === "planner" && <Planner posts={data.posts} opportunities={data.opportunities} done={done} />}
-        {view === "series" && <ResourceSection resource="series" rows={data.series} done={done} fields={["name","description","cadence"]} />}
+        {view === "series" && <><SeriesSpotlight /><ResourceSection resource="series" rows={data.series} done={done} fields={["name","description","cadence"]} /></>}
         {view === "ads" && <ResourceSection resource="ads" rows={data.campaigns} done={done} fields={["name","provider","budget"]} />}
         {view === "analytics" && <Analytics rows={data.analytics} />}
         {view === "social" && <Creators rows={data.creators} followed={data.followed_creator_ids} done={done} />}
